@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0b1f2a">
-<meta name="description" content="Dashboard for survey progress – IUSWDMP Varanasi">
-<title>Dashboard for Survey Progress · Varanasi</title>
+<meta name="description" content="Dashboard for survey progress – IUSWDMP, Uttar Pradesh">
+<title>Dashboard for Survey Progress · IUSWDMP</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -136,31 +136,33 @@ footer{text-align:center;font-family:var(--mono);font-size:10px;color:var(--mut)
 <script>
 /* =================== EDIT THIS BLOCK (SAMPLE DATA) =================== */
 const CONFIG = {
-  city: "Varanasi",
   department: "Construction & Design Services",
   consultant: "NCPE Consultancy",
   latestWPR: "9–15 Nov 2026",
-  center: [25.3176, 82.9939],
-  info: { wards: 100, area: 148.8, outfalls: "—" },     // fill real values
-  team: { rovers: 6, base: 2, members: 10 },
 
-  // home-page cards + map pins: the six project cities (live = survey files added)
-  cities: [
-    {id:"lucknow",   name:"Lucknow",   lat:26.8467, lng:80.9462, live:false},
-    {id:"prayagraj", name:"Prayagraj", lat:25.4358, lng:81.8463, live:false},
-    {id:"kanpur",    name:"Kanpur",    lat:26.4499, lng:80.3319, live:false},
-    {id:"varanasi",  name:"Varanasi",  lat:25.3176, lng:82.9739, live:true, drains:91.4, rovers:6},
-    {id:"jhansi",    name:"Jhansi",    lat:25.4484, lng:78.5685, live:false},
-    {id:"ayodhya",   name:"Ayodhya",   lat:26.7922, lng:82.1998, live:false}
+  // Progress cards shown on every city page. Fill done / est per city in the CITIES block below.
+  // (Varanasi figures are the sample values from the weekly progress report – replace with real ones.)
+  progressTemplate: [
+    {name:"Primary Drain",        color:"#1d4ed8", unit:"km"},
+    {name:"Secondary & Tertiary", color:"#ea7a17", unit:"km"},
+    {name:"GCP Points",           color:"#e11d48", unit:"points"},
+    {name:"Static Points",        color:"#6d28d9", unit:"points"},
+    {name:"LiDAR Survey",         color:"#0891b2", unit:"sq km"}
   ],
 
-  // right panel – "est" = estimated scope (leave null if not fixed)
-  progress: [
-    {name:"Primary Drain",        color:"#1d4ed8", done:58.5, est:120, unit:"km"},
-    {name:"Secondary & Tertiary", color:"#ea7a17", done:73.0, est:null, unit:"km"},
-    {name:"GCP Points",           color:"#e11d48", done:40,   est:86,  unit:"points"},
-    {name:"Static Points",        color:"#6d28d9", done:3,    est:5,   unit:"points"},
-    {name:"LiDAR Survey",         color:"#0891b2", done:48.6, est:160, unit:"sq km"}
+  // The six project cities. prefix = start of the city's map file names; all map files sit next to index.html.
+  //   Varanasi: ward_boundary.geojson, drains.geojson ...      Others: lucknow_ward_boundary.geojson, lucknow_drains.geojson ...
+  // live:true once survey files are uploaded (turns the map pin green).
+  // area = Nagar Nigam area (km²). wards, drains, rovers, team, progress: fill when known.
+  cities: [
+    {id:"lucknow",   name:"Lucknow",   lat:26.8467, lng:80.9462, prefix:"lucknow_",   live:false, area:562.00, wards:null, drains:null, rovers:null, team:null},
+    {id:"prayagraj", name:"Prayagraj", lat:25.4358, lng:81.8463, prefix:"prayagraj_", live:false, area:314.79, wards:null, drains:null, rovers:null, team:null},
+    {id:"kanpur",    name:"Kanpur",    lat:26.4499, lng:80.3319, prefix:"kanpur_",    live:false, area:265.59, wards:null, drains:null, rovers:null, team:null},
+    {id:"varanasi",  name:"Varanasi",  lat:25.3176, lng:82.9739, prefix:"",                live:true,  area:148.8,  wards:100,  drains:91.4, rovers:6,
+      team:{rovers:6, base:2, members:10},
+      progress:{"Primary Drain":[58.5,120], "Secondary & Tertiary":[73.0,null], "GCP Points":[40,86], "Static Points":[3,5], "LiDAR Survey":[48.6,160]}},
+    {id:"jhansi",    name:"Jhansi",    lat:25.4484, lng:78.5685, prefix:"jhansi_",    live:false, area:172.22, wards:null, drains:null, rovers:null, team:null},
+    {id:"ayodhya",   name:"Ayodhya",   lat:26.7922, lng:82.1998, prefix:"ayodhya_",   live:false, area:87.09,  wards:null, drains:null, rovers:null, team:null}
   ],
 
   // map layers – upload these files into the "data" folder (KML or GeoJSON)
@@ -169,7 +171,7 @@ const CONFIG = {
       style:{color:"#ea7a17",weight:1.2,fillOpacity:0.03,dashArray:"4 3"}},
     {id:"outer",  group:"boundaries", name:"Outer Boundary", icon:"▢", color:"#0b1f2a", file:"outer_boundary.geojson", unit:"parts",
       style:{color:"#0b1f2a",weight:2.5,fill:false}, on:true, fit:true},
-    {id:"buffer", group:"boundaries", name:"Buffer Area",    icon:"▢", color:"#d97706", file:"buffer_area.kml",    unit:"polygon",
+    {id:"buffer", group:"boundaries", name:"Buffer Area",    icon:"▢", color:"#d97706", file:"buffer_area.geojson",    unit:"polygon",
       style:{color:"#d97706",weight:1.5,fillOpacity:0.06,dashArray:"6 4"}},
     {id:"ortho",  group:"survey", name:"Ortho Image", tag:"ORTHO", icon:"▦", color:"#7c3aed", type:"tiles", url:"", meta:"orthophoto tiles"},
     {id:"dsm",    group:"survey", name:"DSM Surface", tag:"DSM",   icon:"▦", color:"#16a34a", type:"tiles", url:"", meta:"elevation tiles", opacity:0.8},
@@ -178,7 +180,7 @@ const CONFIG = {
     {id:"gcp",    group:"survey", name:"GCP Marked",      icon:"●", color:"#e11d48", file:"gcp.geojson",          unit:"points"},
     {id:"tbm",    group:"survey", name:"NCPE Points",     icon:"◆", color:"#6d28d9", file:"tbm.geojson",      unit:"points"},
     {id:"photos", group:"survey", name:"Survey Photos",   icon:"●", color:"#dc2626", file:"photos.geojson",   unit:"photos", radius:4},
-    {id:"drone",  group:"survey", name:"Drone Survey Blocks", icon:"▢", color:"#0891b2", file:"drone_blocks.kml", unit:"blocks",
+    {id:"drone",  group:"survey", name:"Drone Survey Blocks", icon:"▢", color:"#0891b2", file:"drone_blocks.geojson", unit:"blocks",
       style:{color:"#0891b2",weight:1.5,fillOpacity:0.08}}
   ]
 };
@@ -196,17 +198,18 @@ const cache = {};
 function clearMaps(){ maps.forEach(m=>m.remove()); maps=[]; }
 
 /* ---------- data loading ---------- */
-async function loadData(d){
-  if (d.id in cache) return cache[d.id];
+async function loadData(c,d){
+  const key = c.id+'/'+d.id;
+  if (key in cache) return cache[key];
   try{
-    const r = await fetch(d.file, {cache:'no-cache'});
+    const r = await fetch(c.prefix + d.file, {cache:'no-cache'});
     if(!r.ok) throw new Error('missing');
     let gj;
     if (/\.kml$/i.test(d.file)) gj = toGeoJSON.kml(new DOMParser().parseFromString(await r.text(),'text/xml'));
     else gj = await r.json();
-    cache[d.id] = gj;
-  }catch(e){ cache[d.id] = null; }
-  return cache[d.id];
+    cache[key] = gj;
+  }catch(e){ cache[key] = null; }
+  return cache[key];
 }
 function drainStyle(f){
   const s = JSON.stringify(f.properties||{}).toLowerCase();
@@ -260,7 +263,7 @@ function layerRow(d){
     <input type="checkbox" class="tg" id="t-${d.id}" aria-label="${d.name}" disabled></div>${legend}`;
 }
 function progCard(p){
-  const pc = p.est ? Math.min(100, p.done/p.est*100) : null;
+  const pc = (p.est && p.done!=null) ? Math.min(100, p.done/p.est*100) : null;
   return `<div class="pc" style="--c:${p.color}"><div class="t"><span>${p.name}</span>${pc!==null?`<span class="pct">${pc.toFixed(0)}%</span>`:''}</div>
     <div class="nums"><div><div class="l">Done</div><div class="big">${fmt(p.done)}<small> ${p.unit}</small></div></div>
     ${p.est?`<div><div class="l">Estimated</div><div class="est">${fmt(p.est)}<small> ${p.unit}</small></div></div>`:''}</div>
@@ -270,7 +273,7 @@ function cityHead(c){
   return `<div class="cityhead">
     <div><a class="back" href="#/">← All cities</a>
       <h1>${c.name}</h1>
-      <div class="sub">${c.live ? `${fmt(CONFIG.info.area)} sq km · ${fmt(CONFIG.info.outfalls)} outfalls · WPR ${CONFIG.latestWPR}` : 'Survey data to be added'}</div></div>
+      <div class="sub">${fmt(c.area)} sq km · ${c.live ? 'WPR '+CONFIG.latestWPR : 'survey data to be added'}</div></div>
     <div style="text-align:right"><div class="back" style="margin-bottom:5px">Switch city</div>
       <select class="sw" id="sw" aria-label="Switch city">
       ${CONFIG.cities.map(x=>`<option value="${x.id}" ${x.id===c.id?'selected':''}>${x.name}</option>`).join('')}</select></div>
@@ -280,16 +283,6 @@ function city(cityId){
   const c = CONFIG.cities.find(x=>x.id===cityId) || CONFIG.cities.find(x=>x.live);
   document.title = `${c.name} · Survey Progress`;
   const groups = [['boundaries','Boundaries'],['survey','Survey layers']];
-  if (!c.live){
-    $('#app').innerHTML = cityHead(c) + `<div class="stage" id="stage"><div id="cityMap"></div>
-      <aside class="panel left" style="width:330px;bottom:auto"><div class="ph"><h2>${c.name}</h2></div>
-      <div class="pb"><div class="sec" style="margin-top:4px">Status</div>
-      <p style="font-size:13px;line-height:1.5;margin:6px 2px">Survey data for ${c.name} has not been added yet. Boundary, ward, drain and GCP files will appear here once they are uploaded.</p></div></aside></div>`;
-    $('#sw').onchange = e => location.hash = '#/city/' + e.target.value;
-    const m0 = L.map('cityMap').setView([c.lat,c.lng],11); maps.push(m0); TILES.streets().addTo(m0);
-    L.circleMarker([c.lat,c.lng],{radius:8,color:'#fff',weight:2,fillColor:'#dc2626',fillOpacity:1}).addTo(m0);
-    return;
-  }
   $('#app').innerHTML = cityHead(c) + `
   <div class="stage" id="stage">
     <div id="cityMap"></div>
@@ -297,7 +290,7 @@ function city(cityId){
       <div class="ph"><h2>Map layers</h2><button class="fs" id="fsBtn" title="Full screen">⛶</button></div>
       <div class="pb">
         <div class="sec">Basic information</div>
-        <div class="info"><div><span>No. of wards</span><b>${fmt(CONFIG.info.wards)}</b></div><div><span>Area (sq. km)</span><b>${fmt(CONFIG.info.area)}</b></div></div>
+        <div class="info"><div><span>No. of wards</span><b>${fmt(c.wards)}</b></div><div><span>Area (sq. km)</span><b>${fmt(c.area)}</b></div></div>
         ${groups.map(g=>`<div class="sec">${g[1]}</div>`+CONFIG.layers.filter(l=>l.group===g[0]).map(layerRow).join('')).join('')}
       </div>
       <div class="basemap"><div class="sec" style="margin-top:0">Basemap</div>
@@ -306,12 +299,12 @@ function city(cityId){
     <aside class="panel right">
       <div class="ph" style="display:block"><div class="k">Survey progress</div><h2>${c.name}</h2></div>
       <div class="pb">
-        <div class="wprrow"><span>Latest WPR</span><b>${CONFIG.latestWPR}</b></div>
-        ${CONFIG.progress.map(progCard).join('')}
+        <div class="wprrow"><span>Latest WPR</span><b>${c.live ? CONFIG.latestWPR : "—"}</b></div>
+        ${CONFIG.progressTemplate.map(t=>{const v=(c.progress||{})[t.name]||[]; return progCard({...t,done:v[0],est:v[1]});}).join('')}
         <div class="pc" style="--c:#0b1f2a"><div class="t"><span>Survey Team</span></div>
-          <div class="nums three"><div><div class="l">Rovers</div><div class="big">${CONFIG.team.rovers}</div></div>
-          <div><div class="l">Base</div><div class="big">${CONFIG.team.base}</div></div>
-          <div><div class="l">Members</div><div class="big">${CONFIG.team.members}</div></div></div></div>
+          <div class="nums three"><div><div class="l">Rovers</div><div class="big">${fmt(c.team&&c.team.rovers)}</div></div>
+          <div><div class="l">Base</div><div class="big">${fmt(c.team&&c.team.base)}</div></div>
+          <div><div class="l">Members</div><div class="big">${fmt(c.team&&c.team.members)}</div></div></div></div>
       </div>
     </aside>
   </div>`;
@@ -339,7 +332,7 @@ function city(cityId){
       lyr = L.tileLayer(d.url,{maxZoom:22,opacity:d.opacity||1});
       meta.textContent = d.meta || '';
     } else {
-      const gj = await loadData(d);
+      const gj = await loadData(c,d);
       if (!maps.includes(m)) return;               // user left the page
       if (!gj){ meta.textContent = 'file not added yet'; return; }
       const n = (gj.features||[]).length;

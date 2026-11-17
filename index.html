@@ -5,306 +5,358 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0b1f2a">
 <meta name="description" content="Dashboard for survey progress – IUSWDMP Varanasi">
-<title>Dashboard for Survey Progress · IUSWDMP Varanasi</title>
+<title>Dashboard for Survey Progress · Varanasi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--bg:#0b1f2a;--panel:#12303f;--panel2:#173a4c;--line:#24495c;--txt:#e8f1f5;--mut:#9db4c0;
---acc:#2ec4b6;--acc2:#f4a261;--ok:#4caf50;--warn:#f4a261;--bad:#e76f51;--r:14px}
+:root{--navy:#0b1f2a;--cream:#f3f1ea;--card:#fffdf8;--line:#e3dfd3;--txt:#14222b;--mut:#6b7a83;--teal:#1f7a74;--orange:#ea7a17;
+--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Manrope",system-ui,sans-serif}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html,body{margin:0}
+body{font-family:var(--sans);background:var(--cream);color:var(--txt)}
 a{color:inherit}
-.skip{position:absolute;left:-999px;top:8px;background:var(--acc);color:#000;padding:6px 10px;border-radius:6px;z-index:99}
+.skip{position:absolute;left:-999px;top:8px;background:#2ec4b6;color:#000;padding:6px 10px;border-radius:6px;z-index:9999}
 .skip:focus{left:8px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 24px;background:#081822;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
-.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
-.logo img{height:58px;width:auto;max-width:130px;object-fit:contain;background:#fff;border-radius:6px;padding:6px;display:block}
-.badge{display:inline-grid;place-items:center;height:40px;min-width:52px;padding:0 8px;border-radius:8px;background:#fff;color:#0b1f2a;font-weight:800;letter-spacing:.5px}
-.bt{display:flex;flex-direction:column;line-height:1.15}
-.bt strong{font-size:18px;letter-spacing:1px}
-.bt small{color:var(--mut)}
-.wpr{background:var(--panel2);border:1px solid var(--line);padding:6px 12px;border-radius:999px;font-size:13px;white-space:nowrap}
-.hero{padding:28px 24px 8px;max-width:1280px;margin:auto}
-.hero p{margin:0;color:var(--acc);font-weight:600;font-size:14px}
-.hero h1{margin:6px 0 4px;font-size:clamp(24px,3.4vw,36px)}
-.meta{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--mut);font-size:13px}
-.meta b{color:var(--txt);font-weight:600}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;max-width:1280px;margin:16px auto 0;padding:0 24px}
-.tabs a{text-decoration:none;padding:8px 16px;border-radius:999px;border:1px solid var(--line);color:var(--mut);font-weight:600;font-size:14px}
-.tabs a.active,.tabs a:hover{background:var(--acc);border-color:var(--acc);color:#04222a}
-main{max-width:1280px;margin:auto;padding:20px 24px 40px}
-.grid{display:grid;gap:16px}
-.kpis{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-.two{grid-template-columns:1.1fr 1fr}
-@media(max-width:900px){.two{grid-template-columns:1fr}.top{flex-wrap:wrap}}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
-.card h2{font-size:16px;margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.card h2 small{color:var(--mut);font-weight:500;font-size:12px}
-.kpi .l{color:var(--mut);font-size:13px}
-.kpi .v{font-size:28px;font-weight:800;margin:4px 0}
-.kpi .s{font-size:12px;color:var(--mut)}
-.bar{height:9px;background:#0a2532;border-radius:99px;overflow:hidden}
-.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),#7bdff2);border-radius:99px}
-.row{margin-bottom:13px}
-.row .h{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;gap:8px}
-.row .h span:last-child{color:var(--mut);white-space:nowrap}
-.ringwrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-.ring .rbg{fill:none;stroke:#0a2532;stroke-width:14}
-.ring .rfg{fill:none;stroke:var(--acc);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 1s}
-.ring text{fill:var(--txt);font-size:22px;font-weight:800}
-.chart{width:100%;height:auto}
-.chart .g{stroke:var(--line);stroke-width:1}
-.chart text{fill:var(--mut);font-size:11px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
-th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
-tfoot td{font-weight:800}
-.tw{overflow-x:auto}
-.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700}
-.c-ok{background:#1f4d2b;color:#9be7a5}.c-pr{background:#4d3b1f;color:#ffd29a}.c-ns{background:#4d241f;color:#ffb3a1}
-.mini{width:110px;display:inline-block;vertical-align:middle}
-.wk{display:grid;grid-template-columns:90px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
-.wk:last-child{border:0}
-.wk b{color:var(--acc)}
-.wk .d{color:var(--mut);font-size:13px}
-#map{height:520px;border-radius:var(--r);border:1px solid var(--line)}
-.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin-top:10px}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-ul.hl{margin:0;padding-left:18px}ul.hl li{margin-bottom:6px}
-footer{border-top:1px solid var(--line);color:var(--mut);font-size:13px;text-align:center;padding:18px}
-.btn{background:transparent;border:1px solid var(--line);color:var(--txt);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px}
-@media print{.top,.tabs,.btn{display:none}body{background:#fff;color:#000}.card{border-color:#ccc;background:#fff}}
+/* header */
+.top{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--navy);color:#fff;position:sticky;top:0;z-index:1000}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.logos{display:flex;align-items:center;gap:10px;background:#fff;border-radius:4px;padding:4px 10px;height:44px}
+.logos img{height:36px;width:auto;max-width:90px;object-fit:contain;display:block}
+.logos .sep{width:1px;height:28px;background:#d6d6d6}
+.lb{color:var(--navy);font-size:12px}
+.bt strong{display:block;font-size:13px;letter-spacing:1.5px;font-weight:800}
+.bt small{display:block;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:#8fa6b2;text-transform:uppercase}
+.wpr{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:#b9c9d1;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.wpr::before{content:"";width:7px;height:7px;border-radius:50%;background:#2ec4b6;box-shadow:0 0 0 3px rgba(46,196,182,.25)}
+/* home */
+.hero{background:linear-gradient(100deg,#0e3a46 0%,#0b1f2a 55%,#1d2a2e 100%);color:#fff;padding:42px 24px 36px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px}
+.wrap{max-width:1010px;margin:auto;position:relative}
+.hero p{font-size:11px;color:#b9c9d1;margin:0 0 12px}
+.hero h1{font-size:clamp(28px,3.6vw,42px);letter-spacing:-1.4px;margin:0;font-weight:800}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:22px 0}
+.ccard{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--teal);border-radius:6px;padding:10px 13px 12px;text-decoration:none;transition:.15s}
+.ccard.all{border-top-color:var(--navy)}
+.ccard:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.arr{display:flex;justify-content:flex-end}
+.arr span{width:20px;height:20px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:11px;color:var(--mut)}
+.ccard h3{font-size:17px;margin:4px 0 8px;padding-bottom:8px;border-bottom:1px solid var(--line);font-weight:700;letter-spacing:-.3px}
+.lbl{font-family:var(--mono);font-size:8.5px;letter-spacing:1px;text-transform:uppercase;color:var(--orange)}
+.val{font-size:14px;font-weight:800;margin:1px 0 8px}
+.val small{font-family:var(--mono);font-size:9px;color:var(--mut);font-weight:400}
+#homeMap{height:440px;border-radius:10px;overflow:hidden;border:1px solid var(--line);margin-bottom:40px}
+.leaflet-tooltip.pin{background:#fff;border:1px solid #cfcfcf;border-radius:3px;font:600 10px var(--sans);padding:2px 6px;box-shadow:none}
+.leaflet-tooltip.pin::before{display:none}
+/* city */
+.cityhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:10px 20px 12px;background:#fff;border-bottom:1px solid var(--line)}
+.back{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);text-decoration:none}
+.cityhead h1{font-size:22px;margin:3px 0;letter-spacing:-.5px}
+.cityhead h1 span{color:var(--mut);font-weight:600}
+.sub{font-family:var(--mono);font-size:10px;color:var(--mut)}
+select.sw{font:500 12px var(--sans);padding:7px 10px;border:1px solid var(--line);border-radius:4px;background:#fff;min-width:160px}
+.stage{position:relative;height:calc(100vh - 54px - 76px);min-height:600px;background:#e8e6df}
+#cityMap{position:absolute;inset:0}
+.panel{position:absolute;top:14px;bottom:14px;width:262px;background:var(--card);border:1px solid var(--line);border-radius:10px;z-index:500;display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.panel.left{left:14px}.panel.right{right:14px;width:300px}
+.ph{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.ph h2{font-size:17px;margin:0;letter-spacing:-.3px}
+.ph .k{font-family:var(--mono);font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut)}
+.fs{border:0;background:none;cursor:pointer;color:var(--mut);font-size:15px}
+.pb{overflow:auto;padding:10px 14px;flex:1}
+.sec{font-family:var(--mono);font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);margin:12px 2px 8px}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.info div{border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#fff}
+.info span{font-family:var(--mono);font-size:7.5px;letter-spacing:1px;text-transform:uppercase;color:var(--mut)}
+.info b{display:block;font-family:var(--mono);font-size:17px}
+.layer{display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:5px}
+.layer:hover{background:#f1eee5}
+.ic{width:20px;height:20px;border-radius:4px;display:grid;place-items:center;font-size:10px;flex:none}
+.lt{flex:1;min-width:0}
+.lt b{display:block;font-size:12px;font-weight:600}
+.lt small{font-family:var(--mono);font-size:9px;color:var(--mut)}
+.tag{font-family:var(--mono);font-size:7.5px;border:1px solid var(--line);padding:0 3px;border-radius:2px;margin-left:5px;color:var(--mut);vertical-align:middle}
+.tg{appearance:none;-webkit-appearance:none;width:26px;height:14px;border-radius:99px;background:#d9d5ca;position:relative;cursor:pointer;flex:none;transition:.2s;margin:0}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;transition:.2s}
+.tg:checked{background:var(--teal)}.tg:checked::after{left:14px}
+.tg:disabled{opacity:.4;cursor:not-allowed}
+.legend{display:flex;gap:12px;font-family:var(--mono);font-size:7.5px;text-transform:uppercase;color:var(--mut);background:#f1eee5;padding:5px 8px;border-radius:4px;margin:0 0 4px 36px}
+.legend i{display:inline-block;width:12px;height:2px;margin-right:4px;vertical-align:middle}
+.basemap{padding:10px 14px 14px;border-top:1px solid var(--line)}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:5px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;font:600 11px var(--sans);padding:6px;border-radius:4px;cursor:pointer;color:var(--mut)}
+.seg button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);color:var(--txt)}
+.wprrow{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;text-transform:uppercase;color:var(--mut);padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.wprrow b{color:var(--txt)}
+.pc{border:1px solid var(--line);border-left:3px solid var(--c);border-radius:6px;padding:10px 12px;margin-bottom:9px;background:#fff}
+.pc .t{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600}
+.pc .t>span:first-child::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c);margin-right:7px;vertical-align:middle}
+.pct{font-family:var(--mono);font-size:12px;color:var(--c)}
+.nums{display:grid;grid-template-columns:1fr 1fr;margin-top:8px}
+.nums.three{grid-template-columns:1fr 1fr 1fr}
+.nums .l{font-family:var(--mono);font-size:7.5px;letter-spacing:1px;text-transform:uppercase;color:var(--mut)}
+.nums .big{font-family:var(--mono);font-size:18px;font-weight:700}
+.nums .est{font-family:var(--mono);font-size:14px;margin-top:3px}
+.nums small{font-size:8px;color:var(--mut);font-weight:400}
+.pbar{height:3px;background:#eee;border-radius:9px;margin-top:8px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--c)}
+.pt td{font-size:11px;padding:1px 8px 1px 0;vertical-align:top}
+.pt td:first-child{color:var(--mut)}
+footer{text-align:center;font-family:var(--mono);font-size:10px;color:var(--mut);padding:14px;border-top:1px solid var(--line)}
+@media(max-width:900px){
+ .stage{height:auto;min-height:0}
+ #cityMap{position:relative;height:62vh}
+ .panel{position:relative;inset:auto;width:auto!important;margin:12px}
+ .pb{overflow:visible}
+ .top{padding:0 12px}.bt{display:none}
+ .cityhead{flex-wrap:wrap}
+}
 </style>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#app">Skip to content</a>
 
 <header class="top">
   <a class="brand" href="#/">
-    <span class="logo"><img src="assets/logos/cds.jpg" alt="Construction & Design Services"
-      onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'badge',textContent:'CDS'}))"></span>
-    <span class="logo"><img src="assets/logos/ncpe.jpg" alt="NCPE Consultancy"
-      onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'badge',textContent:'NCPE'}))"></span>
-    <span class="bt"><strong>IUSWDMP</strong><small>Survey Progress · Varanasi</small></span>
+    <span class="logos">
+      <img src="assets/logos/cds.jpg" alt="Construction & Design Services" onerror="this.outerHTML='<b class=lb>CDS</b>'">
+      <span class="sep"></span>
+      <img src="assets/logos/ncpe.jpg" alt="NCPE Consultancy" onerror="this.outerHTML='<b class=lb>NCPE</b>'">
+    </span>
+    <span class="bt"><strong>IUSWDMP</strong><small>Survey progress</small></span>
   </a>
   <span class="wpr" id="wprTag"></span>
 </header>
 
-<section class="hero">
-  <p>Survey, Collection of Data, Preparation of Integrated Urban Storm Water Drainage Master Plan (IUSWDMP) – Varanasi</p>
-  <h1>Dashboard for Survey Progress</h1>
-  <div class="meta" id="meta"></div>
-</section>
-
-<nav class="tabs" id="tabs" aria-label="Sections">
-  <a href="#/">Overview</a>
-  <a href="#/components">Survey Components</a>
-  <a href="#/zones">Zone-wise</a>
-  <a href="#/reports">Weekly Reports</a>
-  <a href="#/map">Hotspot Map</a>
-</nav>
-
-<main id="main" tabindex="-1"></main>
-
+<main id="app" tabindex="-1"></main>
 <footer id="foot"></footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@mapbox/togeojson@0.16.2/togeojson.js"></script>
 <script>
-/* ================== EDIT THIS BLOCK EACH WEEK (SAMPLE DATA) ================== */
+/* =================== EDIT THIS BLOCK (SAMPLE DATA) =================== */
 const CONFIG = {
   city: "Varanasi",
   department: "Construction & Design Services",
   consultant: "NCPE Consultancy",
-  surveyStart: "2026-09-07",          // Monday of WPR week 1
-  surveyEnd:   "2027-03-06",
-  currentWeek: 10,                    // latest WPR number
-  // weight = share in overall progress (total 100)
-  components: [
-    {name:"Topographic survey (Total Station / DGPS)", unit:"sq km", scope:160,  done:48.6, week:6.2, weight:25},
-    {name:"DGPS control points & benchmarks",          unit:"nos",   scope:120,  done:74,   week:8,   weight:5},
-    {name:"Drain network survey (primary/secondary)",   unit:"km",    scope:420,  done:131.5,week:18.4,weight:25},
-    {name:"Drain cross-sections",                       unit:"nos",   scope:4200, done:1180, week:165, weight:10},
-    {name:"Culverts & cross-drainage structures",       unit:"nos",   scope:650,  done:212,  week:30,  weight:10},
-    {name:"Outfall survey (Ganga / Varuna / Assi)",     unit:"nos",   scope:85,   done:31,   week:4,   weight:5},
-    {name:"Waterlogging hotspot mapping",               unit:"nos",   scope:60,   done:27,   week:3,   weight:5},
-    {name:"Soil investigation / boreholes",             unit:"nos",   scope:40,   done:9,    week:2,   weight:5},
-    {name:"Secondary data collection (departments)",    unit:"items", scope:25,   done:14,   week:2,   weight:10}
-  ],
+  latestWPR: "9–15 Nov 2026",
+  center: [25.3176, 82.9939],
+  info: { wards: 100, area: "—", outfalls: "—" },     // fill real values
+  team: { rovers: 6, base: 2, members: 10 },
+
+  // home-page cards + map pins (locations indicative)
   zones: [
-    {name:"Adampur",        wards:"—", drainScope:70,  drainDone:24.5, topoScope:22, topoDone:9.1,  hotspots:8},
-    {name:"Bhelupur",       wards:"—", drainScope:95,  drainDone:38.2, topoScope:30, topoDone:12.4, hotspots:12},
-    {name:"Dashashwamedh",  wards:"—", drainScope:45,  drainDone:19.0, topoScope:12, topoDone:6.8,  hotspots:9},
-    {name:"Kotwali",        wards:"—", drainScope:40,  drainDone:16.8, topoScope:10, topoDone:5.9,  hotspots:7},
-    {name:"Varunapar",      wards:"—", drainScope:110, drainDone:27.0, topoScope:46, topoDone:10.2, hotspots:14},
-    {name:"Extended area",  wards:"—", drainScope:60,  drainDone:6.0,  topoScope:40, topoDone:4.2,  hotspots:10}
+    {id:"adampur",       name:"Adampur",       lat:25.3240, lng:83.0200, drains:24.5, rovers:1},
+    {id:"bhelupur",      name:"Bhelupur",      lat:25.2930, lng:83.0000, drains:38.2, rovers:1},
+    {id:"dashashwamedh", name:"Dashashwamedh", lat:25.3070, lng:83.0100, drains:19.0, rovers:1},
+    {id:"kotwali",       name:"Kotwali",       lat:25.3180, lng:83.0150, drains:16.8, rovers:1},
+    {id:"varunapar",     name:"Varunapar",     lat:25.3450, lng:82.9850, drains:27.0, rovers:1},
+    {id:"extended",      name:"Extended Area", lat:25.2700, lng:82.9700, drains:6.0,  rovers:1}
   ],
-  // cumulative overall % at end of each past week (current week is calculated automatically)
-  weeklyHistory: [2.1, 5.0, 8.6, 12.4, 16.3, 20.1, 23.9, 27.6, 31.5],
-  weeklyRemarks: {
-    10:"Drain survey progressing in Varunapar & Bhelupur; 4 outfalls on Varuna surveyed.",
-    9:"Cross-section survey started in Kotwali zone; data received from Nagar Nigam.",
-    8:"DGPS control network extended to extended-area wards."
-  },
-  highlights: [
-    "Drain survey: 18.4 km completed this week.",
-    "165 drain cross-sections recorded.",
-    "3 new waterlogging hotspots mapped (Sigra, Maldahiya, Lanka).",
-    "2 boreholes completed in Bhelupur zone."
+
+  // right panel – "est" = estimated scope (leave null if not fixed)
+  progress: [
+    {name:"Primary Drain",        color:"#1d4ed8", done:58.5, est:120, unit:"km"},
+    {name:"Secondary & Tertiary", color:"#ea7a17", done:73.0, est:null, unit:"km"},
+    {name:"GCP Points",           color:"#e11d48", done:40,   est:86,  unit:"points"},
+    {name:"Static Points",        color:"#6d28d9", done:3,    est:5,   unit:"points"},
+    {name:"LiDAR Survey",         color:"#0891b2", done:48.6, est:160, unit:"sq km"}
   ],
-  // locations are indicative – replace with surveyed coordinates
-  hotspots: [
-    {name:"Lanka",      lat:25.2778, lng:82.9997, status:"Surveyed"},
-    {name:"Sigra",      lat:25.3200, lng:82.9870, status:"Surveyed"},
-    {name:"Maldahiya",  lat:25.3260, lng:82.9790, status:"In progress"},
-    {name:"Lahurabir",  lat:25.3227, lng:83.0088, status:"In progress"},
-    {name:"Godowlia",   lat:25.3109, lng:83.0076, status:"Surveyed"},
-    {name:"Cantonment", lat:25.3370, lng:82.9750, status:"Pending"},
-    {name:"Pandeypur",  lat:25.3500, lng:82.9970, status:"In progress"},
-    {name:"Shivpur",    lat:25.3550, lng:82.9620, status:"Pending"},
-    {name:"Sarnath",    lat:25.3800, lng:83.0220, status:"Pending"},
-    {name:"Bhelupur",   lat:25.2960, lng:83.0010, status:"Surveyed"}
+
+  // map layers – upload these files into the "data" folder (KML or GeoJSON)
+  layers: [
+    {id:"ward",   group:"boundaries", name:"Ward Boundary",  icon:"▢", color:"#ea7a17", file:"data/ward_boundary.kml",  unit:"wards",   meta:"KML",
+      style:{color:"#ea7a17",weight:1.2,fillOpacity:0.03,dashArray:"4 3"}},
+    {id:"outer",  group:"boundaries", name:"Outer Boundary", icon:"▢", color:"#0b1f2a", file:"data/outer_boundary.kml", unit:"polygon",
+      style:{color:"#0b1f2a",weight:2.5,fill:false}, on:true, fit:true},
+    {id:"buffer", group:"boundaries", name:"Buffer Area",    icon:"▢", color:"#d97706", file:"data/buffer_area.kml",    unit:"polygon",
+      style:{color:"#d97706",weight:1.5,fillOpacity:0.06,dashArray:"6 4"}},
+    {id:"ortho",  group:"survey", name:"Ortho Image", tag:"ORTHO", icon:"▦", color:"#7c3aed", type:"tiles", url:"", meta:"orthophoto tiles"},
+    {id:"dsm",    group:"survey", name:"DSM Surface", tag:"DSM",   icon:"▦", color:"#16a34a", type:"tiles", url:"", meta:"elevation tiles", opacity:0.8},
+    {id:"drains", group:"survey", name:"Drains Surveyed", icon:"—", color:"#1d4ed8", file:"data/drains.kml",       unit:"segments", on:true},
+    {id:"gcp",    group:"survey", name:"GCP Marked",      icon:"●", color:"#e11d48", file:"data/gcp.kml",          unit:"points"},
+    {id:"tbm",    group:"survey", name:"TBM",             icon:"◆", color:"#6d28d9", file:"data/tbm.kml",          unit:"benchmarks"},
+    {id:"photos", group:"survey", name:"Survey Photos",   icon:"●", color:"#dc2626", file:"data/photos.geojson",   unit:"photos", radius:4},
+    {id:"drone",  group:"survey", name:"Drone Survey Blocks", icon:"▢", color:"#0891b2", file:"data/drone_blocks.kml", unit:"blocks",
+      style:{color:"#0891b2",weight:1.5,fillOpacity:0.08}}
   ]
 };
-/* ============================================================================ */
+/* ===================================================================== */
 
 const $ = s => document.querySelector(s);
-const pct = (d,s) => s ? Math.min(100, d/s*100) : 0;
-const fmt = (n,d=1) => Number(n).toLocaleString('en-IN',{maximumFractionDigits:d});
-const D = s => new Date(s+"T00:00:00");
-const dfmt = d => d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-const addDays = (d,n) => new Date(d.getTime()+n*864e5);
+const fmt = n => (n===null||n===undefined||n==='') ? '—' : (isNaN(n) ? n : Number(n).toLocaleString('en-IN',{maximumFractionDigits:1}));
+const DRAIN = {primary:{c:"#1d4ed8",w:3.5}, secondary:{c:"#ea7a17",w:2.2}, tertiary:{c:"#e11d48",w:1.4}};
+const TILES = {
+  streets:   () => L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:20,subdomains:'abcd',attribution:'&copy; OpenStreetMap &copy; CARTO'}),
+  satellite: () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Imagery &copy; Esri'})
+};
+let maps = [];
+const cache = {};
+function clearMaps(){ maps.forEach(m=>m.remove()); maps=[]; }
 
-function overall(){
-  let w=0,t=0;
-  CONFIG.components.forEach(c=>{w+=c.weight;t+=c.weight*pct(c.done,c.scope)});
-  return w ? t/w : 0;
+/* ---------- data loading ---------- */
+async function loadData(d){
+  if (d.id in cache) return cache[d.id];
+  try{
+    const r = await fetch(d.file, {cache:'no-cache'});
+    if(!r.ok) throw new Error('missing');
+    let gj;
+    if (/\.kml$/i.test(d.file)) gj = toGeoJSON.kml(new DOMParser().parseFromString(await r.text(),'text/xml'));
+    else gj = await r.json();
+    cache[d.id] = gj;
+  }catch(e){ cache[d.id] = null; }
+  return cache[d.id];
 }
-function weekRange(n){
-  const s = addDays(D(CONFIG.surveyStart),(n-1)*7);
-  return {from:s,to:addDays(s,6)};
+function drainStyle(f){
+  const s = JSON.stringify(f.properties||{}).toLowerCase();
+  const k = s.includes('tertiary') ? 'tertiary' : s.includes('secondary') ? 'secondary' : 'primary';
+  return {color:DRAIN[k].c, weight:DRAIN[k].w, opacity:.9};
 }
-function weeks(){
-  const arr = CONFIG.weeklyHistory.map((p,i)=>({wk:i+1,pct:p}));
-  arr.push({wk:CONFIG.currentWeek,pct:overall()});
-  return arr.map(w=>({...w,...weekRange(w.wk)}));
+function popupHtml(d,p){
+  const img = p.photo || p.url || p.image || p.img;
+  const rows = Object.entries(p)
+    .filter(([k,v]) => v!==null && v!=='' && typeof v!=='object' && !/^(style|stroke|fill|icon)/i.test(k))
+    .slice(0,12).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  return `<b>${d.name}</b>${img && /\.(jpe?g|png|webp)(\?|$)/i.test(img) ? `<img src="${img}" style="width:220px;display:block;margin:6px 0;border-radius:4px">` : ''}<table class="pt">${rows}</table>`;
 }
-function timeElapsed(){
-  const s=D(CONFIG.surveyStart),e=D(CONFIG.surveyEnd),n=new Date();
-  return Math.max(0,Math.min(100,(n-s)/(e-s)*100));
-}
-function status(p){
-  if(p>=100) return '<span class="chip c-ok">Completed</span>';
-  if(p>0)    return '<span class="chip c-pr">In progress</span>';
-  return '<span class="chip c-ns">Not started</span>';
-}
-const bar = p => `<div class="bar"><i style="width:${p.toFixed(1)}%"></i></div>`;
-
-function ring(v){
-  const r=54,c=2*Math.PI*r;
-  return `<svg viewBox="0 0 140 140" width="150" class="ring" role="img" aria-label="Overall ${v.toFixed(1)}%">
-    <circle cx="70" cy="70" r="${r}" class="rbg"/>
-    <circle cx="70" cy="70" r="${r}" class="rfg" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-v/100)}" transform="rotate(-90 70 70)"/>
-    <text x="70" y="78" text-anchor="middle">${v.toFixed(1)}%</text></svg>`;
-}
-function lineChart(data){
-  const W=640,H=250,p=38,n=data.length;
-  const x=i=>p+(W-2*p)*(n>1?i/(n-1):.5), y=v=>H-p-(H-2*p)*v/100;
-  const te=timeElapsed();
-  let g='';
-  [0,25,50,75,100].forEach(v=>g+=`<line class="g" x1="${p}" x2="${W-p}" y1="${y(v)}" y2="${y(v)}"/><text x="${p-8}" y="${y(v)+4}" text-anchor="end">${v}%</text>`);
-  const pts=data.map((d,i)=>`${x(i)},${y(d.pct)}`).join(' ');
-  const area=`${x(0)},${y(0)} ${pts} ${x(n-1)},${y(0)}`;
-  const dots=data.map((d,i)=>`<circle cx="${x(i)}" cy="${y(d.pct)}" r="4" fill="#2ec4b6"><title>WPR ${d.wk}: ${d.pct.toFixed(1)}%</title></circle><text x="${x(i)}" y="${H-p+16}" text-anchor="middle">W${d.wk}</text>`).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Cumulative progress by week">
-    <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2ec4b6" stop-opacity=".35"/><stop offset="1" stop-color="#2ec4b6" stop-opacity="0"/></linearGradient></defs>
-    ${g}<polygon points="${area}" fill="url(#ga)"/><polyline points="${pts}" fill="none" stroke="#2ec4b6" stroke-width="3"/>
-    <line x1="${p}" x2="${W-p}" y1="${y(te)}" y2="${y(te)}" stroke="#f4a261" stroke-dasharray="6 5"/>
-    <text x="${W-p}" y="${y(te)-6}" text-anchor="end" fill="#f4a261">Time elapsed ${te.toFixed(0)}%</text>${dots}</svg>`;
+function buildLayer(d,gj){
+  return L.geoJSON(gj,{
+    style: f => d.id==='drains' ? drainStyle(f) : (d.style || {color:d.color,weight:2}),
+    pointToLayer: (f,ll) => L.circleMarker(ll,{radius:d.radius||5,color:'#fff',weight:1.5,fillColor:d.color,fillOpacity:1}),
+    onEachFeature: (f,l) => { if (f.properties && Object.keys(f.properties).length) l.bindPopup(popupHtml(d,f.properties)); }
+  });
 }
 
-/* ---------- Views ---------- */
-function overview(){
-  const o=overall(), te=timeElapsed(), C=CONFIG.components;
-  const topo=C[0], drain=C[2], hs=C[6];
-  const onTrack = o>=te-5;
-  const w=weekRange(CONFIG.currentWeek);
-  return `
-  <div class="grid kpis">
-    <div class="card kpi"><div class="l">Overall survey progress</div><div class="v">${o.toFixed(1)}%</div>${bar(o)}<div class="s">${onTrack?'On track':'Behind schedule'} · time elapsed ${te.toFixed(0)}%</div></div>
-    <div class="card kpi"><div class="l">Topographic survey</div><div class="v">${fmt(topo.done)} <small style="font-size:14px">/ ${fmt(topo.scope)} ${topo.unit}</small></div>${bar(pct(topo.done,topo.scope))}<div class="s">+${fmt(topo.week)} ${topo.unit} this week</div></div>
-    <div class="card kpi"><div class="l">Drain network surveyed</div><div class="v">${fmt(drain.done)} <small style="font-size:14px">/ ${fmt(drain.scope)} km</small></div>${bar(pct(drain.done,drain.scope))}<div class="s">+${fmt(drain.week)} km this week</div></div>
-    <div class="card kpi"><div class="l">Waterlogging hotspots mapped</div><div class="v">${hs.done} <small style="font-size:14px">/ ${hs.scope}</small></div>${bar(pct(hs.done,hs.scope))}<div class="s">+${hs.week} this week</div></div>
-  </div>
-  <div class="grid two" style="margin-top:16px">
-    <div class="card"><h2>Cumulative progress <small>by WPR week</small></h2>${lineChart(weeks())}</div>
-    <div class="card"><h2>Overall status <small>WPR ${CONFIG.currentWeek} · ${dfmt(w.from)} – ${dfmt(w.to)}</small></h2>
-      <div class="ringwrap">${ring(o)}<div><b>This week's highlights</b><ul class="hl">${CONFIG.highlights.map(h=>`<li>${h}</li>`).join('')}</ul></div></div>
+/* ---------- home ---------- */
+function home(){
+  document.title = `Dashboard for Survey Progress · ${CONFIG.city}`;
+  const totalDrains = CONFIG.zones.reduce((a,z)=>a+z.drains,0);
+  const card = (href,name,drains,rovers,cls='') => `<a class="ccard ${cls}" href="${href}"><div class="arr"><span>→</span></div><h3>${name}</h3>
+    <div class="lbl">Drains surveyed</div><div class="val">${fmt(drains)} <small>km</small></div>
+    <div class="lbl">Rover units</div><div class="val">${rovers} <small>units</small></div></a>`;
+  $('#app').innerHTML = `
+  <section class="hero"><div class="wrap">
+    <p>Survey, Collection of Data, Preparation of Integrated Urban Storm Water Drainage Master Plan (IUSWDMP) – ${CONFIG.city}</p>
+    <h1>Dashboard for Survey Progress</h1>
+  </div></section>
+  <div class="wrap" style="padding:0 16px">
+    <div class="cards">
+      ${card('#/city/varanasi', CONFIG.city, totalDrains, CONFIG.team.rovers, 'all')}
+      ${CONFIG.zones.map(z => card(`#/city/varanasi/${z.id}`, z.name, z.drains, z.rovers)).join('')}
     </div>
-  </div>
-  <div class="card" style="margin-top:16px"><h2>Component-wise progress <a class="btn" href="#/components" style="text-decoration:none">Details →</a></h2>
-    ${C.map(c=>{const p=pct(c.done,c.scope);return `<div class="row"><div class="h"><span>${c.name}</span><span>${fmt(c.done)} / ${fmt(c.scope)} ${c.unit} · ${p.toFixed(1)}%</span></div>${bar(p)}</div>`}).join('')}
+    <div id="homeMap"></div>
   </div>`;
-}
-function components(){
-  const C=CONFIG.components;
-  return `<div class="card"><h2>Survey components <button class="btn" onclick="window.print()">Print</button></h2><div class="tw"><table>
-  <thead><tr><th>#</th><th>Component</th><th>Unit</th><th>Scope</th><th>This week</th><th>Cumulative</th><th>Balance</th><th>Progress</th><th>Weight</th><th>Status</th></tr></thead>
-  <tbody>${C.map((c,i)=>{const p=pct(c.done,c.scope);return `<tr><td>${i+1}</td><td>${c.name}</td><td>${c.unit}</td><td>${fmt(c.scope)}</td><td>${fmt(c.week)}</td><td>${fmt(c.done)}</td><td>${fmt(Math.max(0,c.scope-c.done))}</td>
-    <td><span class="mini">${bar(p)}</span> ${p.toFixed(1)}%</td><td>${c.weight}%</td><td>${status(p)}</td></tr>`}).join('')}</tbody>
-  <tfoot><tr><td></td><td>Weighted overall</td><td colspan="5"></td><td>${overall().toFixed(1)}%</td><td>${C.reduce((a,c)=>a+c.weight,0)}%</td><td>${status(overall())}</td></tr></tfoot>
-  </table></div></div>`;
-}
-function zones(){
-  const Z=CONFIG.zones, sum=k=>Z.reduce((a,z)=>a+z[k],0);
-  return `<div class="grid two">
-  <div class="card"><h2>Drain survey by zone <small>km</small></h2>${Z.map(z=>{const p=pct(z.drainDone,z.drainScope);return `<div class="row"><div class="h"><span>${z.name}</span><span>${fmt(z.drainDone)} / ${fmt(z.drainScope)} · ${p.toFixed(1)}%</span></div>${bar(p)}</div>`}).join('')}</div>
-  <div class="card"><h2>Topographic survey by zone <small>sq km</small></h2>${Z.map(z=>{const p=pct(z.topoDone,z.topoScope);return `<div class="row"><div class="h"><span>${z.name}</span><span>${fmt(z.topoDone)} / ${fmt(z.topoScope)} · ${p.toFixed(1)}%</span></div>${bar(p)}</div>`}).join('')}</div>
-  </div>
-  <div class="card" style="margin-top:16px"><h2>Zone-wise summary</h2><div class="tw"><table>
-  <thead><tr><th>Zone</th><th>Wards</th><th>Drain scope (km)</th><th>Drain done (km)</th><th>Drain %</th><th>Topo scope (sq km)</th><th>Topo done (sq km)</th><th>Topo %</th><th>Hotspots</th></tr></thead>
-  <tbody>${Z.map(z=>`<tr><td>${z.name}</td><td>${z.wards}</td><td>${fmt(z.drainScope)}</td><td>${fmt(z.drainDone)}</td><td>${pct(z.drainDone,z.drainScope).toFixed(1)}%</td><td>${fmt(z.topoScope)}</td><td>${fmt(z.topoDone)}</td><td>${pct(z.topoDone,z.topoScope).toFixed(1)}%</td><td>${z.hotspots}</td></tr>`).join('')}</tbody>
-  <tfoot><tr><td>Total</td><td></td><td>${fmt(sum('drainScope'))}</td><td>${fmt(sum('drainDone'))}</td><td>${pct(sum('drainDone'),sum('drainScope')).toFixed(1)}%</td><td>${fmt(sum('topoScope'))}</td><td>${fmt(sum('topoDone'))}</td><td>${pct(sum('topoDone'),sum('topoScope')).toFixed(1)}%</td><td>${sum('hotspots')}</td></tr></tfoot>
-  </table></div></div>`;
-}
-function reports(){
-  const W=weeks().slice().reverse();
-  return `<div class="card"><h2>Weekly Progress Reports (WPR)</h2>${W.map((w,i)=>{
-    const prev=W[i+1]?W[i+1].pct:0;
-    return `<div class="wk"><b>WPR ${w.wk}</b><div><div>${dfmt(w.from)} – ${dfmt(w.to)}</div><div class="d">${CONFIG.weeklyRemarks[w.wk]||'—'}</div>${bar(w.pct)}</div>
-      <div style="text-align:right"><div style="font-weight:800">${w.pct.toFixed(1)}%</div><div class="d">+${(w.pct-prev).toFixed(1)}% wk</div></div></div>`}).join('')}</div>`;
-}
-function mapView(){
-  return `<div class="card"><h2>Waterlogging hotspots – ${CONFIG.city} <small>locations indicative</small></h2><div id="map"></div>
-  <div class="legend"><span><i class="dot" style="background:#4caf50"></i>Surveyed</span><span><i class="dot" style="background:#f4a261"></i>In progress</span><span><i class="dot" style="background:#e76f51"></i>Pending</span></div></div>`;
-}
-let map;
-function initMap(){
-  if(!window.L){$('#map').innerHTML='<p style="padding:16px">Map library could not load.</p>';return}
-  if(map){map.remove()}
-  map=L.map('map').setView([25.3176,82.9939],12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
-  const col={"Surveyed":"#4caf50","In progress":"#f4a261","Pending":"#e76f51"};
-  CONFIG.hotspots.forEach(h=>L.circleMarker([h.lat,h.lng],{radius:9,color:'#fff',weight:2,fillColor:col[h.status]||'#999',fillOpacity:.95})
-    .addTo(map).bindPopup(`<b>${h.name}</b><br>${h.status}`));
+  const m = L.map('homeMap',{scrollWheelZoom:false}).setView(CONFIG.center,12);
+  maps.push(m);
+  TILES.satellite().addTo(m);
+  CONFIG.zones.forEach(z => L.circleMarker([z.lat,z.lng],{radius:7,color:'#fff',weight:2,fillColor:'#dc2626',fillOpacity:1})
+    .addTo(m).bindTooltip(z.name,{permanent:true,direction:'right',offset:[8,0],className:'pin'})
+    .on('click',()=>location.hash=`#/city/varanasi/${z.id}`));
 }
 
-/* ---------- Router ---------- */
-const routes={'/':overview,'/components':components,'/zones':zones,'/reports':reports,'/map':mapView};
-function render(){
-  const h=location.hash.replace('#','')||'/';
-  $('#main').innerHTML=(routes[h]||overview)();
-  document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+h));
-  if(h==='/map') initMap();
+/* ---------- city ---------- */
+function layerRow(d){
+  const legend = d.id==='drains' ? `<div class="legend"><span><i style="background:${DRAIN.primary.c}"></i>Primary</span><span><i style="background:${DRAIN.secondary.c}"></i>Secondary</span><span><i style="background:${DRAIN.tertiary.c}"></i>Tertiary</span></div>` : '';
+  return `<div class="layer"><span class="ic" style="background:${d.color}1f;color:${d.color}">${d.icon}</span>
+    <div class="lt"><b>${d.name}${d.tag?`<span class="tag">${d.tag}</span>`:''}</b><small id="m-${d.id}">loading…</small></div>
+    <input type="checkbox" class="tg" id="t-${d.id}" aria-label="${d.name}" disabled></div>${legend}`;
 }
-(function init(){
-  const w=weekRange(CONFIG.currentWeek);
-  const short=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
-  $('#wprTag').textContent=`Latest WPR · ${short(w.from)}–${short(w.to)} ${w.to.getFullYear()}`;
-  $('#meta').innerHTML=`<span>City: <b>${CONFIG.city}</b></span><span>Department: <b>${CONFIG.department}</b></span><span>Consultant: <b>${CONFIG.consultant}</b></span><span>Survey period: <b>${dfmt(D(CONFIG.surveyStart))} – ${dfmt(D(CONFIG.surveyEnd))}</b></span>`;
-  $('#foot').innerHTML=`© ${new Date().getFullYear()} ${CONFIG.consultant} · Client: ${CONFIG.department} · IUSWDMP ${CONFIG.city} · Data as per Weekly Progress Report ${CONFIG.currentWeek}`;
-  window.addEventListener('hashchange',render);
-  render();
-})();
+function progCard(p){
+  const pc = p.est ? Math.min(100, p.done/p.est*100) : null;
+  return `<div class="pc" style="--c:${p.color}"><div class="t"><span>${p.name}</span>${pc!==null?`<span class="pct">${pc.toFixed(0)}%</span>`:''}</div>
+    <div class="nums"><div><div class="l">Done</div><div class="big">${fmt(p.done)}<small> ${p.unit}</small></div></div>
+    ${p.est?`<div><div class="l">Estimated</div><div class="est">${fmt(p.est)}<small> ${p.unit}</small></div></div>`:''}</div>
+    ${pc!==null?`<div class="pbar"><i style="width:${pc}%"></i></div>`:''}</div>`;
+}
+function city(zoneId){
+  const z = CONFIG.zones.find(x=>x.id===zoneId);
+  document.title = `${z ? z.name+' · ' : ''}${CONFIG.city} · Survey Progress`;
+  const groups = [['boundaries','Boundaries'],['survey','Survey layers']];
+  $('#app').innerHTML = `
+  <div class="cityhead">
+    <div><a class="back" href="#/">← All zones</a>
+      <h1>${CONFIG.city}${z?` <span>· ${z.name}</span>`:''}</h1>
+      <div class="sub">${fmt(CONFIG.info.area)} sq km · ${fmt(CONFIG.info.outfalls)} outfalls · WPR ${CONFIG.latestWPR}</div></div>
+    <div style="text-align:right"><div class="back" style="margin-bottom:5px">Switch zone</div>
+      <select class="sw" id="sw" aria-label="Switch zone"><option value="">All ${CONFIG.city}</option>
+      ${CONFIG.zones.map(x=>`<option value="${x.id}" ${x.id===zoneId?'selected':''}>${x.name}</option>`).join('')}</select></div>
+  </div>
+  <div class="stage" id="stage">
+    <div id="cityMap"></div>
+    <aside class="panel left">
+      <div class="ph"><h2>Map layers</h2><button class="fs" id="fsBtn" title="Full screen">⛶</button></div>
+      <div class="pb">
+        <div class="sec">Basic information</div>
+        <div class="info"><div><span>No. of wards</span><b>${fmt(CONFIG.info.wards)}</b></div><div><span>Area (sq. km)</span><b>${fmt(CONFIG.info.area)}</b></div></div>
+        ${groups.map(g=>`<div class="sec">${g[1]}</div>`+CONFIG.layers.filter(l=>l.group===g[0]).map(layerRow).join('')).join('')}
+      </div>
+      <div class="basemap"><div class="sec" style="margin-top:0">Basemap</div>
+        <div class="seg"><button id="bStreets" class="on">▦ Streets</button><button id="bSat">⛰ Satellite</button></div></div>
+    </aside>
+    <aside class="panel right">
+      <div class="ph" style="display:block"><div class="k">Survey progress</div><h2>${z?z.name:CONFIG.city}</h2></div>
+      <div class="pb">
+        <div class="wprrow"><span>Latest WPR</span><b>${CONFIG.latestWPR}</b></div>
+        ${z?`<div class="pc" style="--c:#1f7a74"><div class="t"><span>Zone · ${z.name}</span></div><div class="nums"><div><div class="l">Drains surveyed</div><div class="big">${fmt(z.drains)}<small> km</small></div></div><div><div class="l">Rover units</div><div class="est">${z.rovers}</div></div></div></div>`:''}
+        ${CONFIG.progress.map(progCard).join('')}
+        <div class="pc" style="--c:#0b1f2a"><div class="t"><span>Survey Team</span></div>
+          <div class="nums three"><div><div class="l">Rovers</div><div class="big">${CONFIG.team.rovers}</div></div>
+          <div><div class="l">Base</div><div class="big">${CONFIG.team.base}</div></div>
+          <div><div class="l">Members</div><div class="big">${CONFIG.team.members}</div></div></div></div>
+      </div>
+    </aside>
+  </div>`;
+
+  $('#sw').onchange = e => location.hash = '#/city/varanasi' + (e.target.value ? '/'+e.target.value : '');
+
+  const m = L.map('cityMap',{zoomControl:false}).setView(z?[z.lat,z.lng]:CONFIG.center, z?14:12);
+  maps.push(m);
+  L.control.zoom({position:'bottomright'}).addTo(m);
+  L.control.scale({position:'bottomright',imperial:false}).addTo(m);
+  let base = TILES.streets().addTo(m);
+  const setBase = k => { m.removeLayer(base); base = TILES[k]().addTo(m); base.bringToBack();
+    $('#bStreets').classList.toggle('on',k==='streets'); $('#bSat').classList.toggle('on',k==='satellite'); };
+  $('#bStreets').onclick = () => setBase('streets');
+  $('#bSat').onclick = () => setBase('satellite');
+
+  $('#fsBtn').onclick = () => { const s=$('#stage'); document.fullscreenElement ? document.exitFullscreen() : (s.requestFullscreen && s.requestFullscreen()); };
+  document.onfullscreenchange = () => setTimeout(()=>maps.forEach(x=>x.invalidateSize()),200);
+
+  CONFIG.layers.forEach(async d => {
+    const meta = $('#m-'+d.id), tg = $('#t-'+d.id);
+    let lyr;
+    if (d.type === 'tiles'){
+      if (!d.url){ meta.textContent = 'add tile URL in CONFIG'; return; }
+      lyr = L.tileLayer(d.url,{maxZoom:22,opacity:d.opacity||1});
+      meta.textContent = d.meta || '';
+    } else {
+      const gj = await loadData(d);
+      if (!maps.includes(m)) return;               // user left the page
+      if (!gj){ meta.textContent = 'file not added yet'; return; }
+      const n = (gj.features||[]).length;
+      meta.textContent = `${fmt(n)} ${d.unit||'features'}${d.meta?' · '+d.meta:''}`;
+      lyr = buildLayer(d,gj);
+      if (d.fit && !z){ try{ m.fitBounds(lyr.getBounds(),{paddingTopLeft:[290,20],paddingBottomRight:[320,20]}); }catch(e){} }
+    }
+    tg.disabled = false;
+    const set = on => on ? lyr.addTo(m) : m.removeLayer(lyr);
+    tg.onchange = () => set(tg.checked);
+    if (d.on){ tg.checked = true; set(true); }
+  });
+}
+
+/* ---------- router ---------- */
+function route(){
+  clearMaps();
+  const h = location.hash || '#/';
+  const c = h.match(/^#\/city\/[^/]+\/?([^/?]*)/);
+  c ? city(c[1]||'') : home();
+  window.scrollTo(0,0);
+}
+$('#wprTag').textContent = `Latest WPR · ${CONFIG.latestWPR}`;
+$('#foot').textContent = `© ${new Date().getFullYear()} ${CONFIG.consultant} · Client: ${CONFIG.department} · IUSWDMP ${CONFIG.city}`;
+window.addEventListener('hashchange', route);
+route();
 </script>
 </body>
 </html>

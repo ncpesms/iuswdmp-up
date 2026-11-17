@@ -165,20 +165,20 @@ const CONFIG = {
 
   // map layers – upload these files into the "data" folder (KML or GeoJSON)
   layers: [
-    {id:"ward",   group:"boundaries", name:"Ward Boundary",  icon:"▢", color:"#ea7a17", file:"data/ward_boundary.geojson",  unit:"wards",
+    {id:"ward",   group:"boundaries", name:"Ward Boundary",  icon:"▢", color:"#ea7a17", file:"ward_boundary.geojson",  unit:"wards",
       style:{color:"#ea7a17",weight:1.2,fillOpacity:0.03,dashArray:"4 3"}},
-    {id:"outer",  group:"boundaries", name:"Outer Boundary", icon:"▢", color:"#0b1f2a", file:"data/outer_boundary.geojson", unit:"parts",
+    {id:"outer",  group:"boundaries", name:"Outer Boundary", icon:"▢", color:"#0b1f2a", file:"outer_boundary.geojson", unit:"parts",
       style:{color:"#0b1f2a",weight:2.5,fill:false}, on:true, fit:true},
-    {id:"buffer", group:"boundaries", name:"Buffer Area",    icon:"▢", color:"#d97706", file:"data/buffer_area.kml",    unit:"polygon",
+    {id:"buffer", group:"boundaries", name:"Buffer Area",    icon:"▢", color:"#d97706", file:"buffer_area.kml",    unit:"polygon",
       style:{color:"#d97706",weight:1.5,fillOpacity:0.06,dashArray:"6 4"}},
     {id:"ortho",  group:"survey", name:"Ortho Image", tag:"ORTHO", icon:"▦", color:"#7c3aed", type:"tiles", url:"", meta:"orthophoto tiles"},
     {id:"dsm",    group:"survey", name:"DSM Surface", tag:"DSM",   icon:"▦", color:"#16a34a", type:"tiles", url:"", meta:"elevation tiles", opacity:0.8},
-    {id:"drains", group:"survey", name:"Drains Surveyed", icon:"—", color:"#1d4ed8", file:"data/drains.geojson",       unit:"drains", on:true},
-    {id:"culverts", group:"survey", name:"Culverts", icon:"●", color:"#f59e0b", file:"data/culverts.geojson", unit:"culverts", radius:4},
-    {id:"gcp",    group:"survey", name:"GCP Marked",      icon:"●", color:"#e11d48", file:"data/gcp.geojson",          unit:"points"},
-    {id:"tbm",    group:"survey", name:"NCPE Points",     icon:"◆", color:"#6d28d9", file:"data/tbm.geojson",      unit:"points"},
-    {id:"photos", group:"survey", name:"Survey Photos",   icon:"●", color:"#dc2626", file:"data/photos.geojson",   unit:"photos", radius:4},
-    {id:"drone",  group:"survey", name:"Drone Survey Blocks", icon:"▢", color:"#0891b2", file:"data/drone_blocks.kml", unit:"blocks",
+    {id:"drains", group:"survey", name:"Drains Surveyed", icon:"—", color:"#1d4ed8", file:"drains.geojson",       unit:"drains", on:true},
+    {id:"culverts", group:"survey", name:"Culverts", icon:"●", color:"#f59e0b", file:"culverts.geojson", unit:"culverts", radius:4},
+    {id:"gcp",    group:"survey", name:"GCP Marked",      icon:"●", color:"#e11d48", file:"gcp.geojson",          unit:"points"},
+    {id:"tbm",    group:"survey", name:"NCPE Points",     icon:"◆", color:"#6d28d9", file:"tbm.geojson",      unit:"points"},
+    {id:"photos", group:"survey", name:"Survey Photos",   icon:"●", color:"#dc2626", file:"photos.geojson",   unit:"photos", radius:4},
+    {id:"drone",  group:"survey", name:"Drone Survey Blocks", icon:"▢", color:"#0891b2", file:"drone_blocks.kml", unit:"blocks",
       style:{color:"#0891b2",weight:1.5,fillOpacity:0.08}}
   ]
 };

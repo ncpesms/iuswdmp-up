@@ -144,14 +144,14 @@ const CONFIG = {
   info: { wards: 100, area: 148.8, outfalls: "—" },     // fill real values
   team: { rovers: 6, base: 2, members: 10 },
 
-  // home-page cards + map pins (locations indicative)
-  zones: [
-    {id:"adampur",       name:"Adampur",       lat:25.3240, lng:83.0200, drains:24.5, rovers:1},
-    {id:"bhelupur",      name:"Bhelupur",      lat:25.2930, lng:83.0000, drains:38.2, rovers:1},
-    {id:"dashashwamedh", name:"Dashashwamedh", lat:25.3070, lng:83.0100, drains:19.0, rovers:1},
-    {id:"kotwali",       name:"Kotwali",       lat:25.3180, lng:83.0150, drains:16.8, rovers:1},
-    {id:"varunapar",     name:"Varunapar",     lat:25.3450, lng:82.9850, drains:27.0, rovers:1},
-    {id:"extended",      name:"Extended Area", lat:25.2700, lng:82.9700, drains:6.0,  rovers:1}
+  // home-page cards + map pins: the six project cities (live = survey files added)
+  cities: [
+    {id:"lucknow",   name:"Lucknow",   lat:26.8467, lng:80.9462, live:false},
+    {id:"prayagraj", name:"Prayagraj", lat:25.4358, lng:81.8463, live:false},
+    {id:"kanpur",    name:"Kanpur",    lat:26.4499, lng:80.3319, live:false},
+    {id:"varanasi",  name:"Varanasi",  lat:25.3176, lng:82.9739, live:true, drains:91.4, rovers:6},
+    {id:"jhansi",    name:"Jhansi",    lat:25.4484, lng:78.5685, live:false},
+    {id:"ayodhya",   name:"Ayodhya",   lat:26.7922, lng:82.1998, live:false}
   ],
 
   // right panel – "est" = estimated scope (leave null if not fixed)
@@ -230,29 +230,26 @@ function buildLayer(d,gj){
 
 /* ---------- home ---------- */
 function home(){
-  document.title = `Dashboard for Survey Progress · ${CONFIG.city}`;
-  const totalDrains = CONFIG.zones.reduce((a,z)=>a+z.drains,0);
-  const card = (href,name,drains,rovers,cls='') => `<a class="ccard ${cls}" href="${href}"><div class="arr"><span>→</span></div><h3>${name}</h3>
-    <div class="lbl">Drains surveyed</div><div class="val">${fmt(drains)} <small>km</small></div>
-    <div class="lbl">Rover units</div><div class="val">${rovers} <small>units</small></div></a>`;
+  document.title = 'Dashboard for Survey Progress · IUSWDMP';
+  const card = c => `<a class="ccard" href="#/city/${c.id}"><div class="arr"><span>→</span></div><h3>${c.name}</h3>
+    <div class="lbl">Drains surveyed</div><div class="val">${fmt(c.drains)} <small>km</small></div>
+    <div class="lbl">Rover units</div><div class="val">${fmt(c.rovers)} <small>units</small></div></a>`;
   $('#app').innerHTML = `
   <section class="hero"><div class="wrap">
-    <p>Survey, Collection of Data, Preparation of Integrated Urban Storm Water Drainage Master Plan (IUSWDMP) – ${CONFIG.city}</p>
+    <p>Survey, Collection of Data, Preparation of Integrated Urban Storm Water Drainage Master Plan (IUSWDMP)</p>
     <h1>Dashboard for Survey Progress</h1>
   </div></section>
   <div class="wrap" style="padding:0 16px">
-    <div class="cards">
-      ${card('#/city/varanasi', CONFIG.city, totalDrains, CONFIG.team.rovers, 'all')}
-      ${CONFIG.zones.map(z => card(`#/city/varanasi/${z.id}`, z.name, z.drains, z.rovers)).join('')}
-    </div>
+    <div class="cards">${CONFIG.cities.map(card).join('')}</div>
     <div id="homeMap"></div>
   </div>`;
-  const m = L.map('homeMap',{scrollWheelZoom:false}).setView(CONFIG.center,12);
+  const m = L.map('homeMap',{scrollWheelZoom:false});
   maps.push(m);
   TILES.satellite().addTo(m);
-  CONFIG.zones.forEach(z => L.circleMarker([z.lat,z.lng],{radius:7,color:'#fff',weight:2,fillColor:'#dc2626',fillOpacity:1})
-    .addTo(m).bindTooltip(z.name,{permanent:true,direction:'right',offset:[8,0],className:'pin'})
-    .on('click',()=>location.hash=`#/city/varanasi/${z.id}`));
+  CONFIG.cities.forEach(c => L.circleMarker([c.lat,c.lng],{radius:7,color:'#fff',weight:2,fillColor:c.live?'#1f7a74':'#dc2626',fillOpacity:1})
+    .addTo(m).bindTooltip(c.name,{permanent:true,direction:'right',offset:[8,0],className:'pin'})
+    .on('click',()=>location.hash=`#/city/${c.id}`));
+  m.fitBounds(CONFIG.cities.map(c=>[c.lat,c.lng]),{padding:[50,50]});
 }
 
 /* ---------- city ---------- */
@@ -269,19 +266,31 @@ function progCard(p){
     ${p.est?`<div><div class="l">Estimated</div><div class="est">${fmt(p.est)}<small> ${p.unit}</small></div></div>`:''}</div>
     ${pc!==null?`<div class="pbar"><i style="width:${pc}%"></i></div>`:''}</div>`;
 }
-function city(zoneId){
-  const z = CONFIG.zones.find(x=>x.id===zoneId);
-  document.title = `${z ? z.name+' · ' : ''}${CONFIG.city} · Survey Progress`;
+function cityHead(c){
+  return `<div class="cityhead">
+    <div><a class="back" href="#/">← All cities</a>
+      <h1>${c.name}</h1>
+      <div class="sub">${c.live ? `${fmt(CONFIG.info.area)} sq km · ${fmt(CONFIG.info.outfalls)} outfalls · WPR ${CONFIG.latestWPR}` : 'Survey data to be added'}</div></div>
+    <div style="text-align:right"><div class="back" style="margin-bottom:5px">Switch city</div>
+      <select class="sw" id="sw" aria-label="Switch city">
+      ${CONFIG.cities.map(x=>`<option value="${x.id}" ${x.id===c.id?'selected':''}>${x.name}</option>`).join('')}</select></div>
+  </div>`;
+}
+function city(cityId){
+  const c = CONFIG.cities.find(x=>x.id===cityId) || CONFIG.cities.find(x=>x.live);
+  document.title = `${c.name} · Survey Progress`;
   const groups = [['boundaries','Boundaries'],['survey','Survey layers']];
-  $('#app').innerHTML = `
-  <div class="cityhead">
-    <div><a class="back" href="#/">← All zones</a>
-      <h1>${CONFIG.city}${z?` <span>· ${z.name}</span>`:''}</h1>
-      <div class="sub">${fmt(CONFIG.info.area)} sq km · ${fmt(CONFIG.info.outfalls)} outfalls · WPR ${CONFIG.latestWPR}</div></div>
-    <div style="text-align:right"><div class="back" style="margin-bottom:5px">Switch zone</div>
-      <select class="sw" id="sw" aria-label="Switch zone"><option value="">All ${CONFIG.city}</option>
-      ${CONFIG.zones.map(x=>`<option value="${x.id}" ${x.id===zoneId?'selected':''}>${x.name}</option>`).join('')}</select></div>
-  </div>
+  if (!c.live){
+    $('#app').innerHTML = cityHead(c) + `<div class="stage" id="stage"><div id="cityMap"></div>
+      <aside class="panel left" style="width:330px;bottom:auto"><div class="ph"><h2>${c.name}</h2></div>
+      <div class="pb"><div class="sec" style="margin-top:4px">Status</div>
+      <p style="font-size:13px;line-height:1.5;margin:6px 2px">Survey data for ${c.name} has not been added yet. Boundary, ward, drain and GCP files will appear here once they are uploaded.</p></div></aside></div>`;
+    $('#sw').onchange = e => location.hash = '#/city/' + e.target.value;
+    const m0 = L.map('cityMap').setView([c.lat,c.lng],11); maps.push(m0); TILES.streets().addTo(m0);
+    L.circleMarker([c.lat,c.lng],{radius:8,color:'#fff',weight:2,fillColor:'#dc2626',fillOpacity:1}).addTo(m0);
+    return;
+  }
+  $('#app').innerHTML = cityHead(c) + `
   <div class="stage" id="stage">
     <div id="cityMap"></div>
     <aside class="panel left">
@@ -295,10 +304,9 @@ function city(zoneId){
         <div class="seg"><button id="bStreets" class="on">▦ Streets</button><button id="bSat">⛰ Satellite</button></div></div>
     </aside>
     <aside class="panel right">
-      <div class="ph" style="display:block"><div class="k">Survey progress</div><h2>${z?z.name:CONFIG.city}</h2></div>
+      <div class="ph" style="display:block"><div class="k">Survey progress</div><h2>${c.name}</h2></div>
       <div class="pb">
         <div class="wprrow"><span>Latest WPR</span><b>${CONFIG.latestWPR}</b></div>
-        ${z?`<div class="pc" style="--c:#1f7a74"><div class="t"><span>Zone · ${z.name}</span></div><div class="nums"><div><div class="l">Drains surveyed</div><div class="big">${fmt(z.drains)}<small> km</small></div></div><div><div class="l">Rover units</div><div class="est">${z.rovers}</div></div></div></div>`:''}
         ${CONFIG.progress.map(progCard).join('')}
         <div class="pc" style="--c:#0b1f2a"><div class="t"><span>Survey Team</span></div>
           <div class="nums three"><div><div class="l">Rovers</div><div class="big">${CONFIG.team.rovers}</div></div>
@@ -308,9 +316,9 @@ function city(zoneId){
     </aside>
   </div>`;
 
-  $('#sw').onchange = e => location.hash = '#/city/varanasi' + (e.target.value ? '/'+e.target.value : '');
+  $('#sw').onchange = e => location.hash = '#/city/' + e.target.value;
 
-  const m = L.map('cityMap',{zoomControl:false}).setView(z?[z.lat,z.lng]:CONFIG.center, z?14:12);
+  const m = L.map('cityMap',{zoomControl:false}).setView([c.lat,c.lng],12);
   maps.push(m);
   L.control.zoom({position:'bottomright'}).addTo(m);
   L.control.scale({position:'bottomright',imperial:false}).addTo(m);
@@ -337,7 +345,7 @@ function city(zoneId){
       const n = (gj.features||[]).length;
       meta.textContent = `${fmt(n)} ${d.unit||'features'}${d.meta?' · '+d.meta:''}`;
       lyr = buildLayer(d,gj);
-      if (d.fit && !z){ try{ m.fitBounds(lyr.getBounds(),{paddingTopLeft:[290,20],paddingBottomRight:[320,20]}); }catch(e){} }
+      if (d.fit){ try{ m.fitBounds(lyr.getBounds(),{paddingTopLeft:[290,20],paddingBottomRight:[320,20]}); }catch(e){} }
     }
     tg.disabled = false;
     const set = on => on ? lyr.addTo(m) : m.removeLayer(lyr);
@@ -350,12 +358,12 @@ function city(zoneId){
 function route(){
   clearMaps();
   const h = location.hash || '#/';
-  const c = h.match(/^#\/city\/[^/]+\/?([^/?]*)/);
-  c ? city(c[1]||'') : home();
+  const c = h.match(/^#\/city\/([^/?]+)/);
+  c ? city(c[1]) : home();
   window.scrollTo(0,0);
 }
 $('#wprTag').textContent = `Latest WPR · ${CONFIG.latestWPR}`;
-$('#foot').textContent = `© ${new Date().getFullYear()} ${CONFIG.consultant} · Client: ${CONFIG.department} · IUSWDMP ${CONFIG.city}`;
+$('#foot').textContent = `© ${new Date().getFullYear()} ${CONFIG.consultant} · Client: ${CONFIG.department} · IUSWDMP`;
 window.addEventListener('hashchange', route);
 route();
 </script>

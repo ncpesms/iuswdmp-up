@@ -141,7 +141,7 @@ const CONFIG = {
   consultant: "NCPE Consultancy",
   latestWPR: "9–15 Nov 2026",
   center: [25.3176, 82.9939],
-  info: { wards: 100, area: "—", outfalls: "—" },     // fill real values
+  info: { wards: 100, area: 148.8, outfalls: "—" },     // fill real values
   team: { rovers: 6, base: 2, members: 10 },
 
   // home-page cards + map pins (locations indicative)
@@ -165,17 +165,18 @@ const CONFIG = {
 
   // map layers – upload these files into the "data" folder (KML or GeoJSON)
   layers: [
-    {id:"ward",   group:"boundaries", name:"Ward Boundary",  icon:"▢", color:"#ea7a17", file:"data/ward_boundary.kml",  unit:"wards",   meta:"KML",
+    {id:"ward",   group:"boundaries", name:"Ward Boundary",  icon:"▢", color:"#ea7a17", file:"data/ward_boundary.geojson",  unit:"wards",
       style:{color:"#ea7a17",weight:1.2,fillOpacity:0.03,dashArray:"4 3"}},
-    {id:"outer",  group:"boundaries", name:"Outer Boundary", icon:"▢", color:"#0b1f2a", file:"data/outer_boundary.kml", unit:"polygon",
+    {id:"outer",  group:"boundaries", name:"Outer Boundary", icon:"▢", color:"#0b1f2a", file:"data/outer_boundary.geojson", unit:"parts",
       style:{color:"#0b1f2a",weight:2.5,fill:false}, on:true, fit:true},
     {id:"buffer", group:"boundaries", name:"Buffer Area",    icon:"▢", color:"#d97706", file:"data/buffer_area.kml",    unit:"polygon",
       style:{color:"#d97706",weight:1.5,fillOpacity:0.06,dashArray:"6 4"}},
     {id:"ortho",  group:"survey", name:"Ortho Image", tag:"ORTHO", icon:"▦", color:"#7c3aed", type:"tiles", url:"", meta:"orthophoto tiles"},
     {id:"dsm",    group:"survey", name:"DSM Surface", tag:"DSM",   icon:"▦", color:"#16a34a", type:"tiles", url:"", meta:"elevation tiles", opacity:0.8},
-    {id:"drains", group:"survey", name:"Drains Surveyed", icon:"—", color:"#1d4ed8", file:"data/drains.kml",       unit:"segments", on:true},
-    {id:"gcp",    group:"survey", name:"GCP Marked",      icon:"●", color:"#e11d48", file:"data/gcp.kml",          unit:"points"},
-    {id:"tbm",    group:"survey", name:"TBM",             icon:"◆", color:"#6d28d9", file:"data/tbm.kml",          unit:"benchmarks"},
+    {id:"drains", group:"survey", name:"Drains Surveyed", icon:"—", color:"#1d4ed8", file:"data/drains.geojson",       unit:"drains", on:true},
+    {id:"culverts", group:"survey", name:"Culverts", icon:"●", color:"#f59e0b", file:"data/culverts.geojson", unit:"culverts", radius:4},
+    {id:"gcp",    group:"survey", name:"GCP Marked",      icon:"●", color:"#e11d48", file:"data/gcp.geojson",          unit:"points"},
+    {id:"tbm",    group:"survey", name:"NCPE Points",     icon:"◆", color:"#6d28d9", file:"data/tbm.geojson",      unit:"points"},
     {id:"photos", group:"survey", name:"Survey Photos",   icon:"●", color:"#dc2626", file:"data/photos.geojson",   unit:"photos", radius:4},
     {id:"drone",  group:"survey", name:"Drone Survey Blocks", icon:"▢", color:"#0891b2", file:"data/drone_blocks.kml", unit:"blocks",
       style:{color:"#0891b2",weight:1.5,fillOpacity:0.08}}
@@ -185,9 +186,9 @@ const CONFIG = {
 
 const $ = s => document.querySelector(s);
 const fmt = n => (n===null||n===undefined||n==='') ? '—' : (isNaN(n) ? n : Number(n).toLocaleString('en-IN',{maximumFractionDigits:1}));
-const DRAIN = {primary:{c:"#1d4ed8",w:3.5}, secondary:{c:"#ea7a17",w:2.2}, tertiary:{c:"#e11d48",w:1.4}};
+const DRAIN = {primary:{c:"#1d4ed8",w:3.5}, secondary:{c:"#ea7a17",w:2.2}, tertiary:{c:"#e11d48",w:1.4}, surveyed:{c:"#1d4ed8",w:2.6}};
 const TILES = {
-  streets:   () => L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:20,subdomains:'abcd',attribution:'&copy; OpenStreetMap &copy; CARTO'}),
+  streets:   () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}),
   satellite: () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Imagery &copy; Esri'})
 };
 let maps = [];
@@ -209,7 +210,7 @@ async function loadData(d){
 }
 function drainStyle(f){
   const s = JSON.stringify(f.properties||{}).toLowerCase();
-  const k = s.includes('tertiary') ? 'tertiary' : s.includes('secondary') ? 'secondary' : 'primary';
+  const k = s.includes('tertiary') ? 'tertiary' : s.includes('secondary') ? 'secondary' : s.includes('primary') ? 'primary' : 'surveyed';
   return {color:DRAIN[k].c, weight:DRAIN[k].w, opacity:.9};
 }
 function popupHtml(d,p){
@@ -256,7 +257,7 @@ function home(){
 
 /* ---------- city ---------- */
 function layerRow(d){
-  const legend = d.id==='drains' ? `<div class="legend"><span><i style="background:${DRAIN.primary.c}"></i>Primary</span><span><i style="background:${DRAIN.secondary.c}"></i>Secondary</span><span><i style="background:${DRAIN.tertiary.c}"></i>Tertiary</span></div>` : '';
+  const legend = d.id==='drains' ? `<div class="legend"><span><i style="background:${DRAIN.surveyed.c}"></i>Surveyed drain</span></div>` : '';
   return `<div class="layer"><span class="ic" style="background:${d.color}1f;color:${d.color}">${d.icon}</span>
     <div class="lt"><b>${d.name}${d.tag?`<span class="tag">${d.tag}</span>`:''}</b><small id="m-${d.id}">loading…</small></div>
     <input type="checkbox" class="tg" id="t-${d.id}" aria-label="${d.name}" disabled></div>${legend}`;

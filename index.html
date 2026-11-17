@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1f2a">
+<meta name="description" content="Dashboard for survey progress – IUSWDMP Varanasi">
+<title>Dashboard for Survey Progress · IUSWDMP Varanasi</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#0b1f2a;--panel:#12303f;--panel2:#173a4c;--line:#24495c;--txt:#e8f1f5;--mut:#9db4c0;
+--acc:#2ec4b6;--acc2:#f4a261;--ok:#4caf50;--warn:#f4a261;--bad:#e76f51;--r:14px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:inherit}
+.skip{position:absolute;left:-999px;top:8px;background:var(--acc);color:#000;padding:6px 10px;border-radius:6px;z-index:99}
+.skip:focus{left:8px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 24px;background:#081822;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo img{height:40px;width:auto;background:#fff;border-radius:8px;padding:3px;display:block}
+.badge{display:inline-grid;place-items:center;height:40px;min-width:52px;padding:0 8px;border-radius:8px;background:#fff;color:#0b1f2a;font-weight:800;letter-spacing:.5px}
+.bt{display:flex;flex-direction:column;line-height:1.15}
+.bt strong{font-size:18px;letter-spacing:1px}
+.bt small{color:var(--mut)}
+.wpr{background:var(--panel2);border:1px solid var(--line);padding:6px 12px;border-radius:999px;font-size:13px;white-space:nowrap}
+.hero{padding:28px 24px 8px;max-width:1280px;margin:auto}
+.hero p{margin:0;color:var(--acc);font-weight:600;font-size:14px}
+.hero h1{margin:6px 0 4px;font-size:clamp(24px,3.4vw,36px)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--mut);font-size:13px}
+.meta b{color:var(--txt);font-weight:600}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;max-width:1280px;margin:16px auto 0;padding:0 24px}
+.tabs a{text-decoration:none;padding:8px 16px;border-radius:999px;border:1px solid var(--line);color:var(--mut);font-weight:600;font-size:14px}
+.tabs a.active,.tabs a:hover{background:var(--acc);border-color:var(--acc);color:#04222a}
+main{max-width:1280px;margin:auto;padding:20px 24px 40px}
+.grid{display:grid;gap:16px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.two{grid-template-columns:1.1fr 1fr}
+@media(max-width:900px){.two{grid-template-columns:1fr}.top{flex-wrap:wrap}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.card h2{font-size:16px;margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card h2 small{color:var(--mut);font-weight:500;font-size:12px}
+.kpi .l{color:var(--mut);font-size:13px}
+.kpi .v{font-size:28px;font-weight:800;margin:4px 0}
+.kpi .s{font-size:12px;color:var(--mut)}
+.bar{height:9px;background:#0a2532;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),#7bdff2);border-radius:99px}
+.row{margin-bottom:13px}
+.row .h{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;gap:8px}
+.row .h span:last-child{color:var(--mut);white-space:nowrap}
+.ringwrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.ring .rbg{fill:none;stroke:#0a2532;stroke-width:14}
+.ring .rfg{fill:none;stroke:var(--acc);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 1s}
+.ring text{fill:var(--txt);font-size:22px;font-weight:800}
+.chart{width:100%;height:auto}
+.chart .g{stroke:var(--line);stroke-width:1}
+.chart text{fill:var(--mut);font-size:11px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+tfoot td{font-weight:800}
+.tw{overflow-x:auto}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700}
+.c-ok{background:#1f4d2b;color:#9be7a5}.c-pr{background:#4d3b1f;color:#ffd29a}.c-ns{background:#4d241f;color:#ffb3a1}
+.mini{width:110px;display:inline-block;vertical-align:middle}
+.wk{display:grid;grid-template-columns:90px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.wk:last-child{border:0}
+.wk b{color:var(--acc)}
+.wk .d{color:var(--mut);font-size:13px}
+#map{height:520px;border-radius:var(--r);border:1px solid var(--line)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin-top:10px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+ul.hl{margin:0;padding-left:18px}ul.hl li{margin-bottom:6px}
+footer{border-top:1px solid var(--line);color:var(--mut);font-size:13px;text-align:center;padding:18px}
+.btn{background:transparent;border:1px solid var(--line);color:var(--txt);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+@media print{.top,.tabs,.btn{display:none}body{background:#fff;color:#000}.card{border-color:#ccc;background:#fff}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <a class="brand" href="#/">
+    <span class="logo"><img src="assets/logos/cds.png" alt="Construction & Design Services"
+      onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'badge',textContent:'CDS'}))"></span>
+    <span class="logo"><img src="assets/logos/ncpe.png" alt="NCPE Consultancy"
+      onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'badge',textContent:'NCPE'}))"></span>
+    <span class="bt"><strong>IUSWDMP</strong><small>Survey Progress · Varanasi</small></span>
+  </a>
+  <span class="wpr" id="wprTag"></span>
+</header>
+
+<section class="hero">
+  <p>Survey, Collection of Data, Preparation of Integrated Urban Storm Water Drainage Master Plan (IUSWDMP) – Varanasi</p>
+  <h1>Dashboard for Survey Progress</h1>
+  <div class="meta" id="meta"></div>
+</section>
+
+<nav class="tabs" id="tabs" aria-label="Sections">
+  <a href="#/">Overview</a>
+  <a href="#/components">Survey Components</a>
+  <a href="#/zones">Zone-wise</a>
+  <a href="#/reports">Weekly Reports</a>
+  <a href="#/map">Hotspot Map</a>
+</nav>
+
+<main id="main" tabindex="-1"></main>
+
+<footer id="foot"></footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ================== EDIT THIS BLOCK EACH WEEK (SAMPLE DATA) ================== */
+const CONFIG = {
+  city: "Varanasi",
+  department: "Construction & Design Services",
+  consultant: "NCPE Consultancy",
+  surveyStart: "2026-09-07",          // Monday of WPR week 1
+  surveyEnd:   "2027-03-06",
+  currentWeek: 10,                    // latest WPR number
+  // weight = share in overall progress (total 100)
+  components: [
+    {name:"Topographic survey (Total Station / DGPS)", unit:"sq km", scope:160,  done:48.6, week:6.2, weight:25},
+    {name:"DGPS control points & benchmarks",          unit:"nos",   scope:120,  done:74,   week:8,   weight:5},
+    {name:"Drain network survey (primary/secondary)",   unit:"km",    scope:420,  done:131.5,week:18.4,weight:25},
+    {name:"Drain cross-sections",                       unit:"nos",   scope:4200, done:1180, week:165, weight:10},
+    {name:"Culverts & cross-drainage structures",       unit:"nos",   scope:650,  done:212,  week:30,  weight:10},
+    {name:"Outfall survey (Ganga / Varuna / Assi)",     unit:"nos",   scope:85,   done:31,   week:4,   weight:5},
+    {name:"Waterlogging hotspot mapping",               unit:"nos",   scope:60,   done:27,   week:3,   weight:5},
+    {name:"Soil investigation / boreholes",             unit:"nos",   scope:40,   done:9,    week:2,   weight:5},
+    {name:"Secondary data collection (departments)",    unit:"items", scope:25,   done:14,   week:2,   weight:10}
+  ],
+  zones: [
+    {name:"Adampur",        wards:"—", drainScope:70,  drainDone:24.5, topoScope:22, topoDone:9.1,  hotspots:8},
+    {name:"Bhelupur",       wards:"—", drainScope:95,  drainDone:38.2, topoScope:30, topoDone:12.4, hotspots:12},
+    {name:"Dashashwamedh",  wards:"—", drainScope:45,  drainDone:19.0, topoScope:12, topoDone:6.8,  hotspots:9},
+    {name:"Kotwali",        wards:"—", drainScope:40,  drainDone:16.8, topoScope:10, topoDone:5.9,  hotspots:7},
+    {name:"Varunapar",      wards:"—", drainScope:110, drainDone:27.0, topoScope:46, topoDone:10.2, hotspots:14},
+    {name:"Extended area",  wards:"—", drainScope:60,  drainDone:6.0,  topoScope:40, topoDone:4.2,  hotspots:10}
+  ],
+  // cumulative overall % at end of each past week (current week is calculated automatically)
+  weeklyHistory: [2.1, 5.0, 8.6, 12.4, 16.3, 20.1, 23.9, 27.6, 31.5],
+  weeklyRemarks: {
+    10:"Drain survey progressing in Varunapar & Bhelupur; 4 outfalls on Varuna surveyed.",
+    9:"Cross-section survey started in Kotwali zone; data received from Nagar Nigam.",
+    8:"DGPS control network extended to extended-area wards."
+  },
+  highlights: [
+    "Drain survey: 18.4 km completed this week.",
+    "165 drain cross-sections recorded.",
+    "3 new waterlogging hotspots mapped (Sigra, Maldahiya, Lanka).",
+    "2 boreholes completed in Bhelupur zone."
+  ],
+  // locations are indicative – replace with surveyed coordinates
+  hotspots: [
+    {name:"Lanka",      lat:25.2778, lng:82.9997, status:"Surveyed"},
+    {name:"Sigra",      lat:25.3200, lng:82.9870, status:"Surveyed"},
+    {name:"Maldahiya",  lat:25.3260, lng:82.9790, status:"In progress"},
+    {name:"Lahurabir",  lat:25.3227, lng:83.0088, status:"In progress"},
+    {name:"Godowlia",   lat:25.3109, lng:83.0076, status:"Surveyed"},
+    {name:"Cantonment", lat:25.3370, lng:82.9750, status:"Pending"},
+    {name:"Pandeypur",  lat:25.3500, lng:82.9970, status:"In progress"},
+    {name:"Shivpur",    lat:25.3550, lng:82.9620, status:"Pending"},
+    {name:"Sarnath",    lat:25.3800, lng:83.0220, status:"Pending"},
+    {name:"Bhelupur",   lat:25.2960, lng:83.0010, status:"Surveyed"}
+  ]
+};
+/* ============================================================================ */
+
+const $ = s => document.querySelector(s);
+const pct = (d,s) => s ? Math.min(100, d/s*100) : 0;
+const fmt = (n,d=1) => Number(n).toLocaleString('en-IN',{maximumFractionDigits:d});
+const D = s => new Date(s+"T00:00:00");
+const dfmt = d => d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+const addDays = (d,n) => new Date(d.getTime()+n*864e5);
+
+function overall(){
+  let w=0,t=0;
+  CONFIG.components.forEach(c=>{w+=c.weight;t+=c.weight*pct(c.done,c.scope)});
+  return w ? t/w : 0;
+}
+function weekRange(n){
+  const s = addDays(D(CONFIG.surveyStart),(n-1)*7);
+  return {from:s,to:addDays(s,6)};
+}
+function weeks(){
+  const arr = CONFIG.weeklyHistory.map((p,i)=>({wk:i+1,pct:p}));
+  arr.push({wk:CONFIG.currentWeek,pct:overall()});
+  return arr.map(w=>({...w,...weekRange(w.wk)}));
+}
+function timeElapsed(){
+  const s=D(CONFIG.surveyStart),e=D(CONFIG.surveyEnd),n=new Date();
+  return Math.max(0,Math.min(100,(n-s)/(e-s)*100));
+}
+function status(p){
+  if(p>=100) return '<span class="chip c-ok">Completed</span>';
+  if(p>0)    return '<span class="chip c-pr">In progress</span>';
+  return '<span class="chip c-ns">Not started</span>';
+}
+const bar = p => `<div class="bar"><i style="width:${p.toFixed(1)}%"></i></div>`;
+
+function ring(v){
+  const r=54,c=2*Math.PI*r;
+  return `<svg viewBox="0 0 140 140" width="150" class="ring" role="img" aria-label="Overall ${v.toFixed(1)}%">
+    <circle cx="70" cy="70" r="${r}" class="rbg"/>
+    <circle cx="70" cy="70" r="${r}" class="rfg" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-v/100)}" transform="rotate(-90 70 70)"/>
+    <text x="70" y="78" text-anchor="middle">${v.toFixed(1)}%</text></svg>`;
+}
+function lineChart(data){
+  const W=640,H=250,p=38,n=data.length;
+  const x=i=>p+(W-2*p)*(n>1?i/(n-1):.5), y=v=>H-p-(H-2*p)*v/100;
+  const te=timeElapsed();
+  let g='';
+  [0,25,50,75,100].forEach(v=>g+=`<line class="g" x1="${p}" x2="${W-p}" y1="${y(v)}" y2="${y(v)}"/><text x="${p-8}" y="${y(v)+4}" text-anchor="end">${v}%</text>`);
+  const pts=data.map((d,i)=>`${x(i)},${y(d.pct)}`).join(' ');
+  const area=`${x(0)},${y(0)} ${pts} ${x(n-1)},${y(0)}`;
+  const dots=data.map((d,i)=>`<circle cx="${x(i)}" cy="${y(d.pct)}" r="4" fill="#2ec4b6"><title>WPR ${d.wk}: ${d.pct.toFixed(1)}%</title></circle><text x="${x(i)}" y="${H-p+16}" text-anchor="middle">W${d.wk}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Cumulative progress by week">
+    <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2ec4b6" stop-opacity=".35"/><stop offset="1" stop-color="#2ec4b6" stop-opacity="0"/></linearGradient></defs>
+    ${g}<polygon points="${area}" fill="url(#ga)"/><polyline points="${pts}" fill="none" stroke="#2ec4b6" stroke-width="3"/>
+    <line x1="${p}" x2="${W-p}" y1="${y(te)}" y2="${y(te)}" stroke="#f4a261" stroke-dasharray="6 5"/>
+    <text x="${W-p}" y="${y(te)-6}" text-anchor="end" fill="#f4a261">Time elapsed ${te.toFixed(0)}%</text>${dots}</svg>`;
+}
+
+/* ---------- Views ---------- */
+function overview(){
+  const o=overall(), te=timeElapsed(), C=CONFIG.components;
+  const topo=C[0], drain=C[2], hs=C[6];
+  const onTrack = o>=te-5;
+  const w=weekRange(CONFIG.currentWeek);
+  return `
+  <div class="grid kpis">
+    <div class="card kpi"><div class="l">Overall survey progress</div><div class="v">${o.toFixed(1)}%</div>${bar(o)}<div class="s">${onTrack?'On track':'Behind schedule'} · time elapsed ${te.toFixed(0)}%</div></div>
+    <div class="card kpi"><div class="l">Topographic survey</div><div class="v">${fmt(topo.done)} <small style="font-size:14px">/ ${fmt(topo.scope)} ${topo.unit}</small></div>${bar(pct(topo.done,topo.scope))}<div class="s">+${fmt(topo.week)} ${topo.unit} this week</div></div>
+    <div class="card kpi"><div class="l">Drain network surveyed</div><div class="v">${fmt(drain.done)} <small style="font-size:14px">/ ${fmt(drain.scope)} km</small></div>${bar(pct(drain.done,drain.scope))}<div class="s">+${fmt(drain.week)} km this week</div></div>
+    <div class="card kpi"><div class="l">Waterlogging hotspots mapped</div><div class="v">${hs.done} <small style="font-size:14px">/ ${hs.scope}</small></div>${bar(pct(hs.done,hs.scope))}<div class="s">+${hs.week} this week</div></div>
+  </div>
+  <div class="grid two" style="margin-top:16px">
+    <div class="card"><h2>Cumulative progress <small>by WPR week</small></h2>${lineChart(weeks())}</div>
+    <div class="card"><h2>Overall status <small>WPR ${CONFIG.currentWeek} · ${dfmt(w.from)} – ${dfmt(w.to)}</small></h2>
+      <div class="ringwrap">${ring(o)}<div><b>This week's highlights</b><ul class="hl">${CONFIG.highlights.map(h=>`<li>${h}</li>`).join('')}</ul></div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px"><h2>Component-wise progress <a class="btn" href="#/components" style="text-decoration:none">Details →</a></h2>
+    ${C.map(c=>{const p=pct(c.done,c.scope);return `<div class="row"><div class="h"><span>${c.name}</span><span>${fmt(c.done)} / ${fmt(c.scope)} ${c.unit} · ${p.toFixed(1)}%</span></div>${bar(p)}</div>`}).join('')}
+  </div>`;
+}
+function components(){
+  const C=CONFIG.components;
+  return `<div class="card"><h2>Survey components <button class="btn" onclick="window.print()">Print</button></h2><div class="tw"><table>
+  <thead><tr><th>#</th><th>Component</th><th>Unit</th><th>Scope</th><th>This week</th><th>Cumulative</th><th>Balance</th><th>Progress</th><th>Weight</th><th>Status</th></tr></thead>
+  <tbody>${C.map((c,i)=>{const p=pct(c.done,c.scope);return `<tr><td>${i+1}</td><td>${c.name}</td><td>${c.unit}</td><td>${fmt(c.scope)}</td><td>${fmt(c.week)}</td><td>${fmt(c.done)}</td><td>${fmt(Math.max(0,c.scope-c.done))}</td>
+    <td><span class="mini">${bar(p)}</span> ${p.toFixed(1)}%</td><td>${c.weight}%</td><td>${status(p)}</td></tr>`}).join('')}</tbody>
+  <tfoot><tr><td></td><td>Weighted overall</td><td colspan="5"></td><td>${overall().toFixed(1)}%</td><td>${C.reduce((a,c)=>a+c.weight,0)}%</td><td>${status(overall())}</td></tr></tfoot>
+  </table></div></div>`;
+}
+function zones(){
+  const Z=CONFIG.zones, sum=k=>Z.reduce((a,z)=>a+z[k],0);
+  return `<div class="grid two">
+  <div class="card"><h2>Drain survey by zone <small>km</small></h2>${Z.map(z=>{const p=pct(z.drainDone,z.drainScope);return `<div class="row"><div class="h"><span>${z.name}</span><span>${fmt(z.drainDone)} / ${fmt(z.drainScope)} · ${p.toFixed(1)}%</span></div>${bar(p)}</div>`}).join('')}</div>
+  <div class="card"><h2>Topographic survey by zone <small>sq km</small></h2>${Z.map(z=>{const p=pct(z.topoDone,z.topoScope);return `<div class="row"><div class="h"><span>${z.name}</span><span>${fmt(z.topoDone)} / ${fmt(z.topoScope)} · ${p.toFixed(1)}%</span></div>${bar(p)}</div>`}).join('')}</div>
+  </div>
+  <div class="card" style="margin-top:16px"><h2>Zone-wise summary</h2><div class="tw"><table>
+  <thead><tr><th>Zone</th><th>Wards</th><th>Drain scope (km)</th><th>Drain done (km)</th><th>Drain %</th><th>Topo scope (sq km)</th><th>Topo done (sq km)</th><th>Topo %</th><th>Hotspots</th></tr></thead>
+  <tbody>${Z.map(z=>`<tr><td>${z.name}</td><td>${z.wards}</td><td>${fmt(z.drainScope)}</td><td>${fmt(z.drainDone)}</td><td>${pct(z.drainDone,z.drainScope).toFixed(1)}%</td><td>${fmt(z.topoScope)}</td><td>${fmt(z.topoDone)}</td><td>${pct(z.topoDone,z.topoScope).toFixed(1)}%</td><td>${z.hotspots}</td></tr>`).join('')}</tbody>
+  <tfoot><tr><td>Total</td><td></td><td>${fmt(sum('drainScope'))}</td><td>${fmt(sum('drainDone'))}</td><td>${pct(sum('drainDone'),sum('drainScope')).toFixed(1)}%</td><td>${fmt(sum('topoScope'))}</td><td>${fmt(sum('topoDone'))}</td><td>${pct(sum('topoDone'),sum('topoScope')).toFixed(1)}%</td><td>${sum('hotspots')}</td></tr></tfoot>
+  </table></div></div>`;
+}
+function reports(){
+  const W=weeks().slice().reverse();
+  return `<div class="card"><h2>Weekly Progress Reports (WPR)</h2>${W.map((w,i)=>{
+    const prev=W[i+1]?W[i+1].pct:0;
+    return `<div class="wk"><b>WPR ${w.wk}</b><div><div>${dfmt(w.from)} – ${dfmt(w.to)}</div><div class="d">${CONFIG.weeklyRemarks[w.wk]||'—'}</div>${bar(w.pct)}</div>
+      <div style="text-align:right"><div style="font-weight:800">${w.pct.toFixed(1)}%</div><div class="d">+${(w.pct-prev).toFixed(1)}% wk</div></div></div>`}).join('')}</div>`;
+}
+function mapView(){
+  return `<div class="card"><h2>Waterlogging hotspots – ${CONFIG.city} <small>locations indicative</small></h2><div id="map"></div>
+  <div class="legend"><span><i class="dot" style="background:#4caf50"></i>Surveyed</span><span><i class="dot" style="background:#f4a261"></i>In progress</span><span><i class="dot" style="background:#e76f51"></i>Pending</span></div></div>`;
+}
+let map;
+function initMap(){
+  if(!window.L){$('#map').innerHTML='<p style="padding:16px">Map library could not load.</p>';return}
+  if(map){map.remove()}
+  map=L.map('map').setView([25.3176,82.9939],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+  const col={"Surveyed":"#4caf50","In progress":"#f4a261","Pending":"#e76f51"};
+  CONFIG.hotspots.forEach(h=>L.circleMarker([h.lat,h.lng],{radius:9,color:'#fff',weight:2,fillColor:col[h.status]||'#999',fillOpacity:.95})
+    .addTo(map).bindPopup(`<b>${h.name}</b><br>${h.status}`));
+}
+
+/* ---------- Router ---------- */
+const routes={'/':overview,'/components':components,'/zones':zones,'/reports':reports,'/map':mapView};
+function render(){
+  const h=location.hash.replace('#','')||'/';
+  $('#main').innerHTML=(routes[h]||overview)();
+  document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+h));
+  if(h==='/map') initMap();
+}
+(function init(){
+  const w=weekRange(CONFIG.currentWeek);
+  const short=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+  $('#wprTag').textContent=`Latest WPR · ${short(w.from)}–${short(w.to)} ${w.to.getFullYear()}`;
+  $('#meta').innerHTML=`<span>City: <b>${CONFIG.city}</b></span><span>Department: <b>${CONFIG.department}</b></span><span>Consultant: <b>${CONFIG.consultant}</b></span><span>Survey period: <b>${dfmt(D(CONFIG.surveyStart))} – ${dfmt(D(CONFIG.surveyEnd))}</b></span>`;
+  $('#foot').innerHTML=`© ${new Date().getFullYear()} ${CONFIG.consultant} · Client: ${CONFIG.department} · IUSWDMP ${CONFIG.city} · Data as per Weekly Progress Report ${CONFIG.currentWeek}`;
+  window.addEventListener('hashchange',render);
+  render();
+})();
+</script>
+</body>
+</html>

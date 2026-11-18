@@ -274,6 +274,14 @@ footer{text-align:center;font-size:11.5px;color:var(--mut);padding:16px;border-t
 .lpanel .note{margin:12px 2px 4px;font-size:10.5px}
 .rpanel{position:absolute;right:62px;top:12px;bottom:12px;width:290px;z-index:560;background:#fff;border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(10,42,102,.12)}
 .cpage,.vpane{position:absolute;left:76px;top:0;right:0;bottom:0;background:var(--bg);overflow:auto}
+.ipanel[hidden]{display:none}
+.ipanel .ph{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ipanel .ph b{font:600 13px var(--sans);color:var(--navy);flex:1 1 100%}
+.ipanel .ph button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 10px;font:600 11px var(--sans);color:var(--navy);cursor:pointer}
+.ipanel .ph button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ipanel .pb{overflow:auto;padding:8px;flex:1}
+.ipanel .pb img{width:100%;display:block;border-radius:6px;cursor:zoom-in}
+.ipanel .pb small{display:block;text-align:center;color:#64748b;font:500 10.5px var(--sans);padding:6px 0 2px}
 .vpane{left:0;z-index:580}
 .vpane[hidden]{display:none}
 .cin{max-width:1180px;margin:0 auto;padding:18px 20px 40px}
@@ -522,7 +530,7 @@ function cityView(c, tab){
         ${groups.map(g=>`<div class="sec">${g}</div>`+ls.filter(l=>l.group===g).map(layerRow).join('')).join('')}
         ${pg.note ? `<p class="note">${pg.note}</p>` : ''}
       </div>
-    </div>${pg.right ? `<aside class="rpanel">${pg.right}</aside>` : ''}`
+    </div>${pg.right ? `<aside class="rpanel">${pg.right}</aside>` : '<aside class="rpanel ipanel" id="ipanel" hidden></aside>'}`
     : `<div class="cpage"><div class="cin"><h2 class="ctitle">${TITLES[tab]}</h2>${pg.html}</div></div>`}
   </div>`;
 
@@ -542,14 +550,14 @@ function cityView(c, tab){
   $('#fsBtn').onclick = () => { document.fullscreenElement ? document.exitFullscreen() : (ws.requestFullscreen && ws.requestFullscreen()); };
   document.onfullscreenchange = () => setTimeout(size,150);
   $('#lyBtn').onclick = () => { layersOpen = !layersOpen; $('#lpanel').hidden = !layersOpen; };
-  const pad = () => wide() ? {paddingTopLeft:[layersOpen?290:20,20], paddingBottomRight:[pg.right?370:70,20]} : {padding:[12,12]};
+  const pad = () => wide() ? {paddingTopLeft:[layersOpen?290:20,20], paddingBottomRight:[(pg.right||($('#ipanel')&&!$('#ipanel').hidden))?370:70,20]} : {padding:[12,12]};
   // start on the city's extent; every option starts switched off
   const outer = CONFIG.layers.find(l=>l.id==='outer');
   loadData(c,outer).then(gj => { if (gj && maps.includes(m)){ try{ m.fitBounds(L.geoJSON(gj).getBounds(),pad()); }catch(e){} } });
 
   ls.forEach(async d => {
     const meta = $('#m-'+d.id), tg = $('#t-'+d.id);
-    let lyr, set;
+    let lyr, set, info;
     if (d.type === 'view'){
       if (!c.idf){ meta.textContent = 'to be added'; return; }
       meta.textContent = 'IDF curves and table';
@@ -561,6 +569,7 @@ function cityView(c, tab){
       const im = (await cache[key])[d.id];
       if (!maps.includes(m)) return;
       if (!im){ meta.textContent = 'to be added'; return; }
+      info = im.info;
       lyr = L.imageOverlay(im.file, im.bounds, {opacity:d.opacity||1, pane:'img'});
       // full-clarity map tiles drawn over the preview picture; the picture stays as the fallback
       if (im.tiles){ const pic = lyr, tl = L.tileLayer(im.tiles, {tileSize:im.tileSize||256, zoomOffset:-Math.round(Math.log2((im.tileSize||256)/256)), pane:'img', bounds:im.bounds, minNativeZoom:im.minZoom||14, maxNativeZoom:im.maxZoom||20, maxZoom:21, opacity:d.opacity||1}); tl.once('tileload',()=>pic.setOpacity(0)); lyr = L.layerGroup([pic, tl]); lyr.getBounds = () => L.latLngBounds(im.bounds); }
@@ -574,6 +583,10 @@ function cityView(c, tab){
     }
     if (!set) set = v => { if (v){ lyr.addTo(m); } else { lyr._mapToRemove = m; m.removeLayer(lyr); }
       if (d.noBase){ noBase += v ? 1 : -1; drawBase(); if (v){ try{ m.fitBounds(lyr.getBounds(),pad()); }catch(e){} } } };
+    if (info && info.length && $('#ipanel')){ const s0 = set, ip = $('#ipanel');   // sheet details / legend shown beside the map
+      const show = k => { ip.innerHTML = `<div class="ph"><b>${d.name}</b>${info.map((x,i)=>`<button data-i="${i}" class="${i===k?'on':''}">${x.title}</button>`).join('')}</div><div class="pb"><a href="${info[k].file}" target="_blank" rel="noopener"><img src="${info[k].file}" alt="${info[k].title}"></a><small>Click the picture to open it full size</small></div>`;
+        ip.querySelectorAll('button').forEach(b => b.onclick = () => show(+b.dataset.i)); };
+      set = v => { ip.hidden = !v; if (v) show(0); else ip.innerHTML = ''; s0(v); }; }
     tg.disabled = false;
     tg.onchange = () => { set(tg.checked); if (tg.checked && d.zoomOnShow){ try{ m.fitBounds(lyr.getBounds(),pad()); }catch(e){} } };
   });

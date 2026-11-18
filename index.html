@@ -507,7 +507,7 @@ const PAGES = {
       <div class="grid g2" style="margin-bottom:16px"><div class="card"><h3>LiDAR Survey of the ULB Area</h3><p>State-of-the-art LiDAR surveying is proposed to acquire detailed, high-resolution topographic data across the Urban Local Body area. The survey supports the mapping of terrain levels, drainage corridors and key surface features for stormwater planning.</p></div>
       <div class="card"><h3>Upstream Catchment Mapping</h3><p>High-resolution satellite imagery complements the LiDAR survey to delineate upstream basins and identify catchments extending beyond the municipal boundary, providing a consistent spatial base for runoff assessment and flood mitigation proposals.</p></div></div>
       <h2>Ground control points and ortho image</h2>${stageHtml(c,ids)}</div>`;
-    stageInit(c,ids,['outer','gcp']);
+    stageInit(c,ids,['outer','ortho','gcp']);
   },
   satellite(c){
     const ids=['outer','ward'];

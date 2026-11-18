@@ -46,5 +46,19 @@
   "note": "Ramnagar block",
   "min": 60.3,
   "max": 91.5
+ },
+ "ortho": {
+  "file": "ramnagar_ortho.webp",
+  "bounds": [
+   [
+    25.256155,
+    83.014624
+   ],
+   [
+    25.291651,
+    83.045603
+   ]
+  ],
+  "note": "Ramnagar block"
  }
 }

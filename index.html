@@ -245,6 +245,30 @@ footer{text-align:center;font-size:11.5px;color:var(--mut);padding:16px;border-t
  .ws.s-min .sbody{display:block}
  .pills{margin:0}
 }
+.nav .nsep{flex:none;width:2px;height:26px;background:var(--line);margin:0 6px}
+.stabs .stitle{font-size:13.5px;color:var(--navy);padding:13px 8px 11px;font-weight:700;white-space:nowrap}
+/* IDF */
+.idf{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(250px,1fr);gap:14px;align-items:start}
+@media(max-width:1000px){.idf{grid-template-columns:1fr}}
+.idfhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.idfhead h3{margin:0}
+.idfleg{display:flex;gap:14px;font-size:12px;color:var(--txt);flex-wrap:wrap}
+.idfleg i,.idftip i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.idfplot{position:relative}
+.idfplot svg{display:block;width:100%;height:auto;touch-action:none}
+.idfplot svg text{font:500 11px var(--sans);fill:var(--mut)}
+.idfplot svg text.ax{font-size:11.5px;fill:var(--txt)}
+.idfplot svg text.dl{font-size:12px;font-weight:600;fill:var(--txt)}
+.idftip{position:absolute;top:10px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;box-shadow:0 6px 18px rgba(10,42,102,.15);pointer-events:none;min-width:170px}
+.idftip b{display:block;margin-bottom:4px;color:var(--navy)}
+.idftip span{display:flex;align-items:center;color:var(--txt);padding:1px 0}
+.idftip strong{margin-left:auto;padding-left:14px;font-family:var(--mono);font-weight:700}
+.formula{margin-top:8px;padding:10px 14px;background:var(--sky);border-radius:8px;display:flex;gap:6px 16px;align-items:baseline;flex-wrap:wrap}
+.formula b{font-size:16px;color:var(--navy);white-space:nowrap}
+.formula span{font-size:11.5px;color:var(--mut)}
+.idftable .tw{max-height:420px}
+.idftable th{position:sticky;top:0}
+.idftable td{font-family:var(--mono);font-size:12.5px;padding:6px 12px}
 </style>
 </head>
 <body>
@@ -296,6 +320,8 @@ const CONFIG = {
     {id:"kanpur",    name:"Kanpur",    hi:"कानपुर",    lat:26.4499, lng:80.3319, prefix:"kanpur_",    live:false, area:265.59, wards:null, drains:null, culverts:null, rovers:null, team:null, costs:null},
     {id:"varanasi",  name:"Varanasi",  hi:"वाराणसी",   lat:25.3176, lng:82.9739, prefix:"",           live:true,  area:149.23, wards:100,  drains:91.4, culverts:309,  rovers:6,
       team:{rovers:6, base:2, members:10}, costs:null,
+      // IDF relation  I = a × T^m / t^n   (I in mm/hr, T = return period in years, t = duration in minutes)
+      idf:{a:477.89, m:0.357, n:0.67, periods:[1,2,5]},
       progress:{"Primary Drain":[58.5,120], "Secondary & Tertiary":[73.0,null], "GCP Points":[40,86], "Static Points":[3,5], "LiDAR Survey":[48.6,160]}},
     {id:"jhansi",    name:"Jhansi",    hi:"झाँसी",     lat:25.4484, lng:78.5685, prefix:"jhansi_",    live:false, area:172.22, wards:null, drains:null, culverts:null, rovers:null, team:null, costs:null},
     {id:"ayodhya",   name:"Ayodhya",   hi:"अयोध्या",   lat:26.7922, lng:82.1998, prefix:"ayodhya_",   live:false, area:87.09,  wards:null, drains:null, culverts:null, rovers:null, team:null, costs:null}
@@ -453,12 +479,13 @@ function cityView(c, tab){
       </div>
     </div>
     <section class="sheet" id="sheet">
-      <div class="stabs">${SECT.map(([k,full]) => `<a href="#/city/${c.id}/${k}" class="${k===tab?'on':''}">${full}</a>`).join('')}
+      <div class="stabs"><b class="stitle">${TITLES[tab]}</b>
         <span class="sx"><button id="shMax" title="Expand or restore the panel">⤢</button><button id="shMin" title="Hide or show the panel">✕</button></span></div>
       <div class="sbody">${pg.html}</div>
     </section>
   </div>`;
 
+  idfInit(c);
   const ws = $('#ws'), wide = () => window.innerWidth > 900;
   const size = () => { ws.style.height = wide() ? Math.max(560, window.innerHeight - (document.fullscreenElement===ws ? 0 : ws.offsetTop)) + 'px' : ''; maps.forEach(x=>x.invalidateSize()); };
   size(); window.onresize = size;
@@ -515,7 +542,8 @@ function chrome(show, active){
       ${active==='about' ? '<option value="" disabled selected hidden>Select city</option>' : ''}
       <option value="all" ${active==='cities'?'selected':''}>All cities</option>
       ${CONFIG.cities.map(c=>`<option value="${c.id}" ${inCity&&c.id===current?'selected':''}>${c.name}</option>`).join('')}
-    </select>`;
+    </select>` + (inCity ? '<span class="nsep"></span>' + SECT.map(([k,full]) => `<a href="#/city/${current}/${k}" class="${k===active?'on':''}">${full}</a>`).join('') : '');
+  const on = document.querySelector('.nav a.on'); if (on && on.scrollIntoView) on.scrollIntoView({block:'nearest',inline:'nearest'});
   $('#citySel').onchange = e => { const v = e.target.value; location.hash = v==='all' ? '#/cities' : `#/city/${v}/${inCity?active:'progress'}`; };
 }
 const todo = (c,what) => `<div class="todo"><b>${c.name}: to be added</b>${what}</div>`;
@@ -592,6 +620,63 @@ function progCard(p){
     ${p.est?`<div><div class="l">Estimated</div><div class="est">${fmt(p.est)}<small> ${p.unit}</small></div></div>`:''}</div>
     ${pc!==null?`<div class="pbar"><i style="width:${pc}%"></i></div>`:''}</div>`;
 }
+/* ---------- IDF curves (chart + table drawn from the city's IDF relation) ---------- */
+const IDF_COL = ['#2a78d6','#1baf6a','#eda100'];
+const idfI = (f,T,t) => f.a * Math.pow(T,f.m) / Math.pow(t,f.n);
+function idfBlock(c){
+  const f = c.idf, W = 720, H = 400, L = 58, R = 92, T0 = 18, B = 46, tMax = 120, yMax = 240;
+  const x = t => L + (W-L-R) * t / tMax, y = v => T0 + (H-T0-B) * (1 - v / yMax);
+  const marks = [7.5,15,22.5,30,45,60,75,90,105,120];
+  const rows = [7.5,15,22.5,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345,360,420,480];
+  let g = '';
+  for (let v = 0; v <= yMax; v += 40) g += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#e3e9f1"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${v}</text>`;
+  for (let t = 0; t <= tMax; t += 15) g += `<text x="${x(t)}" y="${H-B+18}" text-anchor="middle">${t}</text>`;
+  // end-of-line labels, pushed apart so they never overlap (lowest curve first)
+  const lab = f.periods.map(T => y(idfI(f,T,tMax)));
+  for (let i = 1; i < lab.length; i++) if (lab[i-1] - lab[i] < 15) lab[i] = lab[i-1] - 15;
+  const curves = f.periods.map((T,i) => {
+    let d = ''; for (let t = 7.5; t <= tMax + 0.01; t += 1.25) d += (d?'L':'M') + x(t).toFixed(1) + ' ' + y(idfI(f,T,t)).toFixed(1);
+    const yEnd = lab[i];
+    return `<path d="${d}" fill="none" stroke="${IDF_COL[i]}" stroke-width="2.2" stroke-linejoin="round"/>` +
+      marks.map(t => `<circle cx="${x(t).toFixed(1)}" cy="${y(idfI(f,T,t)).toFixed(1)}" r="4" fill="${IDF_COL[i]}" stroke="#fff" stroke-width="2"/>`).join('') +
+      `<text x="${W-R+10}" y="${yEnd+4}" class="dl">${T}-year</text>`;
+  }).join('');
+  return `<p class="lead">Intensity–Duration–Frequency (IDF) curves for ${c.name}, used to select the design rainfall intensity for a given storm duration and return period.</p>
+  <div class="idf">
+    <div class="card">
+      <div class="idfhead"><h3>IDF curves for ${c.name}</h3>
+        <div class="idfleg">${f.periods.map((T,i)=>`<span><i style="background:${IDF_COL[i]}"></i>${T}-year storm</span>`).join('')}</div></div>
+      <div class="idfplot" id="idfPlot"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rainfall intensity against storm duration for ${f.periods.join(', ')}-year storms">
+        ${g}<line x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}" stroke="#8a9bb5"/>
+        <text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" class="ax">Duration (minutes)</text>
+        <text transform="translate(14 ${(T0+H-B)/2}) rotate(-90)" text-anchor="middle" class="ax">Intensity (mm/hr)</text>
+        ${curves}<line id="idfX" y1="${T0}" y2="${H-B}" stroke="#62708a" stroke-dasharray="3 3" visibility="hidden"/>
+      </svg><div class="idftip" id="idfTip" hidden></div></div>
+      <div class="formula"><b>I = ${f.a} × T<sup>${f.m}</sup> ÷ t<sup>${f.n}</sup></b><span>I = rainfall intensity (mm/hr) · T = return period (years) · t = storm duration (minutes)</span></div>
+    </div>
+    <div class="card idftable"><h3>Intensity table (mm/hr)</h3>
+      <div class="tw"><table><thead><tr><th class="n">Duration (min)</th>${f.periods.map(T=>`<th class="n">${T}-year</th>`).join('')}</tr></thead>
+      <tbody>${rows.map(t=>`<tr><td class="n">${t}</td>${f.periods.map(T=>`<td class="n">${idfI(f,T,t).toFixed(2)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>
+  </div>
+  <p class="note">Curves and table are computed from the IDF relation shown under the chart. Hover over the chart to read values.</p>`;
+}
+function idfInit(c){
+  const box = $('#idfPlot'); if (!box || !c.idf) return;
+  const f = c.idf, svgEl = box.querySelector('svg'), tip = $('#idfTip'), line = $('#idfX');
+  const W = 720, L = 58, R = 92, tMax = 120, marks = [7.5,15,22.5,30,45,60,75,90,105,120];
+  const show = e => {
+    const r = svgEl.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width;
+    const t0 = (px - L) / (W-L-R) * tMax, t = marks.reduce((a,b)=>Math.abs(b-t0)<Math.abs(a-t0)?b:a);
+    const lx = L + (W-L-R) * t / tMax;
+    line.setAttribute('x1',lx); line.setAttribute('x2',lx); line.setAttribute('visibility','visible');
+    tip.innerHTML = `<b>${t} min</b>` + f.periods.map((T,i)=>`<span><i style="background:${IDF_COL[i]}"></i>${T}-year<strong>${idfI(f,T,t).toFixed(2)} mm/hr</strong></span>`).join('');
+    tip.hidden = false;
+    const left = lx / W * r.width; tip.style.left = (left > r.width*0.6 ? left - tip.offsetWidth - 12 : left + 12) + 'px';
+  };
+  svgEl.addEventListener('pointermove', show); svgEl.addEventListener('pointerdown', show);
+  svgEl.addEventListener('pointerleave', () => { tip.hidden = true; line.setAttribute('visibility','hidden'); });
+}
+
 const PAGES = {
   lidar(c){
     const html = `<p class="lead">Advanced geospatial surveys for stormwater planning – LiDAR-based urban mapping and upstream catchment delineation. The map shows the ground control points and the ortho image.</p>
@@ -608,9 +693,9 @@ const PAGES = {
       <h2 style="margin-top:0">Contour maps</h2>
       <p class="note" style="margin-top:0">Contours are coloured from low (blue) to high (brown); click a line for its level. Switch on “Upstream Catchment” to see the river basin beyond the city. Elevation model based on Copernicus DEM; basin streams from HydroRIVERS.</p>
       <h2>Rainfall data</h2>
-      <p class="lead">Rainfall data from the India Meteorological Department – deriving Intensity–Duration–Frequency (IDF) curves.</p>
+      ` + (c.idf ? idfBlock(c) : `<p class="lead">Rainfall data from the India Meteorological Department – deriving Intensity–Duration–Frequency (IDF) curves.</p>
       <div class="card" style="text-align:center"><a href="img_idf.jpg" target="_blank"><img src="img_idf.jpg" alt="IDF curves – concept illustration" style="max-width:820px;width:100%;border-radius:8px"></a><p class="note">Concept illustration from the project presentation.</p></div>
-      <div style="margin-top:14px">${todo(c,'City-specific IMD rainfall record and IDF curve table.')}</div>`;
+      <div style="margin-top:14px">${todo(c,'City-specific IMD rainfall record and IDF curve table.')}</div>`);
     return {ids:['outer','rivers','catchment','contours','dem'], on:['outer','rivers','contours'], html};
   },
   drainage(c){

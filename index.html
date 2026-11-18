@@ -170,6 +170,26 @@ footer{text-align:center;font-size:11.5px;color:var(--mut);padding:16px;border-t
  .pb{overflow:visible}
  .logos img{height:30px}.brand small{display:none}
 }
+/* header v2 */
+.row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px}
+.org1{display:flex;align-items:center;gap:9px;min-width:0}
+.org1 img{height:44px;width:auto;object-fit:contain;flex:none}
+.org1 b{display:block;font-size:13.5px;color:var(--navy);line-height:1.2;font-weight:700}
+.org1 small{display:block;font-size:10.5px;color:var(--mut)}
+.org1.end{justify-content:flex-end;text-align:right}
+@media(max-width:900px){.org1 div{display:none}.org1 img{height:34px}}
+/* landing art */
+.land .r{background:linear-gradient(160deg,#061a40,#0d47a1);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3vh 2vw;min-height:300px}
+.land .r svg{width:100%;max-height:76vh;display:block}
+.land .r text{font:700 46px var(--sans);fill:#fff}
+.land .cap{color:#cfe8ff;font-size:14px;text-align:center;margin-top:6px}
+.land .cap b{color:#fff}
+.rip{fill:none;stroke:#7fd4ff;stroke-width:4;transform-box:fill-box;transform-origin:center;animation:rip 3.2s ease-out infinite}
+.rip.d2{animation-delay:1.6s}
+.flow{fill:none;stroke:#7fd4ff;stroke-width:5;stroke-dasharray:14 18;stroke-linecap:round;opacity:.65;animation:flow 2.5s linear infinite}
+@keyframes rip{0%{transform:scale(.3);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+@keyframes flow{to{stroke-dashoffset:-64}}
+@media(prefers-reduced-motion:reduce){.rip,.flow{animation:none}}
 </style>
 </head>
 <body>
@@ -179,10 +199,14 @@ footer{text-align:center;font-size:11.5px;color:var(--mut);padding:16px;border-t
       <img src="img_up.jpg" alt="Government of Uttar Pradesh" onerror="this.remove()">
       <div><b>IUSWDMP</b><small>Integrated Urban Storm Water Drainage Master Plans · Uttar Pradesh</small></div>
     </a>
-    <span class="logos">
-      <img src="cds.jpg" alt="Construction &amp; Design Services, UP Jal Nigam (Urban)" onerror="this.remove()">
-      <img src="ncpe.jpg" alt="NCPE Infrastructure India Pvt. Ltd." onerror="this.remove()">
-    </span>
+    <div class="org1 mid">
+      <img src="ncpe.jpg" alt="" onerror="this.remove()">
+      <div><b>NCPE Infrastructure India Pvt. Ltd.</b><small>Technical Associate</small></div>
+    </div>
+    <div class="org1 end">
+      <div><b>Construction &amp; Design Services</b><small>Uttar Pradesh Jal Nigam (Urban)</small></div>
+      <img src="cds.jpg" alt="" onerror="this.remove()">
+    </div>
   </div>
   <nav class="nav" id="nav" aria-label="Portal sections"></nav>
 </header>
@@ -234,11 +258,8 @@ const CONFIG = {
     {id:"dsm",    group:"Survey layers", name:"DSM Surface", tag:"DSM",   icon:"▦", color:"#16a34a", type:"tiles", url:"", meta:"elevation tiles", opacity:0.8},
     {id:"drains", group:"Survey layers", name:"Drains Surveyed", icon:"—", color:"#1565c0", file:"drains.geojson",   unit:"drains", style:{color:"#1565c0",weight:2.6,opacity:.9}},
     {id:"culverts", group:"Survey layers", name:"Culverts",  icon:"●", color:"#f59e0b", file:"culverts.geojson", unit:"culverts", radius:4},
-    {id:"gcp",    group:"Survey layers", name:"GCP Marked",  icon:"●", color:"#d32027", file:"gcp.geojson",      unit:"points"},
-    {id:"tbm",    group:"Survey layers", name:"NCPE Points", icon:"◆", color:"#6d28d9", file:"tbm.geojson",      unit:"points"},
-    {id:"photos", group:"Survey layers", name:"Survey Photos", icon:"●", color:"#be123c", file:"photos.geojson", unit:"photos", radius:4},
-    {id:"drone",  group:"Survey layers", name:"Drone Survey Blocks", icon:"▢", color:"#0891b2", file:"drone_blocks.geojson", unit:"blocks",
-      style:{color:"#0891b2",weight:1.5,fillOpacity:0.08}}
+    {id:"gcp",    group:"Survey layers", name:"GCP Marked",  icon:"●", color:"#d32027", files:["gcp.geojson","tbm.geojson"], unit:"points"},
+    {id:"photos", group:"Survey layers", name:"Survey Photos", icon:"●", color:"#be123c", file:"photos.geojson", unit:"photos", radius:4}
   ],
 
   costLines: [
@@ -252,14 +273,14 @@ const CONFIG = {
     "Early Warning System (EWS) and Automation"
   ],
 
-  // Sponge-city concept options (indicative concept costs from the project deck)
+  // Sponge-city concept options (from the project deck)
   options: [
-    {n:"1a", img:"img_opt1a.jpg", t:"Rainwater Harvesting Structure in a Park", d:"Multipurpose sponge park on a 10 m × 20 m footprint: play area, open gym and seating above an inlet with silt trap, filter media and storage layer.", cost:"₹22.69 lakh", rate:"₹1,054 / sft", base:"Pond floor area 2,153 sft"},
-    {n:"1b", img:"img_opt1b.jpg", t:"Multipurpose Sponge Park (alternative)", d:"Lighter variant with a lined storage tank and controlled outlet; overflow safely connected to the existing stormwater drain.", cost:"₹15.08 lakh", rate:"₹700 / sft", base:"Plan area 2,153 sft"},
-    {n:"2",  img:"img_opt2.jpg",  t:"Harvesting Structure Parallel to Existing Drain", d:"Screen and silt trap, filter trench and recharge pit built alongside an existing drain, with overflow back to the drain.", cost:"₹5.23 lakh", rate:"₹467 / sft", base:"Internal area 1,119 sft"},
-    {n:"3",  img:"img_opt3.jpg",  t:"Smart Modular Eco-Bloc Infiltration / Detention", d:"Modular eco-bloc tank beneath open space for rainwater conservation and urban flood management.", cost:"₹3.48 lakh", rate:"₹576 / sft", base:"Module area 603 sft"},
-    {n:"4",  img:"img_opt4.jpg",  t:"Eco-Block Rainwater Harvesting (Parking)", d:"Permeable parking surface over aggregate layers that lets rainfall infiltrate to the sub-grade.", cost:"₹10.82 lakh", rate:"₹402 / sft", base:"Parking area 2,691 sft"},
-    {n:"5",  img:"img_opt5.jpg",  t:"Injection Bores", d:"For individual buildings, institutes and office complexes: roof water passes primary and secondary filtration before recharging groundwater.", cost:"₹6.22 lakh", rate:"1 system", base:"Incl. GST & provisions"}
+    {n:"1a", img:"img_opt1a.jpg", t:"Rainwater Harvesting Structure in a Park", d:"Multipurpose sponge park on a 10 m × 20 m footprint: play area, open gym and seating above an inlet with silt trap, filter media and storage layer."},
+    {n:"1b", img:"img_opt1b.jpg", t:"Multipurpose Sponge Park (alternative)", d:"Lighter variant with a lined storage tank and controlled outlet; overflow safely connected to the existing stormwater drain."},
+    {n:"2",  img:"img_opt2.jpg",  t:"Harvesting Structure Parallel to Existing Drain", d:"Screen and silt trap, filter trench and recharge pit built alongside an existing drain, with overflow back to the drain."},
+    {n:"3",  img:"img_opt3.jpg",  t:"Smart Modular Eco-Bloc Infiltration / Detention", d:"Modular eco-bloc tank beneath open space for rainwater conservation and urban flood management."},
+    {n:"4",  img:"img_opt4.jpg",  t:"Eco-Block Rainwater Harvesting (Parking)", d:"Permeable parking surface over aggregate layers that lets rainfall infiltrate to the sub-grade."},
+    {n:"5",  img:"img_opt5.jpg",  t:"Injection Bores", d:"For individual buildings, institutes and office complexes: roof water passes primary and secondary filtration before recharging groundwater."}
   ]
 };
 /* ======================================================= */
@@ -268,7 +289,7 @@ const UP = {"path":"M141 40 L139 45 L143 52 L139 57 L139 62 L131 69 L122 86 L115
 
 const $ = s => document.querySelector(s);
 const fmt = (n,d=1) => (n===null||n===undefined||n==='') ? '—' : (isNaN(n) ? n : Number(n).toLocaleString('en-IN',{maximumFractionDigits:d}));
-const TABS = [["about","About"],["cities","Cities"],["lidar","LiDAR<br>Surveys"],["satellite","Satellite<br>Imagery"],["contour","Contour<br>Maps"],["rainfall","Rainfall<br>Data"],["drainage","Existing<br>Drainage"],["measures","Proposed<br>Measures"],["costs","Project<br>Costs"],["progress","Work<br>Progress"],["twin","Digital<br>Twin Model"]];
+const TABS = [["about","About"],["cities","Cities"],["lidar","LiDAR<br>Surveys"],["satellite","Satellite<br>Imagery"],["analysis","Analysis"],["drainage","Existing<br>Drainage"],["measures","Proposed<br>Measures"],["costs","Project<br>Costs"],["progress","Work<br>Progress"],["twin","Digital<br>Twin Model"]];
 const TITLES = Object.fromEntries(TABS.map(t=>[t[0],t[1].replace('<br>',' ')]));
 const TILES = {
   streets:   () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}),
@@ -285,11 +306,15 @@ function clearMaps(){ maps.forEach(m=>m.remove()); maps=[]; }
 async function loadData(c,d){
   const key = c.id+'/'+d.id;
   if (key in cache) return cache[key];
-  try{
-    const r = await fetch(c.prefix + d.file, {cache:'no-cache'});
-    if(!r.ok) throw new Error('missing');
-    cache[key] = await r.json();
-  }catch(e){ cache[key] = null; }
+  const feats = []; let found = false;
+  for (const f of (d.files || [d.file])){          // a layer can combine several files
+    try{
+      const r = await fetch(c.prefix + f, {cache:'no-cache'});
+      if(!r.ok) continue;
+      feats.push(...((await r.json()).features || [])); found = true;
+    }catch(e){}
+  }
+  cache[key] = found ? {type:'FeatureCollection', features:feats} : null;
   return cache[key];
 }
 function popupHtml(d,p){
@@ -377,6 +402,23 @@ const band = (c,tab) => `<div class="band"><div class="in"><div><small>Integrate
 const todo = (c,what) => `<div class="todo"><b>${c.name}: to be added</b>${what}</div>`;
 const stat = (k,v,u) => `<div class="card stat"><span>${k}</span><b>${v}${u&&v!=='—'?`<small>${u}</small>`:''}</b></div>`;
 
+/* ---------- landing artwork: Uttar Pradesh with the six cities as ripples, linked like a drainage network ---------- */
+function heroArt(){
+  const P = UP.pins, order = ['jhansi','kanpur','lucknow','ayodhya','varanasi','prayagraj','kanpur'];
+  const link = order.slice(1).map((k,i) => { const a=P[order[i]], b=P[k]; return `M${a[0]} ${a[1]} Q${(a[0]+b[0])/2} ${(a[1]+b[1])/2-60} ${b[0]} ${b[1]}`; }).join(' ');
+  const lab = {lucknow:[0,-40,'middle'],ayodhya:[36,16,'start'],kanpur:[-36,16,'end'],prayagraj:[0,-40,'middle'],varanasi:[36,16,'start'],jhansi:[36,16,'start']};
+  const tot = CONFIG.cities.reduce((a,c)=>a+c.area,0);
+  return `<svg viewBox="${UP.vb.join(' ')}" role="img" aria-label="Uttar Pradesh with the six project cities">
+    <defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cc8ff" stop-opacity=".30"/><stop offset="1" stop-color="#5cc8ff" stop-opacity=".06"/></linearGradient></defs>
+    <path d="${UP.path}" fill="none" stroke="#5cc8ff" stroke-opacity=".07" stroke-width="70" stroke-linejoin="round"/>
+    <path d="${UP.path}" fill="none" stroke="#5cc8ff" stroke-opacity=".12" stroke-width="30" stroke-linejoin="round"/>
+    <path d="${UP.path}" fill="url(#hg)" stroke="#9fdcff" stroke-width="4"/>
+    <path class="flow" d="${link}"/>
+    ${CONFIG.cities.map(c => { const [x,y]=P[c.id], l=lab[c.id];
+      return `<a href="#/city/${c.id}/progress"><circle class="rip" cx="${x}" cy="${y}" r="30"/><circle class="rip d2" cx="${x}" cy="${y}" r="30"/><circle cx="${x}" cy="${y}" r="15" fill="${c.live?'#6ee7b7':'#fff'}"/><text x="${x+l[0]}" y="${y+l[1]}" text-anchor="${l[2]}">${c.name}</text></a>`; }).join('')}
+  </svg><div class="cap"><b>6 cities</b> · ${fmt(tot,2)} km² · one integrated drainage master plan</div>`;
+}
+
 /* ---------- pages ---------- */
 function landing(){
   chrome(false);
@@ -389,7 +431,7 @@ function landing(){
     <div class="org"><b>CONSTRUCTION &amp; DESIGN SERVICES</b>Uttar Pradesh Jal Nigam (Urban)
       <div class="ta">Technical Associate: <strong>${CONFIG.consultant}</strong></div></div>
     <div class="landlogos"><img src="cds.jpg" alt="C&amp;DS" onerror="this.remove()"><img src="ncpe.jpg" alt="NCPE" onerror="this.remove()"></div>
-  </div><div class="r" style="background-image:url(img_hero.jpg)"></div></section>`;
+  </div><div class="r">${heroArt()}</div></section>`;
 }
 function about(){
   $('#app').innerHTML = `<div class="band"><div class="in"><div><small>उत्तर प्रदेश के नगरीय स्थानीय निकायों के लिए एकीकृत शहरी वर्षाजल निकासी मास्टर योजनाएँ</small>
@@ -434,29 +476,30 @@ function progCard(p){
 }
 const PAGES = {
   lidar(c){
-    const ids=['outer','gcp','tbm','drone'];
+    const ids=['outer','ortho','gcp'];
     $('#app').innerHTML = band(c,'lidar') + `<div class="wrap"><p class="lead">Advanced geospatial surveys for stormwater planning – LiDAR-based urban mapping and upstream catchment delineation.</p>
       <div class="grid g2" style="margin-bottom:16px"><div class="card"><h3>LiDAR Survey of the ULB Area</h3><p>State-of-the-art LiDAR surveying is proposed to acquire detailed, high-resolution topographic data across the Urban Local Body area. The survey supports the mapping of terrain levels, drainage corridors and key surface features for stormwater planning.</p></div>
       <div class="card"><h3>Upstream Catchment Mapping</h3><p>High-resolution satellite imagery complements the LiDAR survey to delineate upstream basins and identify catchments extending beyond the municipal boundary, providing a consistent spatial base for runoff assessment and flood mitigation proposals.</p></div></div>
-      <h2>Ground control and survey blocks</h2>${stageHtml(c,ids)}</div>`;
-    stageInit(c,ids,['outer','gcp','tbm','drone']);
+      <h2>Ground control points and ortho image</h2>${stageHtml(c,ids)}</div>`;
+    stageInit(c,ids,['outer','gcp']);
   },
   satellite(c){
-    const ids=['outer','ward','ortho'];
+    const ids=['outer','ward'];
     $('#app').innerHTML = band(c,'satellite') + `<div class="wrap"><p class="lead">Geospatial intelligence – drone and satellite imagery used in urban infrastructure planning, design and management.</p>
-      ${stageHtml(c,ids)}<p class="note">Background: satellite imagery. The project orthophoto appears as the “Ortho Image” layer once its tiles are added.</p></div>`;
+      ${stageHtml(c,ids)}</div>`;
     stageInit(c,ids,['outer'],'satellite');
   },
-  contour(c){
+  analysis(c){
     const ids=['outer','dsm','drains'];
-    $('#app').innerHTML = band(c,'contour') + `<div class="wrap"><p class="lead">Terrain elevation, contours and the drainage network with elevation.</p>
-      ${stageHtml(c,ids)}<div style="margin-top:14px">${todo(c,'Elevation (DSM) surface, contour map and natural-drainage catchment map.')}</div></div>`;
-    stageInit(c,ids,['outer','drains']);
-  },
-  rainfall(c){
-    $('#app').innerHTML = band(c,'rainfall') + `<div class="wrap"><p class="lead">Rainfall data from the India Meteorological Department – deriving Intensity–Duration–Frequency (IDF) curves.</p>
+    $('#app').innerHTML = band(c,'analysis') + `<div class="wrap"><p class="lead">Terrain and rainfall analysis that feeds the drainage design.</p>
+      <h2 style="margin-top:0">Contour maps</h2>
+      <p class="lead">Terrain elevation, contours and the drainage network with elevation.</p>
+      ${stageHtml(c,ids)}<div style="margin-top:14px">${todo(c,'Elevation (DSM) surface, contour map and natural-drainage catchment map.')}</div>
+      <h2>Rainfall data</h2>
+      <p class="lead">Rainfall data from the India Meteorological Department – deriving Intensity–Duration–Frequency (IDF) curves.</p>
       <div class="card" style="text-align:center"><a href="img_idf.jpg" target="_blank"><img src="img_idf.jpg" alt="IDF curves – concept illustration" style="max-width:900px;width:100%;border-radius:8px"></a><p class="note">Concept illustration from the project presentation.</p></div>
       <div style="margin-top:14px">${todo(c,'City-specific IMD rainfall record and IDF curve table.')}</div></div>`;
+    stageInit(c,ids,['outer','drains']);
   },
   drainage(c){
     const ids=['ward','outer','buffer','drains','culverts','photos'];
@@ -473,8 +516,8 @@ const PAGES = {
         <div class="sol" style="background:#fbe3d6"><span class="n">Solution 3</span><h3>Lake Management through Flood Attenuation</h3>Retain flood waters in natural lakes of the drainage basin and regulate sluices ahead of the flood inflow, reducing the peak flow and the required downstream drain size.</div>
       </div>
       <h2>Sponge infrastructure initiatives</h2>
-      <div class="grid g3">${CONFIG.options.map(o=>`<div class="card opt"><a href="${o.img}" target="_blank"><img src="${o.img}" alt="${o.t}" loading="lazy"></a><div class="b"><h3><span class="no">${o.n}</span>${o.t}</h3><p>${o.d}</p><div class="c"><span><b>${o.cost}</b></span><span>${o.rate}</span><span>${o.base}</span></div></div></div>`).join('')}</div>
-      <p class="note">Concept options with indicative costs from the project presentation. City-specific proposals for ${c.name} will follow the master plan.</p></div>`;
+      <div class="grid g3">${CONFIG.options.map(o=>`<div class="card opt"><a href="${o.img}" target="_blank"><img src="${o.img}" alt="${o.t}" loading="lazy"></a><div class="b"><h3><span class="no">${o.n}</span>${o.t}</h3><p>${o.d}</p></div></div>`).join('')}</div>
+      <p class="note">Concept options from the project presentation. City-specific proposals for ${c.name} will follow the master plan.</p></div>`;
   },
   costs(c){
     const v = c.costs || [], any = v.some(x=>x!=null), tot = v.reduce((a,x)=>a+(x||0),0);
@@ -521,7 +564,7 @@ function route(){
   if (tab === 'city'){
     const c = cityOf(h[1]) || cityOf(current);
     current = c.id; try{ localStorage.setItem('iuswdmp_city', current); }catch(e){}
-    tab = PAGES[h[2]] ? h[2] : 'progress';
+    tab = (h[2]==='contour'||h[2]==='rainfall') ? 'analysis' : (PAGES[h[2]] ? h[2] : 'progress');
     chrome(true, tab); PAGES[tab](c);
     document.title = `${TITLES[tab]} · ${c.name} · IUSWDMP`;
   } else if (tab === 'cities'){ chrome(true,'cities'); cities(); document.title = 'Cities · IUSWDMP'; }

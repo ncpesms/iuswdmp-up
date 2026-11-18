@@ -190,6 +190,61 @@ footer{text-align:center;font-size:11.5px;color:var(--mut);padding:16px;border-t
 @keyframes rip{0%{transform:scale(.3);opacity:.9}100%{transform:scale(2.6);opacity:0}}
 @keyframes flow{to{stroke-dashoffset:-64}}
 @media(prefers-reduced-motion:reduce){.rip,.flow{animation:none}}
+/* ---- city console layout ---- */
+.nav select{font:600 12.5px var(--sans);color:#fff;background:var(--navy);border:0;border-radius:7px;padding:8px 10px;min-width:170px;cursor:pointer}
+.proj{display:flex;align-items:center;gap:14px;padding:8px 16px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.proj .bk{width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;text-decoration:none;color:var(--navy);font-size:17px;flex:none}
+.proj h1{margin:0;font-size:19px;color:var(--navy);line-height:1.15;font-weight:700}
+.proj small{color:var(--mut);font-size:11.5px}
+.pills{display:flex;gap:8px;margin:0 auto;flex-wrap:wrap}
+.pill2{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;background:#fff}
+.pill2 i{display:block;width:62px;height:4px;border-radius:9px;background:#e8edf3;overflow:hidden}
+.pill2 i b{display:block;height:100%;background:#16a34a}
+.pill2 strong{font-family:var(--mono);font-size:12px}
+.status{background:#6d28d9;color:#fff;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600}
+.status.wait{background:#b45309}
+.ws{position:relative;min-height:560px;background:#dfe6ee;overflow:hidden}
+.side{position:absolute;left:0;top:0;bottom:0;width:76px;background:#0d1f3c;z-index:600;display:flex;flex-direction:column;padding:6px 0;overflow-y:auto;scrollbar-width:none}
+.side a,.side button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px;font:600 10px var(--sans);color:#b8c7dd;text-align:center;border-left:3px solid transparent}
+.side svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.side a.on{background:#16335f;color:#fff;border-left-color:#38bdf8}
+.side a:hover,.side button:hover{color:#fff}
+.side a:focus-visible,.side button:focus-visible{outline:2px solid #38bdf8;outline-offset:-2px}
+.side .sl{font:500 8.5px var(--mono);letter-spacing:1.2px;color:#6f84a6;text-align:center;margin:8px 0 2px}
+.mapbox{position:absolute;left:76px;top:0;right:0;bottom:0}
+.ws #cityMap{position:absolute;inset:0;height:auto;border-radius:0}
+.tools{position:absolute;right:12px;top:12px;z-index:550;display:flex;flex-direction:column;gap:8px}
+.tools button{width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:9px;cursor:pointer;font-size:17px;color:var(--navy);box-shadow:0 2px 8px rgba(10,42,102,.14)}
+.tools button.on{background:var(--navy);color:#fff}
+.lpanel{position:absolute;left:88px;top:12px;bottom:calc(44% + 12px);width:262px;z-index:560;background:#fff;border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(10,42,102,.12)}
+.lpanel[hidden]{display:none}
+.ws.s-min .lpanel{bottom:62px}
+.ws.s-max .lpanel{display:none}
+.sheet{position:absolute;left:88px;right:12px;bottom:0;height:44%;z-index:570;background:#fff;border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;display:flex;flex-direction:column;box-shadow:0 -6px 24px rgba(10,42,102,.14);transition:height .2s}
+.ws.s-min .sheet{height:48px}
+.ws.s-max .sheet{height:calc(100% - 12px)}
+.stabs{display:flex;align-items:center;gap:2px;padding:0 10px;border-bottom:1px solid var(--line);flex:none;overflow-x:auto;scrollbar-width:thin}
+.stabs a{flex:none;text-decoration:none;color:var(--mut);font-size:12.5px;font-weight:600;padding:14px 12px 11px;border-bottom:2px solid transparent;white-space:nowrap}
+.stabs a.on{color:var(--navy);border-bottom-color:var(--blue)}
+.stabs .sx{margin-left:auto;display:flex;gap:2px;flex:none;position:sticky;right:0;background:#fff;padding-left:8px}
+.stabs .sx button{border:0;background:none;cursor:pointer;font-size:15px;color:var(--mut);padding:6px 8px}
+.sbody{overflow:auto;padding:16px 18px 24px;flex:1}
+.ws.s-min .sbody{display:none}
+.sbody>.lead:first-child,.sbody>div>h2:first-child{margin-top:0}
+@media(max-width:900px){
+ .ws{height:auto!important;min-height:0;overflow:visible;display:flex;flex-direction:column}
+ .side{position:static;width:auto;flex-direction:row;padding:0 4px;overflow-x:auto}
+ .side a,.side button{flex:none;padding:8px 10px;border-left:0;border-bottom:3px solid transparent}
+ .side a.on{border-bottom-color:#38bdf8}
+ .side .sl{display:none}
+ .mapbox{position:relative;left:0;height:56vh}
+ .lpanel{position:static;width:auto;margin:10px;bottom:auto!important}
+ .ws.s-max .lpanel{display:flex}
+ .sheet{position:static;height:auto!important;border-radius:0;border:0;border-top:1px solid var(--line);box-shadow:none}
+ .stabs .sx{display:none}
+ .ws.s-min .sbody{display:block}
+ .pills{margin:0}
+}
 </style>
 </head>
 <body>
@@ -258,14 +313,10 @@ const CONFIG = {
       style:{color:"#0ea5e9",weight:4,opacity:.75,fillColor:"#38bdf8",fillOpacity:.45}},
     {id:"catchment", group:"Rivers and terrain", name:"Upstream Catchment", icon:"≈", color:"#0369a1", file:"catchment.geojson", unit:"features", zoomOnShow:true},
     {id:"contours", group:"Rivers and terrain", name:"Contours", tag:"1.5 M", icon:"≋", color:"#b45309", file:"contours.geojson", unit:"levels", ramp:"Elevation (m)", major:7.5},
-    {id:"contours_lidar", group:"Rivers and terrain", name:"Contours – LiDAR", tag:"1 M", icon:"≋", color:"#7c2d12", file:"contours_lidar.geojson", unit:"levels", ramp:"Elevation (m)", major:5},
-    // image layers are listed in <city prefix>images.json: {"ortho":{"file":"x.webp","bounds":[[south,west],[north,east]],"note":"..."}, "dtm":{...}, "dsm":{...}}
-    {id:"dem",    group:"Rivers and terrain", name:"Corrected DEM", tag:"DEM", icon:"▦", color:"#a16207", type:"image", opacity:0.8},
-    {id:"dtm",    group:"Rivers and terrain", name:"DTM Terrain", tag:"DTM", icon:"▦", color:"#15803d", type:"image", opacity:0.85},
+    {id:"dem",    group:"Rivers and terrain", name:"DEM", tag:"DEM", icon:"▦", color:"#a16207", type:"image", opacity:0.8},
     {id:"ortho",  group:"Survey layers", name:"Ortho Image", tag:"ORTHO", icon:"▦", color:"#7c3aed", type:"image"},
-    {id:"dsm",    group:"Survey layers", name:"DSM Surface", tag:"DSM",   icon:"▦", color:"#16a34a", type:"image", opacity:0.85},
-    {id:"drains", group:"Survey layers", name:"Drains Surveyed", icon:"—", color:"#1565c0", file:"drains.geojson",   unit:"drains", style:{color:"#1565c0",weight:2.6,opacity:.9}},
-    {id:"culverts", group:"Survey layers", name:"Culverts",  icon:"●", color:"#f59e0b", file:"culverts.geojson", unit:"culverts", radius:4},
+    {id:"drains", group:"Survey layers", name:"Drains & Culverts", icon:"—", color:"#1565c0", files:["drains.geojson","culverts.geojson"], unit:"features",
+      style:{color:"#1565c0",weight:2.6,opacity:.9}, pointColor:"#f59e0b", radius:4},
     {id:"gcp",    group:"Survey layers", name:"GCP Marked",  icon:"●", color:"#d32027", files:["gcp.geojson","tbm.geojson"], unit:"points"},
     {id:"photos", group:"Survey layers", name:"Survey Photos", icon:"●", color:"#be123c", file:"photos.geojson", unit:"photos", radius:4}
   ],
@@ -297,12 +348,25 @@ const UP = {"path":"M141 40 L139 45 L143 52 L139 57 L139 62 L131 69 L122 86 L115
 
 const $ = s => document.querySelector(s);
 const fmt = (n,d=1) => (n===null||n===undefined||n==='') ? '—' : (isNaN(n) ? n : Number(n).toLocaleString('en-IN',{maximumFractionDigits:d}));
-const TABS = [["about","About"],["cities","Cities"],["lidar","LiDAR<br>Surveys"],["satellite","Satellite<br>Imagery"],["analysis","Analysis"],["drainage","Existing<br>Drainage"],["measures","Proposed<br>Measures"],["costs","Project<br>Costs"],["progress","Work<br>Progress"],["twin","Digital<br>Twin Model"]];
-const TITLES = Object.fromEntries(TABS.map(t=>[t[0],t[1].replace('<br>',' ')]));
+const SECT = [["lidar","LiDAR Surveys","LiDAR"],["satellite","Satellite Imagery","Satellite"],["analysis","Analysis","Analysis"],["drainage","Existing Drainage","Drainage"],["measures","Proposed Measures","Measures"],["costs","Project Costs","Costs"],["progress","Work Progress","Progress"],["twin","Digital Twin Model","Digital Twin"]];
+const TITLES = Object.fromEntries(SECT.map(t=>[t[0],t[1]]));
+const ICON = {
+  layers:'<path d="M10 3l7 4-7 4-7-4z"/><path d="M3 11l7 4 7-4"/>',
+  lidar:'<circle cx="10" cy="10" r="6.5"/><circle cx="10" cy="10" r="2.5"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3"/>',
+  satellite:'<circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c3 3 3 11 0 14M10 3c-3 3-3 11 0 14"/>',
+  analysis:'<path d="M3 3v14h14"/><path d="M5 14l4-5 3 3 5-7"/>',
+  drainage:'<path d="M2 7c2-2 4 2 6 0s4 2 6 0 3 1 4 1M2 13c2-2 4 2 6 0s4 2 6 0 3 1 4 1"/>',
+  measures:'<path d="M10 2c4 5 5 7 5 9a5 5 0 01-10 0c0-2 1-4 5-9z"/>',
+  costs:'<path d="M6 4h8M6 7.5h8M6 4c5.5 0 5.5 7 0 7l6 6"/>',
+  progress:'<circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/>',
+  twin:'<path d="M10 2l7 4v8l-7 4-7-4V6z"/><path d="M3 6l7 4 7-4M10 10v8"/>'
+};
+const svg = k => `<svg viewBox="0 0 20 20" aria-hidden="true">${ICON[k]}</svg>`;
 const TILES = {
   streets:   () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}),
   satellite: () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Imagery &copy; Esri'})
 };
+let sheetState = 's-norm', layersOpen = window.innerWidth > 900;
 let maps = [], current = 'varanasi';
 try{ current = localStorage.getItem('iuswdmp_city') || current; }catch(e){}
 const cache = {};
@@ -331,7 +395,7 @@ function popupHtml(d,p){
   const ph = Array.isArray(p.photos) ? p.photos : [];
   const pics = ph.length ? `<a href="${ph[0]}" target="_blank" rel="noopener"><img src="${ph[0]}" alt="Photo of ${p.Point||d.name}" loading="lazy" style="width:240px;max-width:100%;display:block;margin:6px 0 4px;border-radius:5px"></a>`
     + (ph.length>1 ? `<div style="font-size:11px">More photos: ${ph.slice(1).map((f,i)=>`<a href="${f}" target="_blank" rel="noopener">${i+2}</a>`).join(' · ')}</div>` : '') : '';
-  return `<b>${p.Point||d.name}</b>${pics}<table class="pt">${rows}</table>`;
+  return `<b>${p.Point||p["Drain ID"]||(p.Culvert?"Culvert "+p.Culvert:"")||d.name}</b>${pics}<table class="pt">${rows}</table>`;
 }
 const RAMP = [[37,99,235],[22,163,74],[234,179,8],[194,65,12]];   // low (blue) → high (brown)
 function rampColor(t){
@@ -346,7 +410,7 @@ function buildLayer(d,gj){
                        : d.id==='catchment' ? (f.geometry.type==='Polygon' ? {color:'#0369a1',weight:2,dashArray:'7 5',fillColor:'#38bdf8',fillOpacity:.05}
                                                                            : {color:'#0284c7',weight:1+(f.properties['Stream order']||1)*0.9,opacity:.85})
                        : (d.style || {color:d.color,weight:2}),
-    pointToLayer: (f,ll) => L.circleMarker(ll,{radius:d.radius||5,color:'#fff',weight:1.5,fillColor:d.color,fillOpacity:1}),
+    pointToLayer: (f,ll) => L.circleMarker(ll,{radius:d.radius||5,color:'#fff',weight:1.5,fillColor:d.pointColor||d.color,fillOpacity:1}),
     onEachFeature: (f,l) => { if (f.properties && Object.keys(f.properties).length) l.bindPopup(popupHtml(d,f.properties)); }
   });
 }
@@ -357,35 +421,65 @@ function layerRow(d){
     <div class="lt"><b>${d.name}${d.tag?`<span class="tag">${d.tag}</span>`:''}</b><small id="m-${d.id}">loading…</small></div>
     <input type="checkbox" class="tg" id="t-${d.id}" aria-label="${d.name}" disabled></div>`;
 }
-function stageHtml(c, ids, right){
-  const ls = CONFIG.layers.filter(l=>ids.includes(l.id));
+function cityView(c, tab){
+  const pg = PAGES[tab](c);
+  const ls = CONFIG.layers.filter(l=>pg.ids.includes(l.id));
   const groups = [...new Set(ls.map(l=>l.group))];
-  return `<div class="stage" id="stage"><div id="cityMap"></div>
-    <aside class="panel left">
-      <div class="ph"><h2>Map layers</h2><button class="fs" id="fsBtn" title="Full screen">⛶</button></div>
+  const pr = c.progress || {};
+  const pill = (label,key) => { const v = pr[key], pc = (v && v[1] && v[0]!=null) ? Math.min(100,v[0]/v[1]*100) : null;
+    return `<span class="pill2">${label}<i><b style="width:${pc||0}%"></b></i><strong>${pc===null?'—':pc.toFixed(1)+'%'}</strong></span>`; };
+  $('#foot').hidden = true;
+  $('#app').innerHTML = `
+  <div class="proj">
+    <a class="bk" href="#/cities" title="All cities" aria-label="All cities">←</a>
+    <div><h1>${c.name}</h1><small>${c.name} Municipal Corporation · ${fmt(c.area,2)} sq km</small></div>
+    <div class="pills">${pill('Drains','Primary Drain')}${pill('GCPs','GCP Points')}${pill('LiDAR','LiDAR Survey')}</div>
+    <span class="status ${c.live?'':'wait'}">${c.live?'Under Progress':'Data awaited'}</span>
+  </div>
+  <div class="ws ${sheetState}" id="ws">
+    <aside class="side" aria-label="City sections">
+      <button id="lyBtn" title="Show or hide map layers">${svg('layers')}Layers</button>
+      <div class="sl">CITY</div>
+      ${SECT.map(([k,full,short]) => `<a href="#/city/${c.id}/${k}" class="${k===tab?'on':''}" title="${full}">${svg(k)}${short}</a>`).join('')}
+    </aside>
+    <div class="mapbox"><div id="cityMap"></div>
+      <div class="tools"><button id="zIn" title="Zoom in">+</button><button id="zOut" title="Zoom out">−</button><button id="fsBtn" title="Full screen">⛶</button><button id="bBase" title="Switch between street map and satellite">▦</button></div>
+    </div>
+    <div class="lpanel" id="lpanel" ${layersOpen?'':'hidden'}>
+      <div class="ph"><h2>Map layers</h2></div>
       <div class="pb">
         <div class="info"><div><span>No. of wards</span><b>${fmt(c.wards)}</b></div><div><span>Area (sq. km)</span><b>${fmt(c.area,2)}</b></div></div>
         ${groups.map(g=>`<div class="sec">${g}</div>`+ls.filter(l=>l.group===g).map(layerRow).join('')).join('')}
       </div>
-      <div class="basemap"><div class="seg"><button id="bStreets">▦ Streets</button><button id="bSat">⛰ Satellite</button></div></div>
-    </aside>${right||''}</div>`;
-}
-function stageInit(c, ids, on, basemap){
-  const m = L.map('cityMap',{zoomControl:false,scrollWheelZoom:false}).setView([c.lat,c.lng],12);
+    </div>
+    <section class="sheet" id="sheet">
+      <div class="stabs">${SECT.map(([k,full]) => `<a href="#/city/${c.id}/${k}" class="${k===tab?'on':''}">${full}</a>`).join('')}
+        <span class="sx"><button id="shMax" title="Expand or restore the panel">⤢</button><button id="shMin" title="Hide or show the panel">✕</button></span></div>
+      <div class="sbody">${pg.html}</div>
+    </section>
+  </div>`;
+
+  const ws = $('#ws'), wide = () => window.innerWidth > 900;
+  const size = () => { ws.style.height = wide() ? Math.max(560, window.innerHeight - (document.fullscreenElement===ws ? 0 : ws.offsetTop)) + 'px' : ''; maps.forEach(x=>x.invalidateSize()); };
+  size(); window.onresize = size;
+
+  const m = L.map('cityMap',{zoomControl:false,scrollWheelZoom:true}).setView([c.lat,c.lng],12);
   maps.push(m);
   m.createPane('img').style.zIndex = 350;      // image layers sit under the lines and points
-  L.control.zoom({position:'bottomright'}).addTo(m);
-  L.control.scale({position:'bottomright',imperial:false}).addTo(m);
-  let base;
-  const setBase = k => { if(base) m.removeLayer(base); base = TILES[k]().addTo(m); base.bringToBack();
-    $('#bStreets').classList.toggle('on',k==='streets'); $('#bSat').classList.toggle('on',k==='satellite'); };
-  setBase(basemap||'streets');
-  $('#bStreets').onclick = () => setBase('streets');
-  $('#bSat').onclick = () => setBase('satellite');
-  $('#fsBtn').onclick = () => { const s=$('#stage'); document.fullscreenElement ? document.exitFullscreen() : (s.requestFullscreen && s.requestFullscreen()); };
-  document.onfullscreenchange = () => setTimeout(()=>maps.forEach(x=>x.invalidateSize()),200);
-  const wide = window.innerWidth > 900, hasRight = !!document.querySelector('.panel.right');
-  CONFIG.layers.filter(l=>ids.includes(l.id)).forEach(async d => {
+  let base, baseKey = pg.base || 'streets';
+  const setBase = k => { if(base) m.removeLayer(base); baseKey = k; base = TILES[k]().addTo(m); base.bringToBack(); $('#bBase').classList.toggle('on',k==='satellite'); };
+  setBase(baseKey);
+  $('#bBase').onclick = () => setBase(baseKey==='streets'?'satellite':'streets');
+  $('#zIn').onclick = () => m.zoomIn(); $('#zOut').onclick = () => m.zoomOut();
+  $('#fsBtn').onclick = () => { document.fullscreenElement ? document.exitFullscreen() : (ws.requestFullscreen && ws.requestFullscreen()); };
+  document.onfullscreenchange = () => setTimeout(size,150);
+  $('#lyBtn').onclick = () => { layersOpen = !layersOpen; $('#lpanel').hidden = !layersOpen; };
+  const setSheet = st => { sheetState = st; ws.classList.remove('s-norm','s-max','s-min'); ws.classList.add(st); };
+  $('#shMax').onclick = () => setSheet(sheetState==='s-max'?'s-norm':'s-max');
+  $('#shMin').onclick = () => setSheet(sheetState==='s-min'?'s-norm':'s-min');
+  const pad = () => wide() ? {paddingTopLeft:[layersOpen?290:20,20], paddingBottomRight:[60, sheetState==='s-min'?70:Math.round(ws.clientHeight*0.44)+16]} : {padding:[12,12]};
+
+  ls.forEach(async d => {
     const meta = $('#m-'+d.id), tg = $('#t-'+d.id);
     let lyr;
     if (d.type === 'image'){
@@ -402,29 +496,28 @@ function stageInit(c, ids, on, basemap){
       if (!gj){ meta.textContent = 'file not added yet'; return; }
       lyr = buildLayer(d,gj);
       meta.textContent = `${fmt((gj.features||[]).length)} ${d.unit||'features'}` + (d._range ? ` · ${d._range[0]}–${d._range[1]} m` : '');
-      if (d.fit){ try{ m.fitBounds(lyr.getBounds(),{paddingTopLeft:[wide?285:10,15],paddingBottomRight:[wide&&hasRight?310:10,15]}); }catch(e){} }
+      if (d.fit){ try{ m.fitBounds(lyr.getBounds(),pad()); }catch(e){} }
     }
     tg.disabled = false;
     const set = v => v ? lyr.addTo(m) : m.removeLayer(lyr);
-    tg.onchange = () => { set(tg.checked); if (tg.checked && d.zoomOnShow){ try{ m.fitBounds(lyr.getBounds(),{paddingTopLeft:[wide?285:10,15],paddingBottomRight:[10,15]}); }catch(e){} } };
-    if (on.includes(d.id)){ tg.checked = true; set(true); }
+    tg.onchange = () => { set(tg.checked); if (tg.checked && d.zoomOnShow){ try{ m.fitBounds(lyr.getBounds(),pad()); }catch(e){} } };
+    if (pg.on.includes(d.id)){ tg.checked = true; set(true); }
   });
 }
 
-/* ---------- chrome ---------- */
+/* ---------- chrome: About + one city selector ---------- */
 function chrome(show, active){
   $('#top').hidden = !show; $('#foot').hidden = !show;
   if(!show) return;
-  $('#nav').innerHTML = TABS.map(([k,label]) => {
-    const href = (k==='about'||k==='cities') ? '#/'+k : `#/city/${current}/${k}`;
-    const a = `<a href="${href}" class="${k===active?'on':''}">${label}</a>`;
-    return k==='cities' ? a + `<span class="csel"><span>City</span><select id="citySel" aria-label="City">${CONFIG.cities.map(c=>`<option value="${c.id}" ${c.id===current?'selected':''}>${c.name}</option>`).join('')}</select></span>` : a;
-  }).join('');
-  $('#citySel').onchange = e => { const t = (active==='about'||active==='cities') ? 'progress' : active; location.hash = `#/city/${e.target.value}/${t}`; };
-  const on = document.querySelector('.nav a.on'); if(on && on.scrollIntoView) on.scrollIntoView({block:'nearest',inline:'center'});
+  const inCity = !!TITLES[active];
+  $('#nav').innerHTML = `<a href="#/about" class="${active==='about'?'on':''}">About</a>
+    <select id="citySel" aria-label="Select city">
+      ${active==='about' ? '<option value="" disabled selected hidden>Select city</option>' : ''}
+      <option value="all" ${active==='cities'?'selected':''}>All cities</option>
+      ${CONFIG.cities.map(c=>`<option value="${c.id}" ${inCity&&c.id===current?'selected':''}>${c.name}</option>`).join('')}
+    </select>`;
+  $('#citySel').onchange = e => { const v = e.target.value; location.hash = v==='all' ? '#/cities' : `#/city/${v}/${inCity?active:'progress'}`; };
 }
-const band = (c,tab) => `<div class="band"><div class="in"><div><small>Integrated Urban Storm Water Drainage Master Plan</small>
-  <h1>${TITLES[tab]} <span>· ${c.name}</span></h1></div><span class="pill">${c.name} Municipal Corporation</span></div></div>`;
 const todo = (c,what) => `<div class="todo"><b>${c.name}: to be added</b>${what}</div>`;
 const stat = (k,v,u) => `<div class="card stat"><span>${k}</span><b>${v}${u&&v!=='—'?`<small>${u}</small>`:''}</b></div>`;
 
@@ -439,10 +532,9 @@ function heroArt(){
     <path d="${UP.path}" fill="none" stroke="#5cc8ff" stroke-opacity=".07" stroke-width="70" stroke-linejoin="round"/>
     <path d="${UP.path}" fill="none" stroke="#5cc8ff" stroke-opacity=".12" stroke-width="30" stroke-linejoin="round"/>
     <path d="${UP.path}" fill="url(#hg)" stroke="#9fdcff" stroke-width="4"/>
-    <path class="flow" d="${link}"/>
     ${CONFIG.cities.map(c => { const [x,y]=P[c.id], l=lab[c.id];
       return `<a href="#/city/${c.id}/progress"><circle class="rip" cx="${x}" cy="${y}" r="30"/><circle class="rip d2" cx="${x}" cy="${y}" r="30"/><circle cx="${x}" cy="${y}" r="15" fill="${c.live?'#6ee7b7':'#fff'}"/><text x="${x+l[0]}" y="${y+l[1]}" text-anchor="${l[2]}">${c.name}</text></a>`; }).join('')}
-  </svg><div class="cap"><b>6 cities</b> · ${fmt(tot,2)} km² · one integrated drainage master plan</div>`;
+  </svg>`;
 }
 
 /* ---------- pages ---------- */
@@ -502,40 +594,32 @@ function progCard(p){
 }
 const PAGES = {
   lidar(c){
-    const ids=['outer','ortho','gcp'];
-    $('#app').innerHTML = band(c,'lidar') + `<div class="wrap"><p class="lead">Advanced geospatial surveys for stormwater planning – LiDAR-based urban mapping and upstream catchment delineation.</p>
-      <div class="grid g2" style="margin-bottom:16px"><div class="card"><h3>LiDAR Survey of the ULB Area</h3><p>State-of-the-art LiDAR surveying is proposed to acquire detailed, high-resolution topographic data across the Urban Local Body area. The survey supports the mapping of terrain levels, drainage corridors and key surface features for stormwater planning.</p></div>
-      <div class="card"><h3>Upstream Catchment Mapping</h3><p>High-resolution satellite imagery complements the LiDAR survey to delineate upstream basins and identify catchments extending beyond the municipal boundary, providing a consistent spatial base for runoff assessment and flood mitigation proposals.</p></div></div>
-      <h2>Ground control points and ortho image</h2>${stageHtml(c,ids)}</div>`;
-    stageInit(c,ids,['outer','ortho','gcp']);
+    const html = `<p class="lead">Advanced geospatial surveys for stormwater planning – LiDAR-based urban mapping and upstream catchment delineation. The map shows the ground control points and the ortho image.</p>
+      <div class="grid g2"><div class="card"><h3>LiDAR Survey of the ULB Area</h3><p>State-of-the-art LiDAR surveying is proposed to acquire detailed, high-resolution topographic data across the Urban Local Body area. The survey supports the mapping of terrain levels, drainage corridors and key surface features for stormwater planning.</p></div>
+      <div class="card"><h3>Upstream Catchment Mapping</h3><p>High-resolution satellite imagery complements the LiDAR survey to delineate upstream basins and identify catchments extending beyond the municipal boundary, providing a consistent spatial base for runoff assessment and flood mitigation proposals.</p></div></div>`;
+    return {ids:['outer','ortho','gcp'], on:['outer','ortho','gcp'], html};
   },
   satellite(c){
-    const ids=['outer','ward'];
-    $('#app').innerHTML = band(c,'satellite') + `<div class="wrap"><p class="lead">Geospatial intelligence – drone and satellite imagery used in urban infrastructure planning, design and management.</p>
-      ${stageHtml(c,ids)}</div>`;
-    stageInit(c,ids,['outer'],'satellite');
+    const html = `<p class="lead">Geospatial intelligence – drone and satellite imagery used in urban infrastructure planning, design and management. The map shows satellite imagery with the city and ward boundaries.</p>`;
+    return {ids:['outer','ward'], on:['outer'], base:'satellite', html};
   },
   analysis(c){
-    const ids=['outer','rivers','catchment','contours','contours_lidar','dem','dtm','dsm','drains'];
-    $('#app').innerHTML = band(c,'analysis') + `<div class="wrap"><p class="lead">Terrain and rainfall analysis that feeds the drainage design.</p>
+    const html = `<p class="lead">Terrain and rainfall analysis that feeds the drainage design.</p>
       <h2 style="margin-top:0">Contour maps</h2>
-      <p class="lead">Terrain elevation, contours and the drainage network with elevation.</p>
-      ${stageHtml(c,ids)}<p class="note">Contours coloured from low (blue) to high (brown); click a line for its level. Switch on “Upstream Catchment” to see the river basin beyond the city. Elevation model based on Copernicus DEM (corrected); basin streams from HydroRIVERS.</p>
+      <p class="note" style="margin-top:0">Contours are coloured from low (blue) to high (brown); click a line for its level. Switch on “Upstream Catchment” to see the river basin beyond the city. Elevation model based on Copernicus DEM; basin streams from HydroRIVERS.</p>
       <h2>Rainfall data</h2>
       <p class="lead">Rainfall data from the India Meteorological Department – deriving Intensity–Duration–Frequency (IDF) curves.</p>
-      <div class="card" style="text-align:center"><a href="img_idf.jpg" target="_blank"><img src="img_idf.jpg" alt="IDF curves – concept illustration" style="max-width:900px;width:100%;border-radius:8px"></a><p class="note">Concept illustration from the project presentation.</p></div>
-      <div style="margin-top:14px">${todo(c,'City-specific IMD rainfall record and IDF curve table.')}</div></div>`;
-    stageInit(c,ids,['outer','rivers','contours']);
+      <div class="card" style="text-align:center"><a href="img_idf.jpg" target="_blank"><img src="img_idf.jpg" alt="IDF curves – concept illustration" style="max-width:820px;width:100%;border-radius:8px"></a><p class="note">Concept illustration from the project presentation.</p></div>
+      <div style="margin-top:14px">${todo(c,'City-specific IMD rainfall record and IDF curve table.')}</div>`;
+    return {ids:['outer','rivers','catchment','contours','dem'], on:['outer','rivers','contours'], html};
   },
   drainage(c){
-    const ids=['ward','outer','buffer','rivers','drains','culverts','photos'];
-    $('#app').innerHTML = band(c,'drainage') + `<div class="wrap">
-      <div class="grid g4" style="margin-bottom:16px">${stat('Drains surveyed',fmt(c.drains),'km')}${stat('Culverts mapped',fmt(c.culverts,0))}${stat('Wards',fmt(c.wards,0))}${stat('Nagar Nigam area',fmt(c.area,2),'km²')}</div>
-      ${stageHtml(c,ids)}<p class="note">Click a drain, culvert or ward on the map for details.</p></div>`;
-    stageInit(c,ids,['outer','rivers','drains','culverts']);
+    const html = `<div class="grid g4">${stat('Drains surveyed',fmt(c.drains),'km')}${stat('Culverts mapped',fmt(c.culverts,0))}${stat('Wards',fmt(c.wards,0))}${stat('Nagar Nigam area',fmt(c.area,2),'km²')}</div>
+      <p class="note">Surveyed drains are drawn as blue lines and culverts as amber points, on one layer. Click a drain, culvert or ward on the map for details.</p>`;
+    return {ids:['ward','outer','buffer','rivers','drains','photos'], on:['outer','rivers','drains'], html};
   },
   measures(c){
-    $('#app').innerHTML = band(c,'measures') + `<div class="wrap"><h2 style="margin-top:0">Solutions for improvement of the storm water drainage system</h2>
+    const html = `<div><h2 style="margin-top:0">Solutions for improvement of the storm water drainage system</h2>
       <div class="grid g3">
         <div class="sol" style="background:#dcefd9"><span class="n">Solution 1</span><h3>Augmentation of Drain Capacity</h3>Increase the conveyance of existing drains by widening or deepening and by constructing missing links. Large drain sizes may require land acquisition.</div>
         <div class="sol" style="background:#fdf3cf"><span class="n">Solution 2</span><h3>Alternate / Bypass Drain Alignments</h3>GIS-based study to provide additional feasible drain alignments, reducing drain sizes and easing implementation. Public-friendly, with minimum or no land acquisition.</div>
@@ -544,27 +628,26 @@ const PAGES = {
       <h2>Sponge infrastructure initiatives</h2>
       <div class="grid g3">${CONFIG.options.map(o=>`<div class="card opt"><a href="${o.img}" target="_blank"><img src="${o.img}" alt="${o.t}" loading="lazy"></a><div class="b"><h3><span class="no">${o.n}</span>${o.t}</h3><p>${o.d}</p></div></div>`).join('')}</div>
       <p class="note">Concept options from the project presentation. City-specific proposals for ${c.name} will follow the master plan.</p></div>`;
+    return {ids:['outer'],on:['outer'],html};
   },
   costs(c){
     const v = c.costs || [], any = v.some(x=>x!=null), tot = v.reduce((a,x)=>a+(x||0),0);
-    $('#app').innerHTML = band(c,'costs') + `<div class="wrap"><h2 style="margin-top:0">Project cost summary</h2>
+    const html = `<div><h2 style="margin-top:0">Project cost summary</h2>
       <div class="tw"><table><thead><tr><th>S. No.</th><th>Project component</th><th class="n">Cost (₹ crore)</th></tr></thead>
       <tbody>${CONFIG.costLines.map((l,i)=>`<tr><td>${i+1}</td><td>${l}</td><td class="n">${fmt(v[i],2)}</td></tr>`).join('')}</tbody>
       <tfoot><tr><td colspan="2">GRAND TOTAL</td><td class="n">${any?fmt(tot,2):'—'}</td></tr></tfoot></table></div>
       <p class="note">Costs will be filled in once the estimates for ${c.name} are finalised. Prioritisation of projects, phasing of implementation and funding (SDMF, State, ULB) follow the master plan.</p></div>`;
+    return {ids:['outer'],on:['outer'],html};
   },
   progress(c){
-    const ids = CONFIG.layers.map(l=>l.id);
-    const right = `<aside class="panel right"><div class="ph" style="display:block"><div class="k">Survey progress</div><h2>${c.name}</h2></div>
-      <div class="pb"><div class="wprrow"><span>Latest WPR</span><b>${c.live?CONFIG.latestWPR:'—'}</b></div>
-      ${CONFIG.progressTemplate.map(t=>{const v=(c.progress||{})[t.name]||[]; return progCard({...t,done:v[0],est:v[1]});}).join('')}
+    const html = `<div class="wprrow"><span>Latest weekly progress report</span><b>${c.live?CONFIG.latestWPR:'—'}</b></div>
+      <div class="grid g3">${CONFIG.progressTemplate.map(t=>{const v=(c.progress||{})[t.name]||[]; return progCard({...t,done:v[0],est:v[1]});}).join('')}
       <div class="pc" style="--c:#0a2a66"><div class="t"><span>Survey Team</span></div>
         <div class="nums three"><div><div class="l">Rovers</div><div class="big">${fmt(c.team&&c.team.rovers)}</div></div>
         <div><div class="l">Base</div><div class="big">${fmt(c.team&&c.team.base)}</div></div>
-        <div><div class="l">Members</div><div class="big">${fmt(c.team&&c.team.members)}</div></div></div></div></div></aside>`;
-    $('#app').innerHTML = band(c,'progress') + `<div class="wrap">${stageHtml(c,ids,right)}
-      <p class="note">Survey, collection of data and preparation of the Integrated Urban Storm Water Drainage Master Plan.</p></div>`;
-    stageInit(c,ids,['outer','drains']);
+        <div><div class="l">Members</div><div class="big">${fmt(c.team&&c.team.members)}</div></div></div></div></div>
+      <p class="note">Survey, collection of data and preparation of the Integrated Urban Storm Water Drainage Master Plan.</p>`;
+    return {ids:CONFIG.layers.map(l=>l.id), on:['outer','drains'], html};
   },
   twin(c){
     const st=[["Survey integration and drainage inventory","Integrate drone LiDAR terrain data, high-resolution imagery, municipal records and field surveys in a common coordinate and elevation system. Map drains, culverts, inlets, outfalls, lakes, ponds, pumps and sluice gates with unique asset IDs."],
@@ -572,12 +655,13 @@ const PAGES = {
       ["Testing and prioritising interventions","Compare drain rehabilitation, widening, alternate alignments, culvert improvements, pumping and lake regulation with detention ponds and other sponge city measures. Rank packages by flood reduction, cost and maintenance."],
       ["Master plan and DPR preparation","Establish catchment-wise proposals, alignments, indicative dimensions and phased investment priorities. Hand over editable GIS layers, model files, flood maps and an asset register."],
       ["Monitoring and operational readiness","Progressively connect rain gauges, drain and lake-level sensors, pump status and SCADA or command-centre systems to support threshold alerts and operator decisions."]];
-    $('#app').innerHTML = band(c,'twin') + `<div class="wrap"><p class="lead">A digital twin is proposed as an integrated platform for preparing, reviewing and regularly updating stormwater drainage master plans and Detailed Project Reports. It links geospatial data, hydrological and hydraulic models, and field observations.</p>
+    const html = `<div><p class="lead">A digital twin is proposed as an integrated platform for preparing, reviewing and regularly updating stormwater drainage master plans and Detailed Project Reports. It links geospatial data, hydrological and hydraulic models, and field observations.</p>
       <div class="grid g3"><div class="card"><h3>Integrated Spatial Data</h3><p>Combine terrain, drainage assets, land use and upstream catchments in a consistent geospatial database.</p></div>
       <div class="card"><h3>Flood Simulation and Planning</h3><p>Assess network capacity, identify flood hotspots and compare structural and sponge city interventions.</p></div>
       <div class="card"><h3>Monitoring and Decision Support</h3><p>Progressively connect rainfall and water-level observations to support alerts, asset management and operations.</p></div></div>
       <h2>How the model is applied</h2>${st.map((s,i)=>`<div class="step"><div class="no">${i+1}</div><div><b>${s[0]}.</b> ${s[1]}</div></div>`).join('')}
       <div class="card lbar" style="margin-top:14px"><h3>Implementation recommendation</h3><p>Begin with a validated planning model for each ULB, pilot priority catchments and expand monitoring in stages. Benefits depend on survey quality, validation and sustained upkeep.</p></div></div>`;
+    return {ids:['outer'],on:['outer'],html};
   }
 };
 
@@ -585,13 +669,14 @@ const PAGES = {
 function route(){
   clearMaps();
   const h = (location.hash || '#/').replace(/^#\/?/,'').split('/').filter(Boolean);
+  window.onresize = null;
   if (!h.length){ landing(); window.scrollTo(0,0); return; }
   let tab = h[0];
   if (tab === 'city'){
     const c = cityOf(h[1]) || cityOf(current);
     current = c.id; try{ localStorage.setItem('iuswdmp_city', current); }catch(e){}
     tab = (h[2]==='contour'||h[2]==='rainfall') ? 'analysis' : (PAGES[h[2]] ? h[2] : 'progress');
-    chrome(true, tab); PAGES[tab](c);
+    chrome(true, tab); cityView(c, tab);
     document.title = `${TITLES[tab]} · ${c.name} · IUSWDMP`;
   } else if (tab === 'cities'){ chrome(true,'cities'); cities(); document.title = 'Cities · IUSWDMP'; }
   else { chrome(true,'about'); about(); document.title = 'About · IUSWDMP'; }

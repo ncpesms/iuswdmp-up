@@ -254,11 +254,16 @@ const CONFIG = {
       style:{color:"#0a2a66",weight:2.5,fill:false}, fit:true},
     {id:"buffer", group:"Boundaries", name:"Buffer Area",    icon:"▢", color:"#d97706", file:"buffer_area.geojson",    unit:"polygons",
       style:{color:"#d97706",weight:1.5,fillOpacity:0.06,dashArray:"6 4"}},
-    {id:"rivers",   group:"Rivers and terrain", name:"Rivers", icon:"≈", color:"#0ea5e9", file:"rivers.geojson", unit:"rivers",
-      style:{color:"#0ea5e9",weight:4,opacity:.75}},
-    {id:"contours", group:"Rivers and terrain", name:"Contours", tag:"0.5 M", icon:"≋", color:"#b45309", file:"contours.geojson", unit:"lines", ramp:"Elevation (m)"},
-    {id:"ortho",  group:"Survey layers", name:"Ortho Image", tag:"ORTHO", icon:"▦", color:"#7c3aed", type:"tiles", url:"", meta:"orthophoto tiles"},
-    {id:"dsm",    group:"Survey layers", name:"DSM Surface", tag:"DSM",   icon:"▦", color:"#16a34a", type:"tiles", url:"", meta:"elevation tiles", opacity:0.8},
+    {id:"rivers",   group:"Rivers and terrain", name:"Rivers", icon:"≈", color:"#0ea5e9", file:"rivers.geojson", unit:"features",
+      style:{color:"#0ea5e9",weight:4,opacity:.75,fillColor:"#38bdf8",fillOpacity:.45}},
+    {id:"catchment", group:"Rivers and terrain", name:"Upstream Catchment", icon:"≈", color:"#0369a1", file:"catchment.geojson", unit:"features", zoomOnShow:true},
+    {id:"contours", group:"Rivers and terrain", name:"Contours", tag:"1.5 M", icon:"≋", color:"#b45309", file:"contours.geojson", unit:"levels", ramp:"Elevation (m)", major:7.5},
+    {id:"contours_lidar", group:"Rivers and terrain", name:"Contours – LiDAR", tag:"1 M", icon:"≋", color:"#7c2d12", file:"contours_lidar.geojson", unit:"levels", ramp:"Elevation (m)", major:5},
+    // image layers are listed in <city prefix>images.json: {"ortho":{"file":"x.webp","bounds":[[south,west],[north,east]],"note":"..."}, "dtm":{...}, "dsm":{...}}
+    {id:"dem",    group:"Rivers and terrain", name:"Corrected DEM", tag:"DEM", icon:"▦", color:"#a16207", type:"image", opacity:0.8},
+    {id:"dtm",    group:"Rivers and terrain", name:"DTM Terrain", tag:"DTM", icon:"▦", color:"#15803d", type:"image", opacity:0.85},
+    {id:"ortho",  group:"Survey layers", name:"Ortho Image", tag:"ORTHO", icon:"▦", color:"#7c3aed", type:"image"},
+    {id:"dsm",    group:"Survey layers", name:"DSM Surface", tag:"DSM",   icon:"▦", color:"#16a34a", type:"image", opacity:0.85},
     {id:"drains", group:"Survey layers", name:"Drains Surveyed", icon:"—", color:"#1565c0", file:"drains.geojson",   unit:"drains", style:{color:"#1565c0",weight:2.6,opacity:.9}},
     {id:"culverts", group:"Survey layers", name:"Culverts",  icon:"●", color:"#f59e0b", file:"culverts.geojson", unit:"culverts", radius:4},
     {id:"gcp",    group:"Survey layers", name:"GCP Marked",  icon:"●", color:"#d32027", files:["gcp.geojson","tbm.geojson"], unit:"points"},
@@ -337,7 +342,9 @@ function buildLayer(d,gj){
   let lo = 0, hi = 1;
   if (d.ramp){ const v = gj.features.map(f=>f.properties[d.ramp]).filter(x=>x!=null); lo = Math.min(...v); hi = Math.max(...v); d._range = [lo,hi]; }
   return L.geoJSON(gj,{
-    style: f => d.ramp ? {color:rampColor((f.properties[d.ramp]-lo)/((hi-lo)||1)), weight:(f.properties[d.ramp]%5===0)?2.4:1.1, opacity:.9}
+    style: f => d.ramp ? {color:rampColor((f.properties[d.ramp]-lo)/((hi-lo)||1)), weight:(f.properties[d.ramp]%(d.major||5)===0)?2.4:1.1, opacity:.9}
+                       : d.id==='catchment' ? (f.geometry.type==='Polygon' ? {color:'#0369a1',weight:2,dashArray:'7 5',fillColor:'#38bdf8',fillOpacity:.05}
+                                                                           : {color:'#0284c7',weight:1+(f.properties['Stream order']||1)*0.9,opacity:.85})
                        : (d.style || {color:d.color,weight:2}),
     pointToLayer: (f,ll) => L.circleMarker(ll,{radius:d.radius||5,color:'#fff',weight:1.5,fillColor:d.color,fillOpacity:1}),
     onEachFeature: (f,l) => { if (f.properties && Object.keys(f.properties).length) l.bindPopup(popupHtml(d,f.properties)); }
@@ -366,6 +373,7 @@ function stageHtml(c, ids, right){
 function stageInit(c, ids, on, basemap){
   const m = L.map('cityMap',{zoomControl:false,scrollWheelZoom:false}).setView([c.lat,c.lng],12);
   maps.push(m);
+  m.createPane('img').style.zIndex = 350;      // image layers sit under the lines and points
   L.control.zoom({position:'bottomright'}).addTo(m);
   L.control.scale({position:'bottomright',imperial:false}).addTo(m);
   let base;
@@ -380,10 +388,14 @@ function stageInit(c, ids, on, basemap){
   CONFIG.layers.filter(l=>ids.includes(l.id)).forEach(async d => {
     const meta = $('#m-'+d.id), tg = $('#t-'+d.id);
     let lyr;
-    if (d.type === 'tiles'){
-      if (!d.url){ meta.textContent = 'to be added'; return; }
-      lyr = L.tileLayer(d.url,{maxZoom:22,opacity:d.opacity||1});
-      meta.textContent = d.meta || '';
+    if (d.type === 'image'){
+      const key = c.id+'/images';
+      if (!(key in cache)){ cache[key] = fetch(c.prefix+'images.json',{cache:'no-cache'}).then(r=>r.ok?r.json():{}).catch(()=>({})); }
+      const im = (await cache[key])[d.id];
+      if (!maps.includes(m)) return;
+      if (!im){ meta.textContent = 'to be added'; return; }
+      lyr = L.imageOverlay(im.file, im.bounds, {opacity:d.opacity||1, pane:'img'});
+      meta.textContent = (im.note||'image') + (im.min!=null ? ` · ${im.min}–${im.max} m` : '');
     } else {
       const gj = await loadData(c,d);
       if (!maps.includes(m)) return;
@@ -394,7 +406,7 @@ function stageInit(c, ids, on, basemap){
     }
     tg.disabled = false;
     const set = v => v ? lyr.addTo(m) : m.removeLayer(lyr);
-    tg.onchange = () => set(tg.checked);
+    tg.onchange = () => { set(tg.checked); if (tg.checked && d.zoomOnShow){ try{ m.fitBounds(lyr.getBounds(),{paddingTopLeft:[wide?285:10,15],paddingBottomRight:[10,15]}); }catch(e){} } };
     if (on.includes(d.id)){ tg.checked = true; set(true); }
   });
 }
@@ -504,11 +516,11 @@ const PAGES = {
     stageInit(c,ids,['outer'],'satellite');
   },
   analysis(c){
-    const ids=['outer','rivers','contours','dsm','drains'];
+    const ids=['outer','rivers','catchment','contours','contours_lidar','dem','dtm','dsm','drains'];
     $('#app').innerHTML = band(c,'analysis') + `<div class="wrap"><p class="lead">Terrain and rainfall analysis that feeds the drainage design.</p>
       <h2 style="margin-top:0">Contour maps</h2>
       <p class="lead">Terrain elevation, contours and the drainage network with elevation.</p>
-      ${stageHtml(c,ids)}<p class="note">Contours at 0.5 m interval, coloured from low (blue) to high (brown); every 5 m line is drawn thicker. Click a line for its level.</p><div style="margin-top:14px">${todo(c,'Elevation (DSM) surface and natural-drainage catchment map.')}</div>
+      ${stageHtml(c,ids)}<p class="note">Contours coloured from low (blue) to high (brown); click a line for its level. Switch on “Upstream Catchment” to see the river basin beyond the city. Elevation model based on Copernicus DEM (corrected); basin streams from HydroRIVERS.</p>
       <h2>Rainfall data</h2>
       <p class="lead">Rainfall data from the India Meteorological Department – deriving Intensity–Duration–Frequency (IDF) curves.</p>
       <div class="card" style="text-align:center"><a href="img_idf.jpg" target="_blank"><img src="img_idf.jpg" alt="IDF curves – concept illustration" style="max-width:900px;width:100%;border-radius:8px"></a><p class="note">Concept illustration from the project presentation.</p></div>

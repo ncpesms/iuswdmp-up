@@ -1,0 +1,50 @@
+{
+ "dem": {
+  "file": "varanasi_dem.webp",
+  "bounds": [
+   [
+    25.238295,
+    82.916049
+   ],
+   [
+    25.40208,
+    83.061986
+   ]
+  ],
+  "note": "30 m corrected DEM",
+  "min": 56.9,
+  "max": 80.1
+ },
+ "dtm": {
+  "file": "ramnagar_dtm.webp",
+  "bounds": [
+   [
+    25.257722,
+    83.015815
+   ],
+   [
+    25.289605,
+    83.045187
+   ]
+  ],
+  "note": "Ramnagar block",
+  "min": 60.2,
+  "max": 78.5
+ },
+ "dsm": {
+  "file": "ramnagar_dsm.webp",
+  "bounds": [
+   [
+    25.257722,
+    83.015815
+   ],
+   [
+    25.289605,
+    83.045187
+   ]
+  ],
+  "note": "Ramnagar block",
+  "min": 60.3,
+  "max": 91.5
+ }
+}

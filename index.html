@@ -320,7 +320,10 @@ async function loadData(c,d){
 function popupHtml(d,p){
   const rows = Object.entries(p).filter(([k,v]) => v!==null && v!=='' && typeof v!=='object').slice(0,12)
     .map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
-  return `<b>${d.name}</b><table class="pt">${rows}</table>`;
+  const ph = Array.isArray(p.photos) ? p.photos : [];
+  const pics = ph.length ? `<a href="${ph[0]}" target="_blank" rel="noopener"><img src="${ph[0]}" alt="Photo of ${p.Point||d.name}" loading="lazy" style="width:240px;max-width:100%;display:block;margin:6px 0 4px;border-radius:5px"></a>`
+    + (ph.length>1 ? `<div style="font-size:11px">More photos: ${ph.slice(1).map((f,i)=>`<a href="${f}" target="_blank" rel="noopener">${i+2}</a>`).join(' · ')}</div>` : '') : '';
+  return `<b>${p.Point||d.name}</b>${pics}<table class="pt">${rows}</table>`;
 }
 function buildLayer(d,gj){
   return L.geoJSON(gj,{

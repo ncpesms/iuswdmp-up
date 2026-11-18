@@ -216,6 +216,16 @@ footer{text-align:center;font-size:11.5px;color:var(--mut);padding:16px;border-t
 .tools{position:absolute;right:12px;top:12px;z-index:550;display:flex;flex-direction:column;gap:8px}
 .tools button{width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:9px;cursor:pointer;font-size:17px;color:var(--navy);box-shadow:0 2px 8px rgba(10,42,102,.14)}
 .tools button.on{background:var(--navy);color:#fff}
+.tools button svg{width:18px;height:18px;vertical-align:middle}
+.mapbox.measuring .leaflet-container{cursor:crosshair}
+.mapbox.measuring .leaflet-interactive{pointer-events:none!important}
+.mres{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:570;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px rgba(10,42,102,.16);padding:9px 12px;display:flex;align-items:center;gap:12px;font:500 12.5px var(--sans);color:var(--navy);max-width:calc(100% - 24px)}
+.mres[hidden]{display:none}
+.mres b{font:600 15px var(--mono,monospace);white-space:nowrap}
+.mres span{color:#64748b;white-space:nowrap}
+@media(max-width:900px){.mres{flex-wrap:wrap;justify-content:center;gap:6px 10px;bottom:30px}}
+.mres button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 10px;font:600 11.5px var(--sans);color:var(--navy);cursor:pointer}
+.mdot{width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid #d6336c;margin:-5px 0 0 -5px}
 .lpanel{position:absolute;left:88px;top:12px;bottom:calc(44% + 12px);width:262px;z-index:560;background:#fff;border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(10,42,102,.12)}
 .lpanel[hidden]{display:none}
 .ws.s-min .lpanel{bottom:62px}
@@ -456,7 +466,7 @@ function popupHtml(d,p){
   const ph = Array.isArray(p.photos) ? p.photos : [];
   const pics = ph.length ? `<a href="${ph[0]}" target="_blank" rel="noopener"><img src="${ph[0]}" alt="Photo of ${p.Point||d.name}" loading="lazy" style="width:240px;max-width:100%;display:block;margin:6px 0 4px;border-radius:5px"></a>`
     + (ph.length>1 ? `<div style="font-size:11px">More photos: ${ph.slice(1).map((f,i)=>`<a href="${f}" target="_blank" rel="noopener">${i+2}</a>`).join(' · ')}</div>` : '') : '';
-  return `<b>${p.Point||p["Drain ID"]||(p.Culvert?"Culvert "+p.Culvert:"")||d.name}</b>${pics}<table class="pt">${rows}</table>`;
+  return `<b>${p.Point||p["Drain ID"]||(p.Culvert?"Culvert "+p.Culvert:"")||(p["Ward No"]?"Ward "+p["Ward No"]+(p.Ward?" · "+p.Ward:""):"")||d.name}</b>${pics}<table class="pt">${rows}</table>`;
 }
 const RAMP = [[37,99,235],[22,163,74],[234,179,8],[194,65,12]];   // low (blue) → high (brown)
 function rampColor(t){
@@ -476,6 +486,7 @@ function buildLayer(d,gj){
                        : (d.style || {color:d.color,weight:2}),
     pointToLayer: (f,ll) => L.circleMarker(ll,{radius:d.radius||5,color:'#fff',weight:1.5,fillColor:d.pointColor||d.color,fillOpacity:1}),
     onEachFeature: (f,l) => { if (f.properties && Object.keys(f.properties).length) l.bindPopup(popupHtml(d,f.properties));
+      if (d.id==='ward'){ l.on('mouseover',()=>l.setStyle({weight:3,fillOpacity:.18})); l.on('mouseout',()=>lines.resetStyle(l)); l.on('popupopen',()=>l.setStyle({weight:3,fillOpacity:.25})); l.on('popupclose',()=>lines.resetStyle(l)); }
       if (d.basins) l.bindTooltip(`${f.properties.Basin}<br>${f.properties['Area (sq km)']} sq km`,{permanent:true,direction:'center',className:'blab'}); }
   });
   if (!d.ramp) return lines;
@@ -520,7 +531,8 @@ function cityView(c, tab){
       ${SECT.map(([k,full,short]) => `<a href="#/city/${c.id}/${k}" class="${k===tab?'on':''}" title="${full}">${svg(k)}${short}</a>`).join('')}
     </aside>
     ${isMap ? `<div class="mapbox"><div id="cityMap"></div>
-      <div class="tools"><button id="zIn" title="Zoom in">+</button><button id="zOut" title="Zoom out">−</button><button id="fsBtn" title="Full screen">⛶</button><button id="bBase" title="Switch between street map and satellite">▦</button></div>
+      <div class="tools"><button id="zIn" title="Zoom in">+</button><button id="zOut" title="Zoom out">−</button><button id="fsBtn" title="Full screen">⛶</button><button id="bBase" title="Switch between street map and satellite">▦</button><button id="mDist" title="Measure a distance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg></button><button id="mArea" title="Measure an area"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 7 14 4l6 7-4 9H7z"/><circle cx="4" cy="7" r="1.4" fill="currentColor"/><circle cx="14" cy="4" r="1.4" fill="currentColor"/><circle cx="20" cy="11" r="1.4" fill="currentColor"/><circle cx="16" cy="20" r="1.4" fill="currentColor"/><circle cx="7" cy="20" r="1.4" fill="currentColor"/></svg></button></div>
+      <div class="mres" id="mres" hidden></div>
       <div class="vpane" id="vpane" hidden></div>
     </div>
     <div class="lpanel" id="lpanel" ${layersOpen?'':'hidden'}>
@@ -547,6 +559,34 @@ function cityView(c, tab){
   drawBase();
   $('#bBase').onclick = () => { baseKey = baseKey==='streets'?'satellite':'streets'; drawBase(); };
   $('#zIn').onclick = () => m.zoomIn(); $('#zOut').onclick = () => m.zoomOut();
+  /* ---- measure tools: distance and area ---- */
+  { const box = $('.mapbox'), res = $('#mres'), g = L.layerGroup().addTo(m); let mode = null, pts = [];
+    const fmtLen = v => v >= 1000 ? (v/1000).toFixed(2)+' km' : v.toFixed(1)+' m';
+    const fmtArea = a => a >= 1e6 ? (a/1e6).toFixed(3)+' sq km' : a >= 1e4 ? (a/1e4).toFixed(2)+' ha' : a.toFixed(0)+' sq m';
+    const length = p => p.reduce((t,q,i) => i ? t + m.distance(p[i-1],q) : 0, 0);
+    const area = p => { if (p.length < 3) return 0; const R = 6378137, r = Math.PI/180; let a = 0;       // spherical polygon area
+      for (let i = 0; i < p.length; i++){ const q = p[i], n = p[(i+1)%p.length]; a += (n.lng-q.lng)*r*(2+Math.sin(q.lat*r)+Math.sin(n.lat*r)); }
+      return Math.abs(a*R*R/2); };
+    const draw = () => { g.clearLayers();
+      if (pts.length){ const st = {color:'#d6336c',weight:3,interactive:false};
+        ((mode||res.dataset.kind)==='area' && pts.length>2 ? L.polygon(pts,{...st,fillOpacity:.15}) : L.polyline(pts,st)).addTo(g);
+        pts.forEach(p => L.marker(p,{interactive:false,icon:L.divIcon({className:'mdot',iconSize:[9,9]})}).addTo(g)); }
+      if (!mode && !pts.length){ res.hidden = true; return; }
+      const kind = (res.dataset.kind||mode);
+      const val = kind==='area' ? (pts.length>2 ? fmtArea(area(pts))+` <span>· perimeter ${fmtLen(length([...pts,pts[0]]))}</span>` : '—') : (pts.length>1 ? fmtLen(length(pts)) : '—');
+      const hint = mode ? (pts.length ? 'Click to add points' : (mode==='area' ? 'Click around the area' : 'Click along the route')) : (kind==='area' ? 'Area' : 'Distance');
+      res.hidden = false; res.innerHTML = `<span>${hint}</span><b>${val}</b>${mode ? '<button id="mDone">Done</button>' : ''}<button id="mClear">Clear</button>`;
+      if (mode) $('#mDone').onclick = e => { e.stopPropagation(); start(null,true); };
+      $('#mClear').onclick = e => { e.stopPropagation(); pts = []; start(null); }; };
+    const start = (k,keep) => { if (k && !keep) pts = []; mode = k; if (k) res.dataset.kind = k;
+      box.classList.toggle('measuring',!!k); $('#mDist').classList.toggle('on',k==='dist'); $('#mArea').classList.toggle('on',k==='area');
+      k ? m.doubleClickZoom.disable() : m.doubleClickZoom.enable(); draw(); };
+    $('#mDist').onclick = () => start(mode==='dist' ? null : 'dist', mode==='dist');
+    $('#mArea').onclick = () => start(mode==='area' ? null : 'area', mode==='area');
+    m.on('click', e => { if (!mode) return; const l = pts[pts.length-1]; if (l && l.equals(e.latlng)) return; pts.push(e.latlng); draw(); });
+    m.on('dblclick', () => { if (mode) start(null,true); });
+    L.DomEvent.disableClickPropagation(res);
+  }
   $('#fsBtn').onclick = () => { document.fullscreenElement ? document.exitFullscreen() : (ws.requestFullscreen && ws.requestFullscreen()); };
   document.onfullscreenchange = () => setTimeout(size,150);
   $('#lyBtn').onclick = () => { layersOpen = !layersOpen; $('#lpanel').hidden = !layersOpen; };

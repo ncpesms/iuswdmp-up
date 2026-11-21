@@ -216,16 +216,43 @@ footer{text-align:center;font-size:11.5px;color:var(--mut);padding:16px;border-t
 .tools{position:absolute;right:12px;top:12px;z-index:550;display:flex;flex-direction:column;gap:8px}
 .tools button{width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:9px;cursor:pointer;font-size:17px;color:var(--navy);box-shadow:0 2px 8px rgba(10,42,102,.14)}
 .tools button.on{background:var(--navy);color:#fff}
+.langsw{flex:none;display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.langsw button{border:0;background:none;padding:5px 11px;font:600 11.5px var(--sans);color:var(--navy);cursor:pointer}
+.langsw button.on{background:var(--navy);color:#fff}
+.nav .langsw{margin-left:auto;position:sticky;right:0;box-shadow:-10px 0 10px #fff}
+html[lang="hi"] .land .enter small,html[lang="hi"] .land h1 .en{display:none}
+.land{position:relative}.land>.langsw{position:absolute;top:14px;right:16px;z-index:5}
+.gsearch{position:absolute;top:12px;left:362px;width:270px;max-width:calc(100% - 440px);z-index:565}
+.gsearch .gb{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:0 11px;height:38px;box-shadow:0 2px 8px rgba(10,42,102,.14)}
+.gsearch .gb:focus-within{border-color:var(--navy)}
+.gsearch svg{width:16px;height:16px;flex:none;color:#64748b}
+.gsearch input{flex:1;min-width:0;border:0;outline:0;font:500 13px var(--sans);color:var(--navy);background:none}
+.gsearch .gb small{font:500 10px var(--mono,monospace);color:#64748b;white-space:nowrap}
+.gslist{margin-top:6px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px rgba(10,42,102,.16);overflow:hidden}
+.gslist[hidden]{display:none}
+.gslist button{display:flex;justify-content:space-between;gap:10px;width:100%;border:0;border-bottom:1px solid #eef2f7;background:#fff;padding:8px 12px;font:500 12.5px var(--sans);color:var(--navy);cursor:pointer;text-align:left}
+.gslist button:hover,.gslist button.sel{background:#eef4fb}
+.gslist button span{color:#64748b;font:500 11.5px var(--mono,monospace)}
+.gslist small{display:block;padding:7px 12px;color:#64748b;font:500 11px var(--sans)}
+@media(max-width:900px){.gsearch{left:10px;width:auto;right:60px;max-width:none}}
 .tools button svg{width:18px;height:18px;vertical-align:middle}
 .mapbox.measuring .leaflet-container{cursor:crosshair}
-.mapbox.measuring .leaflet-interactive{pointer-events:none!important}
-.mres{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:570;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px rgba(10,42,102,.16);padding:9px 12px;display:flex;align-items:center;gap:12px;font:500 12.5px var(--sans);color:var(--navy);max-width:calc(100% - 24px)}
+.mapbox.measuring .leaflet-interactive:not(.mdot){pointer-events:none!important}
+.mres{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:570;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 24px rgba(10,42,102,.18);padding:10px 12px;font:500 12.5px var(--sans);color:var(--navy);min-width:290px;max-width:calc(100% - 24px)}
 .mres[hidden]{display:none}
-.mres b{font:600 15px var(--mono,monospace);white-space:nowrap}
-.mres span{color:#64748b;white-space:nowrap}
-@media(max-width:900px){.mres{flex-wrap:wrap;justify-content:center;gap:6px 10px;bottom:30px}}
-.mres button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 10px;font:600 11.5px var(--sans);color:var(--navy);cursor:pointer}
-.mdot{width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid #d6336c;margin:-5px 0 0 -5px}
+.mres .mh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.mres .mh b{font:600 13px var(--sans)}
+.mres .mh span{color:#64748b;font-size:11.5px}
+.mres .mr{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:2px 0}
+.mres .mr span{color:#64748b}
+.mres .mr b{font:600 15px var(--mono,monospace);white-space:nowrap}
+.mres .mb{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+.mres button,.mres select{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 9px;font:600 11.5px var(--sans);color:var(--navy);cursor:pointer}
+.mres button:disabled{opacity:.4;cursor:default}
+.mres select{margin-left:auto}
+.mres .mx{border:0;padding:2px 6px;font-size:15px;line-height:1}
+.mdot{width:11px;height:11px;border-radius:50%;background:#fff;border:2.5px solid #d6336c;box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:grab}
+.mdot.first{background:#d6336c}
 .lpanel{position:absolute;left:88px;top:12px;bottom:calc(44% + 12px);width:262px;z-index:560;background:#fff;border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(10,42,102,.12)}
 .lpanel[hidden]{display:none}
 .ws.s-min .lpanel{bottom:62px}
@@ -434,7 +461,7 @@ const ICON = {
 };
 const svg = k => `<svg viewBox="0 0 20 20" aria-hidden="true">${ICON[k]}</svg>`;
 const TILES = {
-  streets:   () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:21,attribution:'&copy; OpenStreetMap contributors'}),
+  streets:   () => L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxNativeZoom:20,maxZoom:21,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'}),
   satellite: () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:21,attribution:'Imagery &copy; Esri'})
 };
 let sheetState = 's-norm', layersOpen = window.innerWidth > 900;
@@ -504,6 +531,163 @@ function buildLayer(d,gj){
   return grp;
 }
 
+/* ---------- language: English (default) and Hindi ---------- */
+const HI = {
+"Integrated Urban Storm Water Drainage Master Plans · Uttar Pradesh":"एकीकृत शहरी वर्षाजल निकासी मास्टर प्लान · उत्तर प्रदेश",
+"NCPE Infrastructure India Pvt. Ltd.":"एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्रा. लि.","Technical Associate":"तकनीकी सहयोगी",
+"Construction & Design Services":"कंस्ट्रक्शन एंड डिज़ाइन सर्विसेज़","CONSTRUCTION & DESIGN SERVICES":"कंस्ट्रक्शन एंड डिज़ाइन सर्विसेज़","Uttar Pradesh Jal Nigam (Urban)":"उत्तर प्रदेश जल निगम (नगरीय)",
+"About":"परिचय","All cities":"सभी शहर","Select city":"शहर चुनें",
+"LiDAR Surveys":"लिडार सर्वेक्षण","Satellite Imagery":"उपग्रह चित्र","Analysis":"विश्लेषण","Existing Drainage":"मौजूदा जल निकासी","Proposed Measures":"प्रस्तावित उपाय","Project Costs":"परियोजना लागत","Work Progress":"कार्य प्रगति","Digital Twin Model":"डिजिटल ट्विन मॉडल",
+"LiDAR":"लिडार","Satellite":"उपग्रह","Drainage":"जल निकासी","Measures":"उपाय","Costs":"लागत","Progress":"प्रगति","Digital Twin":"डिजिटल ट्विन","Layers":"लेयर","CITY":"शहर",
+"Integrated Urban Stormwater Drainage Master Plans":"एकीकृत शहरी वर्षाजल निकासी मास्टर प्लान","For Urban Local Bodies in Uttar Pradesh":"उत्तर प्रदेश के नगरीय स्थानीय निकायों के लिए","for Urban Local Bodies in Uttar Pradesh":"उत्तर प्रदेश के नगरीय स्थानीय निकायों के लिए","Enter Portal →":"पोर्टल में प्रवेश करें →",
+"Urban Drainage Challenges":"शहरी जल निकासी की चुनौतियाँ",
+"The existing stormwater drainage networks in municipal corporation areas are inadequate to meet current requirements, resulting in recurrent waterlogging, urban flooding and significant economic losses. These conditions disrupt livelihoods, reduce workforce productivity and aggravate public health risks.":"नगर निगम क्षेत्रों का मौजूदा वर्षाजल निकासी तंत्र वर्तमान आवश्यकताओं के लिए अपर्याप्त है, जिससे बार-बार जलभराव, शहरी बाढ़ और भारी आर्थिक हानि होती है। इससे आजीविका बाधित होती है, कार्य-उत्पादकता घटती है और जन-स्वास्थ्य के जोखिम बढ़ते हैं।",
+"Need for Integrated Planning":"एकीकृत नियोजन की आवश्यकता",
+"In the absence of comprehensive stormwater drainage master plans, projects are often implemented in isolation, resulting in fragmented networks, connectivity gaps and hydraulic bottlenecks. This limits the effectiveness of investments and prevents systematic improvements in drainage performance.":"व्यापक वर्षाजल निकासी मास्टर प्लान के अभाव में परियोजनाएँ प्रायः अलग-अलग क्रियान्वित होती हैं, जिससे तंत्र खंडित रहता है, जुड़ाव में कमी और जल-प्रवाह में अवरोध उत्पन्न होते हैं। इससे निवेश की प्रभावशीलता घटती है और जल निकासी में व्यवस्थित सुधार नहीं हो पाता।",
+"The C&DS Initiative":"सी एंड डी एस की पहल",
+"To address these challenges, the C&DS Wing of Uttar Pradesh Jal Nigam (Urban) has initiated the preparation of Integrated Urban Stormwater Drainage Master Plans, initially covering municipal corporation areas.":"इन चुनौतियों के समाधान हेतु उत्तर प्रदेश जल निगम (नगरीय) की सी एंड डी एस शाखा ने एकीकृत शहरी वर्षाजल निकासी मास्टर प्लान तैयार करने की पहल की है, जिसमें प्रारंभ में नगर निगम क्षेत्र सम्मिलित हैं।",
+"Objectives":"उद्देश्य",
+"a. Framework for project planning and prioritisation":"क. परियोजना नियोजन एवं प्राथमिकता निर्धारण का ढाँचा",
+"Equip Urban Local Bodies with a practical reference for identifying, selecting and implementing drainage projects based on local needs, catchment requirements and citywide priorities.":"नगरीय स्थानीय निकायों को स्थानीय आवश्यकताओं, जलग्रहण क्षेत्र की ज़रूरतों और शहर-स्तरीय प्राथमिकताओं के आधार पर जल निकासी परियोजनाओं की पहचान, चयन और क्रियान्वयन हेतु व्यावहारिक संदर्भ उपलब्ध कराना।",
+"b. Coordinated investment and phased network development":"ख. समन्वित निवेश एवं चरणबद्ध तंत्र विकास",
+"Streamline expenditure on stormwater drainage works and progressively develop an integrated, hydraulically efficient network, with removal of bottlenecks and adoption of automation and monitoring systems.":"वर्षाजल निकासी कार्यों पर व्यय को सुव्यवस्थित करना तथा अवरोधों को हटाकर और स्वचालन व निगरानी प्रणालियाँ अपनाकर क्रमशः एकीकृत एवं कुशल तंत्र विकसित करना।",
+"c. Groundwater recharge through sponge city initiatives":"ग. स्पंज सिटी उपायों द्वारा भूजल पुनर्भरण",
+"Incorporate rainwater harvesting, infiltration and retention measures to reduce surface runoff, enhance groundwater recharge and support sustainable urban water management.":"सतही अपवाह घटाने, भूजल पुनर्भरण बढ़ाने और सतत शहरी जल प्रबंधन के लिए वर्षाजल संचयन, रिसाव और जल-धारण के उपाय सम्मिलित करना।",
+"View the cities →":"शहर देखें →",
+"Project coverage":"परियोजना क्षेत्र","Urban Local Bodies (ULBs) in Uttar Pradesh":"उत्तर प्रदेश के नगरीय स्थानीय निकाय","Key cities supported by NCPE":"एनसीपीई द्वारा सहयोग प्राप्त प्रमुख शहर","Survey data live":"सर्वेक्षण आँकड़े उपलब्ध","Data to be added":"आँकड़े जोड़े जाने हैं","Click a city to open it":"शहर खोलने के लिए उस पर क्लिक करें","6 KEY ULBs":"6 प्रमुख निकाय","SUPPORTED BY NCPE":"एनसीपीई द्वारा सहयोग प्राप्त","Sl.":"क्र.","Name of ULB":"निकाय का नाम","Nagar Nigam area (km²)":"नगर निगम क्षेत्रफल (वर्ग किमी)","Status":"स्थिति","Data awaited":"आँकड़े प्रतीक्षित","Total":"योग",
+"Under Progress":"कार्य प्रगति पर","Drains":"नाले","GCPs":"जीसीपी","Map layers":"मानचित्र लेयर","No. of wards":"वार्डों की संख्या","Area (sq. km)":"क्षेत्रफल (वर्ग किमी)",
+"Boundaries":"सीमाएँ","Rivers and terrain":"नदियाँ एवं भू-आकृति","Survey layers":"सर्वेक्षण लेयर","Reference imagery":"संदर्भ चित्र","Rainfall":"वर्षा",
+"Ward Boundary":"वार्ड सीमा","Outer Boundary":"बाहरी सीमा","Buffer Area":"बफर क्षेत्र","Rivers":"नदियाँ","Upstream River Basin":"ऊपरी नदी बेसिन","Natural Drainage Catchments":"प्राकृतिक जलग्रहण क्षेत्र","Natural Drainage Lines":"प्राकृतिक जल निकास रेखाएँ","Contours":"समोच्च रेखाएँ","DEM":"डीईएम","Ortho Image":"ऑर्थो चित्र","Drains & Culverts":"नाले एवं पुलिया","GCP Marked":"चिह्नित जीसीपी","Survey Photos":"सर्वेक्षण फोटो","NRSC Image Procured":"एनआरएससी चित्र (प्राप्त)","Survey of India (SOI)":"भारतीय सर्वेक्षण विभाग (एसओआई)","Rainfall Data (IDF)":"वर्षा आँकड़े (आईडीएफ)",
+"loading…":"लोड हो रहा है…","to be added":"जोड़ा जाना है","file not added yet":"फ़ाइल अभी नहीं जोड़ी गई","IDF curves and table":"आईडीएफ वक्र एवं तालिका",
+"Elevation model based on Copernicus DEM. River basin streams from HydroRIVERS.":"ऊँचाई मॉडल कोपरनिकस डीईएम पर आधारित। नदी बेसिन की धाराएँ हाइड्रोरिवर्स से।",
+"Survey progress":"सर्वेक्षण प्रगति","Latest WPR":"नवीनतम साप्ताहिक रिपोर्ट","Done":"पूर्ण","Estimated":"अनुमानित","Primary Drain":"प्राथमिक नाला","Secondary & Tertiary":"द्वितीयक एवं तृतीयक","GCP Points":"जीसीपी बिंदु","Static Points":"स्थिर बिंदु","LiDAR Survey":"लिडार सर्वेक्षण","Survey Team":"सर्वेक्षण दल","Rovers":"रोवर","Base":"बेस","Members":"सदस्य",
+"Rainfall data":"वर्षा आँकड़े","✕ Close":"✕ बंद करें","Duration (minutes)":"अवधि (मिनट)","Intensity (mm/hr)":"तीव्रता (मिमी/घंटा)","Intensity table (mm/hr)":"तीव्रता तालिका (मिमी/घंटा)","Duration (min)":"अवधि (मिनट)",
+"I = rainfall intensity (mm/hr) · T = return period (years) · t = storm duration (minutes)":"I = वर्षा तीव्रता (मिमी/घंटा) · T = पुनरावृत्ति अवधि (वर्ष) · t = वर्षा अवधि (मिनट)",
+"Curves and table are computed from the IDF relation shown under the chart. Hover over the chart to read values.":"वक्र और तालिका चार्ट के नीचे दिए आईडीएफ सूत्र से निकाले गए हैं। मान देखने के लिए चार्ट पर कर्सर ले जाएँ।",
+"Solutions for improvement of the storm water drainage system":"वर्षाजल निकासी व्यवस्था के सुधार हेतु समाधान","Solution 1":"समाधान 1","Solution 2":"समाधान 2","Solution 3":"समाधान 3",
+"Augmentation of Drain Capacity":"नालों की क्षमता वृद्धि","Increase the conveyance of existing drains by widening or deepening and by constructing missing links. Large drain sizes may require land acquisition.":"मौजूदा नालों को चौड़ा या गहरा करके तथा छूटी हुई कड़ियाँ बनाकर उनकी वहन क्षमता बढ़ाना। बड़े नालों के लिए भूमि अधिग्रहण आवश्यक हो सकता है।",
+"Alternate / Bypass Drain Alignments":"वैकल्पिक / बाईपास नाला संरेखण","GIS-based study to provide additional feasible drain alignments, reducing drain sizes and easing implementation. Public-friendly, with minimum or no land acquisition.":"जीआईएस आधारित अध्ययन द्वारा अतिरिक्त व्यवहार्य नाला संरेखण, जिससे नालों का आकार घटे और क्रियान्वयन सरल हो। जन-अनुकूल, न्यूनतम या बिना भूमि अधिग्रहण के।",
+"Lake Management through Flood Attenuation":"बाढ़ शमन द्वारा झील प्रबंधन","Retain flood waters in natural lakes of the drainage basin and regulate sluices ahead of the flood inflow, reducing the peak flow and the required downstream drain size.":"बेसिन की प्राकृतिक झीलों में बाढ़ का जल रोकना और बाढ़ आने से पहले स्लूइस गेट नियंत्रित करना, जिससे अधिकतम प्रवाह और निचले नालों का आवश्यक आकार घटे।",
+"Sponge infrastructure initiatives":"स्पंज अवसंरचना उपाय",
+"Rainwater Harvesting Structure in a Park":"पार्क में वर्षाजल संचयन संरचना","Multipurpose sponge park on a 10 m × 20 m footprint: play area, open gym and seating above an inlet with silt trap, filter media and storage layer.":"10 मी × 20 मी क्षेत्र पर बहुउद्देशीय स्पंज पार्क: ऊपर खेल क्षेत्र, ओपन जिम और बैठने की व्यवस्था; नीचे गाद-रोधक, फ़िल्टर माध्यम और भंडारण परत सहित इनलेट।",
+"Multipurpose Sponge Park (alternative)":"बहुउद्देशीय स्पंज पार्क (विकल्प)","Lighter variant with a lined storage tank and controlled outlet; overflow safely connected to the existing stormwater drain.":"अस्तरयुक्त भंडारण टैंक और नियंत्रित निकास वाला हल्का विकल्प; अतिरिक्त जल सुरक्षित रूप से मौजूदा वर्षाजल नाले से जुड़ा।",
+"Harvesting Structure Parallel to Existing Drain":"मौजूदा नाले के समानांतर संचयन संरचना","Screen and silt trap, filter trench and recharge pit built alongside an existing drain, with overflow back to the drain.":"मौजूदा नाले के साथ जाली व गाद-रोधक, फ़िल्टर खाई और पुनर्भरण गड्ढा, अतिरिक्त जल वापस नाले में।",
+"Smart Modular Eco-Bloc Infiltration / Detention":"स्मार्ट मॉड्यूलर इको-ब्लॉक रिसाव / जल-धारण","Modular eco-bloc tank beneath open space for rainwater conservation and urban flood management.":"वर्षाजल संरक्षण और शहरी बाढ़ प्रबंधन हेतु खुले स्थान के नीचे मॉड्यूलर इको-ब्लॉक टैंक।",
+"Eco-Block Rainwater Harvesting (Parking)":"इको-ब्लॉक वर्षाजल संचयन (पार्किंग)","Permeable parking surface over aggregate layers that lets rainfall infiltrate to the sub-grade.":"गिट्टी की परतों पर पारगम्य पार्किंग सतह, जिससे वर्षाजल नीचे की भूमि में रिसता है।",
+"Injection Bores":"इंजेक्शन बोर","For individual buildings, institutes and office complexes: roof water passes primary and secondary filtration before recharging groundwater.":"व्यक्तिगत भवनों, संस्थानों और कार्यालय परिसरों के लिए: छत का जल प्राथमिक और द्वितीयक निस्यंदन के बाद भूजल का पुनर्भरण करता है।",
+"Project cost summary":"परियोजना लागत सारांश","S. No.":"क्र. सं.","Project component":"परियोजना घटक","Cost (₹ crore)":"लागत (₹ करोड़)","GRAND TOTAL":"कुल योग",
+"Construction of Primary and Outfall Drains":"प्राथमिक एवं आउटफॉल नालों का निर्माण","Construction of Secondary Drains":"द्वितीयक नालों का निर्माण","Construction of Tertiary Drains":"तृतीयक नालों का निर्माण","Lake Improvement, Management and Rejuvenation":"झील सुधार, प्रबंधन एवं पुनर्जीवन",
+"Sponge City Initiatives – water harvesting in parks/open spaces; injection bores; pervious pavements/parking areas; eco-blocks":"स्पंज सिटी उपाय – पार्कों/खुले स्थानों में जल संचयन; इंजेक्शन बोर; पारगम्य फुटपाथ/पार्किंग; इको-ब्लॉक",
+"Pumping Machinery":"पंपिंग मशीनरी","Repair and Maintenance of the Existing System":"मौजूदा व्यवस्था की मरम्मत एवं रखरखाव","Early Warning System (EWS) and Automation":"पूर्व चेतावनी प्रणाली (ईडब्ल्यूएस) एवं स्वचालन",
+"A digital twin is proposed as an integrated platform for preparing, reviewing and regularly updating stormwater drainage master plans and Detailed Project Reports. It links geospatial data, hydrological and hydraulic models, and field observations.":"वर्षाजल निकासी मास्टर प्लान और विस्तृत परियोजना रिपोर्ट तैयार करने, समीक्षा करने और नियमित रूप से अद्यतन करने के लिए डिजिटल ट्विन एक एकीकृत मंच के रूप में प्रस्तावित है। यह भू-स्थानिक आँकड़ों, जलविज्ञान एवं हाइड्रोलिक मॉडलों और क्षेत्रीय प्रेक्षणों को जोड़ता है।",
+"Integrated Spatial Data":"एकीकृत स्थानिक आँकड़े","Combine terrain, drainage assets, land use and upstream catchments in a consistent geospatial database.":"भू-आकृति, जल निकासी परिसंपत्तियों, भूमि उपयोग और ऊपरी जलग्रहण क्षेत्रों को एक सुसंगत भू-स्थानिक डेटाबेस में जोड़ना।",
+"Flood Simulation and Planning":"बाढ़ अनुकरण एवं नियोजन","Assess network capacity, identify flood hotspots and compare structural and sponge city interventions.":"तंत्र की क्षमता का आकलन, बाढ़ संभावित स्थलों की पहचान और संरचनात्मक व स्पंज सिटी उपायों की तुलना।",
+"Monitoring and Decision Support":"निगरानी एवं निर्णय सहायता","Progressively connect rainfall and water-level observations to support alerts, asset management and operations.":"चेतावनी, परिसंपत्ति प्रबंधन और संचालन में सहायता हेतु वर्षा और जल-स्तर प्रेक्षणों को क्रमशः जोड़ना।",
+"How the model is applied":"मॉडल का उपयोग कैसे होता है",
+"Survey integration and drainage inventory":"सर्वेक्षण एकीकरण एवं जल निकासी सूची","Integrate drone LiDAR terrain data, high-resolution imagery, municipal records and field surveys in a common coordinate and elevation system. Map drains, culverts, inlets, outfalls, lakes, ponds, pumps and sluice gates with unique asset IDs.":"ड्रोन लिडार भू-आकृति आँकड़े, उच्च-विभेदन चित्र, निगम अभिलेख और क्षेत्रीय सर्वेक्षण को एक समान निर्देशांक एवं ऊँचाई प्रणाली में जोड़ना। नालों, पुलियों, इनलेट, आउटफॉल, झीलों, तालाबों, पंपों और स्लूइस गेटों को विशिष्ट पहचान संख्या सहित मानचित्रित करना।",
+"Catchment analysis and flood assessment":"जलग्रहण विश्लेषण एवं बाढ़ आकलन","Connect the spatial database to rainfall–runoff and drainage network models. Assess capacity, bottlenecks, backwater effects and flood pathways under agreed design storms and future development scenarios.":"स्थानिक डेटाबेस को वर्षा–अपवाह और जल निकासी तंत्र मॉडलों से जोड़ना। निर्धारित डिज़ाइन वर्षा और भावी विकास परिदृश्यों में क्षमता, अवरोध, बैकवाटर प्रभाव और बाढ़ मार्गों का आकलन।",
+"Testing and prioritising interventions":"उपायों का परीक्षण एवं प्राथमिकता निर्धारण","Compare drain rehabilitation, widening, alternate alignments, culvert improvements, pumping and lake regulation with detention ponds and other sponge city measures. Rank packages by flood reduction, cost and maintenance.":"नाला पुनरुद्धार, चौड़ीकरण, वैकल्पिक संरेखण, पुलिया सुधार, पंपिंग और झील नियंत्रण की तुलना जल-धारण तालाबों और अन्य स्पंज सिटी उपायों से करना। पैकेजों को बाढ़ में कमी, लागत और रखरखाव के आधार पर क्रमबद्ध करना।",
+"Master plan and DPR preparation":"मास्टर प्लान एवं डीपीआर तैयारी","Establish catchment-wise proposals, alignments, indicative dimensions and phased investment priorities. Hand over editable GIS layers, model files, flood maps and an asset register.":"जलग्रहण-वार प्रस्ताव, संरेखण, सांकेतिक आयाम और चरणबद्ध निवेश प्राथमिकताएँ निर्धारित करना। संपादन योग्य जीआईएस लेयर, मॉडल फ़ाइलें, बाढ़ मानचित्र और परिसंपत्ति रजिस्टर सौंपना।",
+"Monitoring and operational readiness":"निगरानी एवं संचालन तत्परता","Progressively connect rain gauges, drain and lake-level sensors, pump status and SCADA or command-centre systems to support threshold alerts and operator decisions.":"सीमा-आधारित चेतावनी और संचालक के निर्णयों में सहायता हेतु वर्षामापी, नाला व झील-स्तर सेंसर, पंप स्थिति और स्काडा या कमांड सेंटर प्रणालियों को क्रमशः जोड़ना।",
+"Implementation recommendation":"क्रियान्वयन की संस्तुति","Begin with a validated planning model for each ULB, pilot priority catchments and expand monitoring in stages. Benefits depend on survey quality, validation and sustained upkeep.":"प्रत्येक निकाय के लिए सत्यापित नियोजन मॉडल से आरंभ करें, प्राथमिकता वाले जलग्रहण क्षेत्रों में पायलट करें और निगरानी का चरणबद्ध विस्तार करें। लाभ सर्वेक्षण की गुणवत्ता, सत्यापन और सतत रखरखाव पर निर्भर हैं।",
+"Measure":"मापन","Distance":"दूरी","Perimeter":"परिमाप","Area":"क्षेत्रफल","Undo":"पूर्ववत","Start new":"नया आरंभ करें","Auto":"स्वतः","Metres":"मीटर","Kilometres":"किलोमीटर","Feet":"फ़ुट","Miles / acres":"मील / एकड़",
+"Click on the map to set the starting point":"आरंभ बिंदु के लिए मानचित्र पर क्लिक करें","Click to add points · click the first point to close the shape":"बिंदु जोड़ने के लिए क्लिक करें · आकृति बंद करने के लिए पहले बिंदु पर क्लिक करें","Click to add points · double-click to finish":"बिंदु जोड़ने के लिए क्लिक करें · समाप्त करने के लिए डबल-क्लिक करें","Drag any point to adjust":"समायोजन के लिए किसी भी बिंदु को खींचें",
+"Sheet details":"शीट विवरण","Conventional symbols":"रूढ़ चिह्न","Click the picture to open it full size":"पूरा आकार देखने के लिए चित्र पर क्लिक करें",
+"Ward No":"वार्ड संख्या","Ward":"वार्ड","Zone":"ज़ोन","Area (sq km)":"क्षेत्रफल (वर्ग किमी)","Population":"जनसंख्या","Drains surveyed (km)":"सर्वेक्षित नाले (किमी)","Culverts":"पुलिया","Point":"बिंदु","Latitude":"अक्षांश","Longitude":"देशांतर","Elevation (m)":"ऊँचाई (मी)","Drain ID":"नाला आईडी","Length (km)":"लंबाई (किमी)","Culvert":"पुलिया","On drain":"नाले पर","Basin":"बेसिन","Stream order":"धारा क्रम","More photos":"और फोटो",
+"NCPE Infrastructure India Private Limited":"एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड","points":"बिंदु","sq km":"वर्ग किमी","km":"किमी","Search GCP":"जीसीपी खोजें","No matching point":"कोई मिलता-जुलता बिंदु नहीं","Photo available":"फोटो उपलब्ध",
+"Zoom in":"बड़ा करें","Zoom out":"छोटा करें","Full screen":"पूर्ण स्क्रीन","Switch between street map and satellite":"सड़क मानचित्र और उपग्रह चित्र के बीच बदलें","Measure distance and area":"दूरी और क्षेत्रफल मापें","Show or hide map layers":"मानचित्र लेयर दिखाएँ या छिपाएँ","Back to the map":"मानचित्र पर वापस","Close the measure tool":"मापन बंद करें","Units":"इकाइयाँ","Search for a GCP point by name or number":"नाम या संख्या से जीसीपी बिंदु खोजें"
+};
+const UNITS_HI = {wards:'वार्ड',boundary:'सीमा',polygons:'बहुभुज',features:'आकृतियाँ',basins:'बेसिन','stream orders':'धारा क्रम',levels:'स्तर',points:'बिंदु',photos:'फोटो','sq km':'वर्ग किमी',km:'किमी',m:'मी'};
+let LANG = 'en'; try{ if (localStorage.getItem('iuswdmp_lang') === 'hi') LANG = 'hi'; }catch(e){}
+const cityHi = n => { const c = CONFIG.cities.find(x => x.name === n); return c ? c.hi : n; };
+const CITY_RE = () => CONFIG.cities.map(c=>c.name).join('|');
+const HI_PAT = [
+  [/^(\d+) m DEM(.*)$/, m => `${m[1]} मी डीईएम${m[2].replace(/ m$/,' मी')}`],
+  [/^© (\d+) .*$/, m => `© ${m[1]} कंस्ट्रक्शन एंड डिज़ाइन सर्विसेज़, उत्तर प्रदेश जल निगम (नगरीय) · तकनीकी सहयोगी: एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड`],
+  [/^Technical Associate: NCPE.*$/, m => 'तकनीकी सहयोगी: एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड'],
+  [/^([\d,.]+) (wards|boundary|polygons|features|basins|stream orders|levels|points|photos|sq km|km|m)\b(.*)$/, m => `${m[1]} ${UNITS_HI[m[2]]}${m[3].replace(/ m$/,' मी')}`],
+  [/^Ramnagar block(.*)$/, m => `रामनगर ब्लॉक${m[1].replace('cm','सेमी')}`],
+  [/^SOI toposheet(.*)$/, m => `एसओआई टोपोशीट${m[1]}`],
+  [/^(\d+)-year( storm)?$/, m => `${m[1]}-वर्षीय${m[2]?' वर्षा':''}`],
+  [/^(.+) Municipal Corporation · ([\d,.]+) sq km$/, m => `${cityHi(m[1])} नगर निगम · ${m[2]} वर्ग किमी`],
+  [/^IDF curves for (.+)$/, m => `${cityHi(m[1])} के आईडीएफ वक्र`],
+  [/^Intensity–Duration–Frequency \(IDF\) curves for (.+), used to select.*$/, m => `${cityHi(m[1])} के तीव्रता–अवधि–आवृत्ति (आईडीएफ) वक्र, जिनसे किसी वर्षा अवधि और पुनरावृत्ति अवधि के लिए डिज़ाइन वर्षा तीव्रता चुनी जाती है।`],
+  [/^Concept options from the project presentation\. City-specific proposals for (.+) will follow the master plan\.$/, m => `परियोजना प्रस्तुति के संकल्पनात्मक विकल्प। ${cityHi(m[1])} के लिए शहर-विशिष्ट प्रस्ताव मास्टर प्लान के बाद आएँगे।`],
+  [/^Costs will be filled in once the estimates for (.+) are finalised\..*$/, m => `${cityHi(m[1])} के अनुमान अंतिम होने पर लागत भरी जाएगी। परियोजनाओं की प्राथमिकता, क्रियान्वयन के चरण और वित्तपोषण (एसडीएमएफ, राज्य, निकाय) मास्टर प्लान के अनुसार होंगे।`],
+  [/^(.+): to be added$/, m => `${cityHi(m[1])}: जोड़ा जाना है`],
+  [/^Ward (\d+)( · .*)?$/, m => `वार्ड ${m[1]}${m[2]||''}`],
+  [/^Culvert (.+)$/, m => `पुलिया ${m[1]}`],
+  [/^More photos:$/, m => 'और फोटो:'],
+  [/^(\d+) (min)$/, m => `${m[1]} मिनट`],
+  [/^([\d.]+) mm\/hr$/, m => `${m[1]} मिमी/घंटा`],
+  [/^(\d+) of (\d+) points$/, m => `${m[2]} में से ${m[1]} बिंदु`],
+  [/^· perimeter (.*)$/, m => `· परिमाप ${m[1]}`]
+];
+function hiOf(s){
+  const t = s.replace(/\s+/g,' ').trim(); if (!t) return null;
+  if (HI[t]) return HI[t];
+  const c = CONFIG.cities.find(x => x.name === t); if (c) return c.hi;
+  const e = t.match(/^(.*?)([.:])$/); if (e && HI[e[1]]) return HI[e[1]] + (e[2]==='.'?'।':':');
+  for (const [re,fn] of HI_PAT){ const m = t.match(re); if (m) return fn(m); }
+  return null;
+}
+const L_ORIG = new WeakMap(), L_ATTR = ['title','aria-label','placeholder','alt'];
+function trText(n){
+  const cur = n.nodeValue, o = L_ORIG.get(n);
+  if (o && o.out === cur){ if (LANG==='en'){ n.nodeValue = o.src; L_ORIG.delete(n); } return; }
+  if (LANG !== 'hi') return;
+  const h = hiOf(cur); if (!h) return;
+  const out = cur.match(/^\s*/)[0] + h + cur.match(/\s*$/)[0];
+  L_ORIG.set(n,{src:cur,out}); n.nodeValue = out;
+}
+function trEl(el){
+  if (!el.getAttribute) return;
+  for (const a of L_ATTR){ const v = el.getAttribute(a); if (!v) continue; const key = '_l_'+a;
+    if (el[key] && el[key].out === v){ if (LANG==='en'){ el.setAttribute(a, el[key].src); el[key] = null; } continue; }
+    if (LANG==='hi'){ const h = hiOf(v); if (h){ el[key] = {src:v,out:h}; el.setAttribute(a,h); } } }
+}
+function trTree(root){
+  if (root.nodeType === 3){ trText(root); return; }
+  if (root.nodeType !== 1 || /^(SCRIPT|STYLE)$/.test(root.tagName)) return;
+  trEl(root); root.querySelectorAll('[title],[aria-label],[placeholder],[alt]').forEach(trEl);
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); const ns = []; while (w.nextNode()) ns.push(w.currentNode); ns.forEach(trText);
+}
+function setLang(l){
+  LANG = l; try{ localStorage.setItem('iuswdmp_lang', l); }catch(e){}
+  document.documentElement.lang = l; trTree(document.body);
+  document.querySelectorAll('.langsw button').forEach(b => b.classList.toggle('on', b.dataset.l === l));
+}
+const langSw = () => `<span class="langsw" role="group" aria-label="Language"><button data-l="en" class="${LANG==='en'?'on':''}" lang="en">English</button><button data-l="hi" class="${LANG==='hi'?'on':''}" lang="hi">हिंदी</button></span>`;
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.langsw button'); if (b) setLang(b.dataset.l); });
+new MutationObserver(ms => { if (LANG !== 'hi') return;
+  for (const m of ms){ if (m.type === 'characterData') trText(m.target); else if (m.type === 'attributes') trEl(m.target); else m.addedNodes.forEach(trTree); }
+}).observe(document.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:L_ATTR});
+
+/* ---------- GCP search (LiDAR Surveys tab) ---------- */
+function gcpSearch(m, lyr, tg, pad){
+  const inp = $('#gsIn'), list = $('#gsList'); if (!inp) return;
+  const pts = []; lyr.eachLayer(l => { const p = l.feature && l.feature.properties; if (p && p.Point) pts.push({name:String(p.Point), key:String(p.Point).toLowerCase().replace(/[^a-z0-9]/g,''), num:parseInt(String(p.Point).replace(/\D/g,''))||0, el:p['Elevation (m)'], ph:Array.isArray(p.photos)&&p.photos.length, l}); });
+  pts.sort((a,b) => a.name.replace(/[\d\s-]/g,'').localeCompare(b.name.replace(/[\d\s-]/g,'')) || a.num - b.num);
+  inp.disabled = false; let hits = [], sel = -1;
+  const go = h => { if (!h) return; if (!tg.checked){ tg.checked = true; tg.onchange(); }
+    inp.value = h.name; list.hidden = true;
+    m.flyTo(h.l.getLatLng(), Math.max(m.getZoom(),18), {duration:.8}); m.once('moveend', () => h.l.openPopup()); };
+  const draw = () => { const q = inp.value.toLowerCase().replace(/[^a-z0-9]/g,''); sel = -1;
+    if (!q){ list.hidden = true; return; }
+    const rank = p => p.key === q ? 0 : (/^\d+$/.test(q) && p.num === +q) ? 1 : p.key.startsWith(q) ? 2 : p.key.includes(q) ? 3 : 9;
+    const all = pts.map(p => [rank(p),p]).filter(x => x[0] < 9).sort((a,b) => a[0]-b[0]); hits = all.slice(0,8).map(x => x[1]);
+    list.hidden = false;
+    list.innerHTML = hits.length ? hits.map((h,i) => `<button data-i="${i}"><b>${h.name}</b><span>${h.el!=null ? h.el+' m' : ''}${h.ph ? ' · 📷' : ''}</span></button>`).join('') + (all.length > 8 ? `<small>${hits.length} of ${all.length} points</small>` : '') : '<small>No matching point</small>';
+    list.querySelectorAll('button').forEach(b => b.onclick = () => go(hits[+b.dataset.i])); };
+  inp.oninput = draw; inp.onfocus = draw;
+  inp.onkeydown = e => { const bs = list.querySelectorAll('button');
+    if (e.key === 'Enter'){ go(hits[sel < 0 ? 0 : sel]); }
+    else if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if (!bs.length) return; sel = (sel + (e.key==='ArrowDown'?1:-1) + bs.length) % bs.length; bs.forEach((b,i) => b.classList.toggle('sel', i===sel)); }
+    else if (e.key === 'Escape'){ list.hidden = true; inp.blur(); e.stopPropagation(); } };
+  document.addEventListener('click', e => { if (!e.target.closest || !e.target.closest('#gsearch')) list.hidden = true; });
+  $('#gsCount').textContent = `${pts.length} points`;
+}
+
 /* ---------- map stage (shared by the map tabs) ---------- */
 function layerRow(d){
   return `<div class="layer"><span class="ic" style="background:${d.color}1f;color:${d.color}">${d.icon}</span>
@@ -531,7 +715,8 @@ function cityView(c, tab){
       ${SECT.map(([k,full,short]) => `<a href="#/city/${c.id}/${k}" class="${k===tab?'on':''}" title="${full}">${svg(k)}${short}</a>`).join('')}
     </aside>
     ${isMap ? `<div class="mapbox"><div id="cityMap"></div>
-      <div class="tools"><button id="zIn" title="Zoom in">+</button><button id="zOut" title="Zoom out">−</button><button id="fsBtn" title="Full screen">⛶</button><button id="bBase" title="Switch between street map and satellite">▦</button><button id="mDist" title="Measure a distance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg></button><button id="mArea" title="Measure an area"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 7 14 4l6 7-4 9H7z"/><circle cx="4" cy="7" r="1.4" fill="currentColor"/><circle cx="14" cy="4" r="1.4" fill="currentColor"/><circle cx="20" cy="11" r="1.4" fill="currentColor"/><circle cx="16" cy="20" r="1.4" fill="currentColor"/><circle cx="7" cy="20" r="1.4" fill="currentColor"/></svg></button></div>
+      <div class="tools"><button id="zIn" title="Zoom in">+</button><button id="zOut" title="Zoom out">−</button><button id="fsBtn" title="Full screen">⛶</button><button id="bBase" title="Switch between street map and satellite">▦</button><button id="mDist" title="Measure distance and area"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg></button></div>
+      ${pg.search ? `<div class="gsearch" id="gsearch"><div class="gb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="gsIn" type="search" placeholder="Search GCP" title="Search for a GCP point by name or number" autocomplete="off" disabled><small id="gsCount"></small></div><div class="gslist" id="gsList" hidden></div></div>` : ''}
       <div class="mres" id="mres" hidden></div>
       <div class="vpane" id="vpane" hidden></div>
     </div>
@@ -559,33 +744,58 @@ function cityView(c, tab){
   drawBase();
   $('#bBase').onclick = () => { baseKey = baseKey==='streets'?'satellite':'streets'; drawBase(); };
   $('#zIn').onclick = () => m.zoomIn(); $('#zOut').onclick = () => m.zoomOut();
-  /* ---- measure tools: distance and area ---- */
-  { const box = $('.mapbox'), res = $('#mres'), g = L.layerGroup().addTo(m); let mode = null, pts = [];
-    const fmtLen = v => v >= 1000 ? (v/1000).toFixed(2)+' km' : v.toFixed(1)+' m';
-    const fmtArea = a => a >= 1e6 ? (a/1e6).toFixed(3)+' sq km' : a >= 1e4 ? (a/1e4).toFixed(2)+' ha' : a.toFixed(0)+' sq m';
-    const length = p => p.reduce((t,q,i) => i ? t + m.distance(p[i-1],q) : 0, 0);
-    const area = p => { if (p.length < 3) return 0; const R = 6378137, r = Math.PI/180; let a = 0;       // spherical polygon area
-      for (let i = 0; i < p.length; i++){ const q = p[i], n = p[(i+1)%p.length]; a += (n.lng-q.lng)*r*(2+Math.sin(q.lat*r)+Math.sin(n.lat*r)); }
-      return Math.abs(a*R*R/2); };
-    const draw = () => { g.clearLayers();
-      if (pts.length){ const st = {color:'#d6336c',weight:3,interactive:false};
-        ((mode||res.dataset.kind)==='area' && pts.length>2 ? L.polygon(pts,{...st,fillOpacity:.15}) : L.polyline(pts,st)).addTo(g);
-        pts.forEach(p => L.marker(p,{interactive:false,icon:L.divIcon({className:'mdot',iconSize:[9,9]})}).addTo(g)); }
-      if (!mode && !pts.length){ res.hidden = true; return; }
-      const kind = (res.dataset.kind||mode);
-      const val = kind==='area' ? (pts.length>2 ? fmtArea(area(pts))+` <span>· perimeter ${fmtLen(length([...pts,pts[0]]))}</span>` : '—') : (pts.length>1 ? fmtLen(length(pts)) : '—');
-      const hint = mode ? (pts.length ? 'Click to add points' : (mode==='area' ? 'Click around the area' : 'Click along the route')) : (kind==='area' ? 'Area' : 'Distance');
-      res.hidden = false; res.innerHTML = `<span>${hint}</span><b>${val}</b>${mode ? '<button id="mDone">Done</button>' : ''}<button id="mClear">Clear</button>`;
-      if (mode) $('#mDone').onclick = e => { e.stopPropagation(); start(null,true); };
-      $('#mClear').onclick = e => { e.stopPropagation(); pts = []; start(null); }; };
-    const start = (k,keep) => { if (k && !keep) pts = []; mode = k; if (k) res.dataset.kind = k;
-      box.classList.toggle('measuring',!!k); $('#mDist').classList.toggle('on',k==='dist'); $('#mArea').classList.toggle('on',k==='area');
-      k ? m.doubleClickZoom.disable() : m.doubleClickZoom.enable(); draw(); };
-    $('#mDist').onclick = () => start(mode==='dist' ? null : 'dist', mode==='dist');
-    $('#mArea').onclick = () => start(mode==='area' ? null : 'area', mode==='area');
-    m.on('click', e => { if (!mode) return; const l = pts[pts.length-1]; if (l && l.equals(e.latlng)) return; pts.push(e.latlng); draw(); });
-    m.on('dblclick', () => { if (mode) start(null,true); });
-    L.DomEvent.disableClickPropagation(res);
+  /* ---- measure tool (works like the Google Earth ruler): click to add points, click the first point to close a shape ---- */
+  { const box = $('.mapbox'), res = $('#mres'), g = L.layerGroup().addTo(m), C = '#d6336c';
+    let on = false, drawing = false, closed = false, pts = [], cur = null, unit = 'auto';
+    // local ellipsoid radii (WGS84) so lengths and areas are true ground values, not sphere approximations
+    const rad = Math.PI/180, A = 6378137, E2 = 0.00669437999014;
+    const radii = lat => { const s = Math.sin(lat*rad), w = 1 - E2*s*s; return [A*(1-E2)/Math.pow(w,1.5), A/Math.sqrt(w)]; };   // [meridian, prime vertical]
+    const seg = (p,q) => { const [M,N] = radii((p.lat+q.lat)/2); return Math.hypot((q.lng-p.lng)*rad*N*Math.cos((p.lat+q.lat)/2*rad), (q.lat-p.lat)*rad*M); };
+    const length = p => p.reduce((t,q,i) => i ? t + seg(p[i-1],q) : 0, 0);
+    const area = p => { if (p.length < 3) return 0; const la = p.reduce((t,q)=>t+q.lat,0)/p.length, lo = p[0].lng, [M,N] = radii(la);
+      const xy = p.map(q => [(q.lng-lo)*rad*N*Math.cos(la*rad), (q.lat-la)*rad*M]); let a = 0;
+      for (let i = 0; i < xy.length; i++){ const n = xy[(i+1)%xy.length]; a += xy[i][0]*n[1] - n[0]*xy[i][1]; } return Math.abs(a/2); };
+    const num = (v,d) => v.toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
+    const fLen = v => unit==='m' ? num(v,2)+' m' : unit==='km' ? num(v/1000,3)+' km' : unit==='ft' ? num(v/0.3048,1)+' ft' : unit==='mi' ? num(v/1609.344,3)+' mi' : (v >= 1000 ? num(v/1000,3)+' km' : num(v,2)+' m');
+    const fArea = a => unit==='m' ? num(a,1)+' sq m' : unit==='km' ? num(a/1e6,4)+' sq km' : unit==='ft' ? num(a/0.09290304,0)+' sq ft' : unit==='mi' ? num(a/4046.8564224,3)+' acres'
+      : (a >= 1e6 ? num(a/1e6,3)+' sq km' : a >= 1e4 ? num(a/1e4,3)+' ha' : num(a,1)+' sq m');
+    const line = L.polyline([],{color:C,weight:3,interactive:false}), poly = L.polygon([],{color:C,weight:3,fillOpacity:.15,interactive:false}),
+          rubber = L.polyline([],{color:C,weight:2,dashArray:'6 6',interactive:false});
+    let marks = [];
+    const panel = () => {
+      if (!on){ res.hidden = true; return; }
+      const live = drawing && cur && pts.length ? [...pts,cur] : pts;
+      const rows = closed ? `<div class="mr"><span>Perimeter</span><b>${fLen(length([...pts,pts[0]]))}</b></div><div class="mr"><span>Area</span><b>${fArea(area(pts))}</b></div>`
+                          : `<div class="mr"><span>Distance</span><b>${live.length>1 ? fLen(length(live)) : '—'}</b></div>`;
+      const hint = !pts.length ? 'Click on the map to set the starting point' : drawing ? (pts.length>2 ? 'Click to add points · click the first point to close the shape' : 'Click to add points · double-click to finish') : 'Drag any point to adjust';
+      res.hidden = false;
+      res.innerHTML = `<div class="mh"><b>Measure</b><button class="mx" id="mX" title="Close the measure tool">✕</button></div>${rows}<div class="mh" style="margin:4px 0 0"><span>${hint}</span></div>
+        <div class="mb"><button id="mUndo" ${pts.length?'':'disabled'}>Undo</button><button id="mNew">Start new</button>${drawing&&pts.length>1?'<button id="mDone">Done</button>':''}
+        <select id="mUnit" title="Units">${[['auto','Auto'],['m','Metres'],['km','Kilometres'],['ft','Feet'],['mi','Miles / acres']].map(([k,t])=>`<option value="${k}" ${k===unit?'selected':''}>${t}</option>`).join('')}</select></div>`;
+      $('#mX').onclick = () => toggle(false); $('#mNew').onclick = () => reset(true);
+      $('#mUndo').onclick = () => { cur = null; if (closed){ closed = false; drawing = true; } else pts.pop(); if (!pts.length) drawing = true; shapes(); };
+      if ($('#mDone')) $('#mDone').onclick = finish;
+      $('#mUnit').onchange = e => { unit = e.target.value; panel(); }; };
+    const shapes = () => { marks.forEach(k => g.removeLayer(k)); marks = [];
+      line.setLatLngs(closed ? [] : pts); poly.setLatLngs(closed ? pts : []); rubber.setLatLngs([]);
+      pts.forEach((p,i) => { const k = L.marker(p,{draggable:true,bubblingMouseEvents:false,icon:L.divIcon({className:'mdot'+(i===0&&drawing&&pts.length>2?' first':''),iconSize:[11,11],iconAnchor:[6,6]}),title:i===0&&drawing&&pts.length>2?'Click to close the shape':''}).addTo(g);
+        k.on('drag', e => { pts[i] = e.latlng; line.setLatLngs(closed ? [] : pts); poly.setLatLngs(closed ? pts : []); panel(); });
+        k.on('click', () => { if (drawing && i===0 && pts.length>2){ closed = true; drawing = false; shapes(); } });
+        marks.push(k); });
+      box.classList.toggle('measuring', on && drawing); panel(); };
+    const finish = () => { if (pts.length < 2) return; drawing = false; cur = null; shapes(); };
+    const reset = keepOn => { pts = []; closed = false; cur = null; drawing = !!keepOn; shapes(); };
+    const toggle = v => { on = v; $('#mDist').classList.toggle('on',on);
+      if (on){ [line,poly,rubber].forEach(l => l.addTo(g)); m.doubleClickZoom.disable(); reset(true); }
+      else { reset(false); g.clearLayers(); m.doubleClickZoom.enable(); box.classList.remove('measuring'); panel(); } };
+    $('#mDist').onclick = () => toggle(!on);
+    m.on('click', e => { if (!on || !drawing) return; const l = pts[pts.length-1]; if (l && l.equals(e.latlng)) return; pts.push(e.latlng); cur = null; shapes(); });
+    m.on('mousemove', e => { if (!on || !drawing || !pts.length) return; cur = e.latlng; rubber.setLatLngs([pts[pts.length-1],cur]); 
+      const b = res.querySelector('.mr b'); if (b) b.textContent = fLen(length([...pts,cur])); });
+    m.on('dblclick', () => { if (on && drawing) finish(); });
+    document.addEventListener('keydown', e => { if (!on || !maps.includes(m)) return;
+      if (e.key==='Escape') toggle(false); else if (e.key==='Enter' && drawing) finish(); else if ((e.key==='Backspace'||e.key==='Delete') && drawing && pts.length && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)){ pts.pop(); shapes(); } });
+    L.DomEvent.disableClickPropagation(res); L.DomEvent.disableScrollPropagation(res);
   }
   $('#fsBtn').onclick = () => { document.fullscreenElement ? document.exitFullscreen() : (ws.requestFullscreen && ws.requestFullscreen()); };
   document.onfullscreenchange = () => setTimeout(size,150);
@@ -629,6 +839,7 @@ function cityView(c, tab){
       set = v => { ip.hidden = !v; if (v) show(0); else ip.innerHTML = ''; s0(v); }; }
     tg.disabled = false;
     tg.onchange = () => { set(tg.checked); if (tg.checked && d.zoomOnShow){ try{ m.fitBounds(lyr.getBounds(),pad()); }catch(e){} } };
+    if (d.id==='gcp' && pg.search) gcpSearch(m,lyr,tg,pad);
   });
 }
 
@@ -642,7 +853,7 @@ function chrome(show, active){
       ${active==='about' ? '<option value="" disabled selected hidden>Select city</option>' : ''}
       <option value="all" ${active==='cities'?'selected':''}>All cities</option>
       ${CONFIG.cities.map(c=>`<option value="${c.id}" ${inCity&&c.id===current?'selected':''}>${c.name}</option>`).join('')}
-    </select>` + (inCity ? '<span class="nsep"></span>' + SECT.map(([k,full]) => `<a href="#/city/${current}/${k}" class="${k===active?'on':''}">${full}</a>`).join('') : '');
+    </select>` + (inCity ? '<span class="nsep"></span>' + SECT.map(([k,full]) => `<a href="#/city/${current}/${k}" class="${k===active?'on':''}">${full}</a>`).join('') : '') + langSw();
   const on = document.querySelector('.nav a.on'); if (on && on.scrollIntoView) on.scrollIntoView({block:'nearest',inline:'nearest'});
   $('#citySel').onchange = e => { const v = e.target.value; location.hash = v==='all' ? '#/cities' : `#/city/${v}/${inCity?active:'progress'}`; };
 }
@@ -669,7 +880,7 @@ function heroArt(){
 function landing(){
   chrome(false);
   document.title = 'IUSWDMP Portal · Uttar Pradesh';
-  $('#app').innerHTML = `<section class="land"><div class="l">
+  $('#app').innerHTML = `<section class="land">${langSw()}<div class="l">
     <div class="dept"><img src="img_up.jpg" alt="" onerror="this.remove()"><div><b>नगर विकास विभाग, उत्तर प्रदेश</b>Urban Development Department, Uttar Pradesh</div></div>
     <h1><span class="hi">एकीकृत शहरी वर्षाजल<br>निकासी मास्टर प्लान</span><span class="en">Integrated Urban Stormwater Drainage Master Plans</span>
       <small>For Urban Local Bodies in Uttar Pradesh</small></h1>
@@ -778,7 +989,7 @@ function idfInit(c){
 }
 
 const PAGES = {
-  lidar(c){ return {ids:['outer','ortho','gcp']}; },
+  lidar(c){ return {ids:['outer','ortho','gcp'], search:true}; },
   satellite(c){ return {ids:['outer','ward'], base:'satellite'}; },
   analysis(c){ return {ids:['outer','rivers','catchment','catchments','streams','contours','dem','nrsc','soi','rain'],
     note:'Elevation model based on Copernicus DEM. River basin streams from HydroRIVERS.'}; },
@@ -850,6 +1061,7 @@ function route(){
 $('#foot').textContent = `© ${new Date().getFullYear()} ${CONFIG.department} · Technical Associate: ${CONFIG.consultant}`;
 window.addEventListener('hashchange', route);
 route();
+document.documentElement.lang = LANG; if (LANG==='hi') trTree(document.body);
 </script>
 </body>
 </html>

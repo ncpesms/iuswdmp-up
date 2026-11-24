@@ -496,7 +496,7 @@ function popupHtml(d,p){
   const rows = Object.entries(p).filter(([k,v]) => k[0]!=='_' && v!==null && v!=='' && typeof v!=='object').slice(0,12)
     .map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
   const ph = Array.isArray(p.photos) ? p.photos : [];
-  const pics = ph.length ? `<a href="${ph[0]}" target="_blank" rel="noopener"><img src="${ph[0]}" alt="Photo of ${p.Point||d.name}" loading="lazy" style="width:240px;max-width:100%;display:block;margin:6px 0 4px;border-radius:5px"></a>`
+  const pics = ph.length ? `<a href="${ph[0]}" target="_blank" rel="noopener"><img src="${ph[0]}" alt="Photo of ${p.Point||d.name}" loading="lazy" style="max-width:240px;max-height:min(270px,30vh);min-height:110px;display:block;margin:6px auto 4px;border-radius:5px;background:#eef2f7"></a>`
     + (ph.length>1 ? `<div style="font-size:11px">More photos: ${ph.slice(1).map((f,i)=>`<a href="${f}" target="_blank" rel="noopener">${i+2}</a>`).join(' · ')}</div>` : '') : '';
   return `<b>${p.Point||p["Drain ID"]||(p.Culvert?"Culvert "+p.Culvert:"")||(p["Ward No"]?"Ward "+p["Ward No"]+(p.Ward?" · "+p.Ward:""):"")||d.name}</b>${pics}<table class="pt">${rows}</table>`;
 }
@@ -759,6 +759,13 @@ function cityView(c, tab){
 
   const m = L.map('cityMap',{zoomControl:false,scrollWheelZoom:true,maxZoom:21}).setView([c.lat,c.lng],12);
   maps.push(m);
+  // keep a popup fully in view: pan again once its photo has loaded, clear of the header, layer panel and tool buttons
+  m.on('popupopen', e => { const p = e.popup, el = p.getElement(); if (!el) return;
+    const fit = () => { if (!p.isOpen()) return; const w = window.innerWidth > 900;
+      p.options.autoPanPaddingTopLeft = L.point(w && !$('#lpanel').hidden ? 290 : 14, $('#gsearch') ? 64 : 14);
+      p.options.autoPanPaddingBottomRight = L.point(w ? (document.querySelector('.rpanel:not([hidden])') ? 370 : 64) : 14, 14);
+      p._updateLayout(); p._updatePosition(); p._adjustPan(); };
+    fit(); el.querySelectorAll('img').forEach(i => { if (!i.complete) i.addEventListener('load', fit, {once:true}); }); });
   m.createPane('img').style.zIndex = 350;      // image layers sit under the lines and points
   let base, baseKey = pg.base || 'streets', noBase = 0;
   const drawBase = () => { if(base){ m.removeLayer(base); base = null; } if(!noBase){ base = TILES[baseKey]().addTo(m); base.bringToBack(); } $('#bBase').classList.toggle('on',baseKey==='satellite'); };

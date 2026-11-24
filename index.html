@@ -416,6 +416,8 @@ const CONFIG = {
     {id:"drains", group:"Survey layers", name:"Drains & Culverts", icon:"—", color:"#1565c0", files:["drains.geojson","culverts.geojson"], unit:"features",
       style:{color:"#1565c0",weight:2.6,opacity:.9}, pointColor:"#f59e0b", radius:4},
     {id:"flow",   group:"Survey layers", name:"Flow Direction", tag:"ANIMATED", icon:"➤", color:"#06b6d4", file:"drains.geojson", unit:"drains", flow:true},
+    {id:"blocks", group:"Survey layers", name:"Drone Survey Blocks", icon:"▢", color:"#7c3aed", file:"survey_blocks.geojson", unit:"blocks",
+      style:{color:"#7c3aed",weight:2,fillOpacity:0.05,dashArray:"5 4"}},
     {id:"gcp",    group:"Survey layers", name:"GCP Marked",  icon:"●", color:"#d32027", files:["gcp.geojson","tbm.geojson"], unit:"points"},
     {id:"photos", group:"Survey layers", name:"Survey Photos", icon:"●", color:"#be123c", file:"photos.geojson", unit:"photos", radius:4},
     // Analysis-only options. NRSC and SOI are image layers (add "nrsc" / "soi" entries to images.json); they hide the street map while on.
@@ -466,8 +468,8 @@ const ICON = {
 };
 const svg = k => `<svg viewBox="0 0 20 20" aria-hidden="true">${ICON[k]}</svg>`;
 const TILES = {
-  streets:   () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:21,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}),
-  satellite: () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:21,attribution:'Imagery &copy; Esri'})
+  streets:   () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:25,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}),
+  satellite: () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:25,attribution:'Imagery &copy; Esri'})
 };
 let sheetState = 's-norm', layersOpen = window.innerWidth > 900;
 let maps = [], current = 'varanasi';
@@ -615,10 +617,10 @@ const HI = {
 "Click on the map to set the starting point":"आरंभ बिंदु के लिए मानचित्र पर क्लिक करें","Click to add points · click the first point to close the shape":"बिंदु जोड़ने के लिए क्लिक करें · आकृति बंद करने के लिए पहले बिंदु पर क्लिक करें","Click to add points · double-click to finish":"बिंदु जोड़ने के लिए क्लिक करें · समाप्त करने के लिए डबल-क्लिक करें","Drag any point to adjust":"समायोजन के लिए किसी भी बिंदु को खींचें",
 "Sheet details":"शीट विवरण","Conventional symbols":"रूढ़ चिह्न","Click the picture to open it full size":"पूरा आकार देखने के लिए चित्र पर क्लिक करें",
 "Ward No":"वार्ड संख्या","Ward":"वार्ड","Zone":"ज़ोन","Area (sq km)":"क्षेत्रफल (वर्ग किमी)","Population":"जनसंख्या","Drains surveyed (km)":"सर्वेक्षित नाले (किमी)","Culverts":"पुलिया","Point":"बिंदु","Latitude":"अक्षांश","Longitude":"देशांतर","Elevation (m)":"ऊँचाई (मी)","Drain ID":"नाला आईडी","Length (km)":"लंबाई (किमी)","Culvert":"पुलिया","On drain":"नाले पर","Basin":"बेसिन","Stream order":"धारा क्रम","More photos":"और फोटो",
-"NCPE Infrastructure India Private Limited":"एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड","points":"बिंदु","sq km":"वर्ग किमी","km":"किमी","Flow Direction":"प्रवाह दिशा","ANIMATED":"एनिमेटेड","Flow basis":"प्रवाह का आधार","Ground fall (m)":"भूमि ढाल (मी)","Ground levels":"भूमि स्तर","Ground levels (slight fall)":"भूमि स्तर (हल्की ढाल)","Outfall to river":"नदी में निकास","Joins larger drain":"बड़े नाले में मिलता है","Towards river":"नदी की ओर","Flow direction is indicative: worked out from ground levels, river outfalls and drain junctions, to be confirmed with surveyed invert levels.":"प्रवाह दिशा सांकेतिक है: भूमि स्तर, नदी निकास और नालों के संगम से निकाली गई है; सर्वेक्षित इनवर्ट स्तरों से पुष्टि की जानी है।","drains":"नाले","Search GCP":"जीसीपी खोजें","No matching point":"कोई मिलता-जुलता बिंदु नहीं","Photo available":"फोटो उपलब्ध",
+"NCPE Infrastructure India Private Limited":"एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड","points":"बिंदु","sq km":"वर्ग किमी","km":"किमी","Flow Direction":"प्रवाह दिशा","ANIMATED":"एनिमेटेड","Flow basis":"प्रवाह का आधार","Ground fall (m)":"भूमि ढाल (मी)","Ground levels":"भूमि स्तर","Ground levels (slight fall)":"भूमि स्तर (हल्की ढाल)","Outfall to river":"नदी में निकास","Joins larger drain":"बड़े नाले में मिलता है","Towards river":"नदी की ओर","Flow direction is indicative: worked out from ground levels, river outfalls and drain junctions, to be confirmed with surveyed invert levels.":"प्रवाह दिशा सांकेतिक है: भूमि स्तर, नदी निकास और नालों के संगम से निकाली गई है; सर्वेक्षित इनवर्ट स्तरों से पुष्टि की जानी है।","drains":"नाले","Drone Survey Blocks":"ड्रोन सर्वेक्षण ब्लॉक","blocks":"ब्लॉक","Block":"ब्लॉक","Area (sq km)":"क्षेत्रफल (वर्ग किमी)","Search GCP":"जीसीपी खोजें","No matching point":"कोई मिलता-जुलता बिंदु नहीं","Photo available":"फोटो उपलब्ध",
 "Zoom in":"बड़ा करें","Zoom out":"छोटा करें","Full screen":"पूर्ण स्क्रीन","Switch between street map and satellite":"सड़क मानचित्र और उपग्रह चित्र के बीच बदलें","Measure distance and area":"दूरी और क्षेत्रफल मापें","Show or hide map layers":"मानचित्र लेयर दिखाएँ या छिपाएँ","Back to the map":"मानचित्र पर वापस","Close the measure tool":"मापन बंद करें","Units":"इकाइयाँ","Search for a GCP point by name or number":"नाम या संख्या से जीसीपी बिंदु खोजें"
 };
-const UNITS_HI = {drains:'नाले',wards:'वार्ड',boundary:'सीमा',polygons:'बहुभुज',features:'आकृतियाँ',basins:'बेसिन','stream orders':'धारा क्रम',levels:'स्तर',points:'बिंदु',photos:'फोटो','sq km':'वर्ग किमी',km:'किमी',m:'मी'};
+const UNITS_HI = {blocks:'ब्लॉक',drains:'नाले',wards:'वार्ड',boundary:'सीमा',polygons:'बहुभुज',features:'आकृतियाँ',basins:'बेसिन','stream orders':'धारा क्रम',levels:'स्तर',points:'बिंदु',photos:'फोटो','sq km':'वर्ग किमी',km:'किमी',m:'मी'};
 let LANG = 'en'; try{ if (localStorage.getItem('iuswdmp_lang') === 'hi') LANG = 'hi'; }catch(e){}
 const cityHi = n => { const c = CONFIG.cities.find(x => x.name === n); return c ? c.hi : n; };
 const CITY_RE = () => CONFIG.cities.map(c=>c.name).join('|');
@@ -626,7 +628,7 @@ const HI_PAT = [
   [/^(\d+) m DEM(.*)$/, m => `${m[1]} मी डीईएम${m[2].replace(/ m$/,' मी')}`],
   [/^© (\d+) .*$/, m => `© ${m[1]} कंस्ट्रक्शन एंड डिज़ाइन सर्विसेज़, उत्तर प्रदेश जल निगम (नगरीय) · तकनीकी सहयोगी: एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड`],
   [/^Technical Associate: NCPE.*$/, m => 'तकनीकी सहयोगी: एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड'],
-  [/^([\d,.]+) (wards|boundary|polygons|features|basins|stream orders|levels|points|photos|drains|sq km|km|m)\b(.*)$/, m => `${m[1]} ${UNITS_HI[m[2]]}${m[3].replace(/ m$/,' मी').replace('locations','स्थान')}`],
+  [/^([\d,.]+) (wards|boundary|polygons|features|basins|stream orders|levels|points|photos|drains|blocks|sq km|km|m)\b(.*)$/, m => `${m[1]} ${UNITS_HI[m[2]]}${m[3].replace(/ m$/,' मी').replace('locations','स्थान')}`],
   [/^Ramnagar block(.*)$/, m => `रामनगर ब्लॉक${m[1].replace('cm','सेमी')}`],
   [/^SOI toposheet(.*)$/, m => `एसओआई टोपोशीट${m[1]}`],
   [/^(\d+)-year( storm)?$/, m => `${m[1]}-वर्षीय${m[2]?' वर्षा':''}`],
@@ -757,7 +759,7 @@ function cityView(c, tab){
   size(); window.onresize = size;
   if (!isMap) return;
 
-  const m = L.map('cityMap',{zoomControl:false,scrollWheelZoom:true,maxZoom:21}).setView([c.lat,c.lng],12);
+  const m = L.map('cityMap',{zoomControl:false,scrollWheelZoom:true,maxZoom:25}).setView([c.lat,c.lng],12);
   maps.push(m);
   // keep a popup fully in view: pan again once its photo has loaded, clear of the header, layer panel and tool buttons
   m.on('popupopen', e => { const p = e.popup, el = p.getElement(); if (!el) return;
@@ -851,10 +853,20 @@ function cityView(c, tab){
       if (!maps.includes(m)) return;
       if (!im){ meta.textContent = 'to be added'; return; }
       info = im.info;
-      lyr = L.imageOverlay(im.file, im.bounds, {opacity:d.opacity||1, pane:'img'});
-      // full-clarity map tiles drawn over the preview picture; the picture stays as the fallback
-      if (im.tiles){ const pic = lyr, tl = L.tileLayer(im.tiles, {tileSize:im.tileSize||256, zoomOffset:-Math.round(Math.log2((im.tileSize||256)/256)), pane:'img', bounds:im.bounds, minNativeZoom:im.minZoom||14, maxNativeZoom:im.maxZoom||20, maxZoom:21, opacity:d.opacity||1}); tl.once('tileload',()=>pic.setOpacity(0)); lyr = L.layerGroup([pic, tl]); lyr.getBounds = () => L.latLngBounds(im.bounds); }
-      meta.textContent = (im.note||'image') + (im.min!=null ? ` · ${im.min}–${im.max} m` : '');
+      // one picture, one tiled image, or several tiled blocks under a single switch ("blocks":[{name,bounds,tiles,minZoom,maxZoom,tileSize,file}])
+      const one = b => { const op = d.opacity||1, pic = b.file ? L.imageOverlay(b.file, b.bounds, {opacity:op, pane:'img'}) : null;
+        if (!b.tiles) return [pic];
+        const ts = b.tileSize||256, tl = L.tileLayer(b.tiles, {tileSize:ts, zoomOffset:-Math.round(Math.log2(ts/256)), pane:'img', bounds:b.bounds, minNativeZoom:b.minZoom||14, maxNativeZoom:b.maxZoom||20, maxZoom:25, opacity:op});
+        if (pic) tl.once('tileload',()=>pic.setOpacity(0)); return [pic, tl]; };
+      const parts = (im.blocks && im.blocks.length ? im.blocks : [im]);
+      const ls2 = parts.flatMap(one).filter(Boolean);
+      lyr = ls2.length === 1 ? ls2[0] : L.layerGroup(ls2);
+      const bb = L.latLngBounds(parts[0].bounds); parts.forEach(b => bb.extend(b.bounds)); lyr.getBounds = () => bb;
+      if (im.blocks && im.blocks.length > 1){ const lab = L.layerGroup(parts.filter(b=>b.name).map(b => L.marker(L.latLngBounds(b.bounds).getCenter(),{interactive:false,keyboard:false,icon:L.divIcon({className:'blab',html:b.name,iconSize:null})})));
+        const g = L.layerGroup(ls2); lyr = g; g.getBounds = () => bb;
+        const upd = () => { const mp = g._map; if (!mp) return; mp.getZoom() <= 14 ? g.addLayer(lab) : g.removeLayer(lab); };
+        g.on('add', () => { g._map.on('zoomend', upd); upd(); }); g.on('remove', () => { g._mapToRemove && g._mapToRemove.off('zoomend', upd); }); }
+      meta.textContent = (im.note || (im.blocks ? `${im.blocks.length} blocks` : 'image')) + (im.min!=null ? ` · ${im.min}–${im.max} m` : '');
     } else {
       const gj = await loadData(c,d);
       if (!maps.includes(m)) return;
@@ -1022,7 +1034,7 @@ function idfInit(c){
 }
 
 const PAGES = {
-  lidar(c){ return {ids:['outer','ortho','gcp'], search:true}; },
+  lidar(c){ return {ids:['outer','blocks','ortho','dem','gcp'], search:true}; },
   satellite(c){ return {ids:['outer','ward'], base:'satellite'}; },
   analysis(c){ return {ids:['outer','rivers','catchment','catchments','streams','contours','dem','nrsc','soi','rain'],
     note:'Elevation model based on Copernicus DEM. River basin streams from HydroRIVERS.'}; },

@@ -1091,7 +1091,7 @@ const PAGES = {
         <div class="nums three"><div><div class="l">Rovers</div><div class="big">${fmt(c.team&&c.team.rovers)}</div></div>
         <div><div class="l">Base</div><div class="big">${fmt(c.team&&c.team.base)}</div></div>
         <div><div class="l">Members</div><div class="big">${fmt(c.team&&c.team.members)}</div></div></div></div></div>`;
-    return {ids:CONFIG.layers.filter(l=>!l.only).map(l=>l.id), right};
+    return {ids:CONFIG.layers.filter(l=>!l.only).map(l=>l.id), right, search:true};
   },
   twin(c){
     const st=[["Survey integration and drainage inventory","Integrate drone LiDAR terrain data, high-resolution imagery, municipal records and field surveys in a common coordinate and elevation system. Map drains, culverts, inlets, outfalls, lakes, ponds, pumps and sluice gates with unique asset IDs."],

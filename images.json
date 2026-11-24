@@ -16,7 +16,7 @@
   "max": 80.1
  },
  "ortho": {
-  "note": "2 blocks \u00b7 up to 3.4 cm",
+  "note": "3 blocks \u00b7 up to 3.4 cm",
   "blocks": [
    {
     "name": "Ramnagar",
@@ -49,6 +49,23 @@
      ]
     ],
     "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/lohata/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "BHU",
+    "bounds": [
+     [
+      25.251077,
+      82.978902
+     ],
+     [
+      25.283588,
+      83.005704
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/bhu/{z}/{x}/{y}.jpg",
     "tileSize": 1024,
     "minZoom": 14,
     "maxZoom": 22

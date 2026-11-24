@@ -824,7 +824,10 @@ function cityView(c, tab){
   const pad = () => wide() ? {paddingTopLeft:[layersOpen?290:20,20], paddingBottomRight:[(pg.right||($('#ipanel')&&!$('#ipanel').hidden))?370:70,20]} : {padding:[12,12]};
   // start on the city's extent; every option starts switched off
   const outer = CONFIG.layers.find(l=>l.id==='outer');
-  loadData(c,outer).then(gj => { if (gj && maps.includes(m)){ try{ m.fitBounds(L.geoJSON(gj).getBounds(),pad()); }catch(e){} } });
+  let hasOuter = true;
+  loadData(c,outer).then(async gj => { if (!maps.includes(m)) return;
+    if (!gj){ hasOuter = false; gj = await loadData(c, CONFIG.layers.find(l=>l.id==='gcp')); }   // no boundary yet: start on the survey points
+    if (gj && maps.includes(m)){ try{ m.fitBounds(L.geoJSON(gj).getBounds(),pad()); }catch(e){} } });
 
   ls.forEach(async d => {
     const meta = $('#m-'+d.id), tg = $('#t-'+d.id);

@@ -1,0 +1,58 @@
+{
+ "dem": {
+  "file": "varanasi_dem.webp",
+  "bounds": [
+   [
+    25.238295,
+    82.916049
+   ],
+   [
+    25.40208,
+    83.061986
+   ]
+  ],
+  "note": "30 m DEM",
+  "min": 56.9,
+  "max": 80.1
+ },
+ "ortho": {
+  "note": "2 blocks \u00b7 up to 3.4 cm",
+  "blocks": [
+   {
+    "name": "Ramnagar",
+    "file": "ramnagar_ortho.webp",
+    "bounds": [
+     [
+      25.256155,
+      83.014624
+     ],
+     [
+      25.291651,
+      83.045603
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/ramnagar/rmo_{z}_{x}_{y}.webp",
+    "tileSize": 1024,
+    "minZoom": 16,
+    "maxZoom": 20
+   },
+   {
+    "name": "Lohata",
+    "bounds": [
+     [
+      25.300442,
+      82.923648
+     ],
+     [
+      25.315386,
+      82.941423
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/lohata/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   }
+  ]
+ }
+}

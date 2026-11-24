@@ -711,6 +711,28 @@ function gcpSearch(m, lyr, tg, pad){
   $('#gsCount').textContent = `${pts.length} points`;
 }
 
+/* JPG tiles have no transparency, so the blank area outside a survey block comes out white.
+   This tile layer clears every white region that touches a tile edge, leaving the map visible around the block. */
+const CutWhiteTiles = L.TileLayer.extend({
+  createTile(coords, done){
+    const c = document.createElement('canvas'), img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => { const w = c.width = img.naturalWidth, h = c.height = img.naturalHeight, g = c.getContext('2d'); g.drawImage(img,0,0);
+      try{ const id = g.getImageData(0,0,w,h), p = id.data, st = new Int32Array(w*h), seen = new Uint8Array(w*h); let n = 0;
+        const wh = i => p[i*4] > 243 && p[i*4+1] > 243 && p[i*4+2] > 243;
+        const push = i => { if (!seen[i] && wh(i)){ seen[i] = 1; st[n++] = i; } };
+        for (let x = 0; x < w; x++){ push(x); push((h-1)*w + x); }
+        for (let y = 0; y < h; y++){ push(y*w); push(y*w + w-1); }
+        if (n){ while (n){ const i = st[--n], x = i % w; p[i*4+3] = 0;
+            if (x > 0) push(i-1); if (x < w-1) push(i+1); if (i >= w) push(i-w); if (i < w*(h-1)) push(i+w); }
+          g.putImageData(id,0,0); }
+      }catch(e){}   // if the browser blocks pixel access the tile is shown as it is
+      done(null, c); };
+    const url = this.getTileUrl(coords);
+    img.onerror = e => { if (img.crossOrigin === null){ done(e, c); return; }   // storage without the CORS rule: show the tile unprocessed
+      img.removeAttribute('crossorigin'); img.crossOrigin = null; img.src = url; };
+    img.src = url; return c; }
+});
+
 /* ---------- map stage (shared by the map tabs) ---------- */
 function layerRow(d){
   return `<div class="layer"><span class="ic" style="background:${d.color}1f;color:${d.color}">${d.icon}</span>
@@ -856,7 +878,7 @@ function cityView(c, tab){
       // one picture, one tiled image, or several tiled blocks under a single switch ("blocks":[{name,bounds,tiles,minZoom,maxZoom,tileSize,file}])
       const one = b => { const op = d.opacity||1, pic = b.file ? L.imageOverlay(b.file, b.bounds, {opacity:op, pane:'img'}) : null;
         if (!b.tiles) return [pic];
-        const ts = b.tileSize||256, tl = L.tileLayer(b.tiles, {tileSize:ts, zoomOffset:-Math.round(Math.log2(ts/256)), pane:'img', bounds:b.bounds, minNativeZoom:b.minZoom||14, maxNativeZoom:b.maxZoom||20, maxZoom:25, opacity:op});
+        const ts = b.tileSize||256, tl = new (/\.jpe?g$/i.test(b.tiles) && b.cutWhite !== false ? CutWhiteTiles : L.TileLayer)(b.tiles, {tileSize:ts, zoomOffset:-Math.round(Math.log2(ts/256)), pane:'img', bounds:b.bounds, minNativeZoom:b.minZoom||14, maxNativeZoom:b.maxZoom||20, maxZoom:25, opacity:op});
         if (pic) tl.once('tileload',()=>pic.setOpacity(0)); return [pic, tl]; };
       const parts = (im.blocks && im.blocks.length ? im.blocks : [im]);
       const ls2 = parts.flatMap(one).filter(Boolean);
@@ -1069,7 +1091,7 @@ const PAGES = {
         <div class="nums three"><div><div class="l">Rovers</div><div class="big">${fmt(c.team&&c.team.rovers)}</div></div>
         <div><div class="l">Base</div><div class="big">${fmt(c.team&&c.team.base)}</div></div>
         <div><div class="l">Members</div><div class="big">${fmt(c.team&&c.team.members)}</div></div></div></div></div>`;
-    return {ids:CONFIG.layers.filter(l=>!l.only).map(l=>l.id), right};
+    return {ids:CONFIG.layers.filter(l=>!l.only).map(l=>l.id), right, search:true};
   },
   twin(c){
     const st=[["Survey integration and drainage inventory","Integrate drone LiDAR terrain data, high-resolution imagery, municipal records and field surveys in a common coordinate and elevation system. Map drains, culverts, inlets, outfalls, lakes, ponds, pumps and sluice gates with unique asset IDs."],

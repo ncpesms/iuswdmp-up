@@ -28,7 +28,7 @@
    ]
   ],
   "note": "Ramnagar block \u00b7 12.5 cm",
-  "tiles": "rmo_{z}_{x}_{y}.webp",
+  "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/ramnagar/rmo_{z}_{x}_{y}.webp",
   "minZoom": 16,
   "maxZoom": 20,
   "tileSize": 1024

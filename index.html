@@ -626,7 +626,7 @@ const HI_PAT = [
   [/^(\d+) m DEM(.*)$/, m => `${m[1]} मी डीईएम${m[2].replace(/ m$/,' मी')}`],
   [/^© (\d+) .*$/, m => `© ${m[1]} कंस्ट्रक्शन एंड डिज़ाइन सर्विसेज़, उत्तर प्रदेश जल निगम (नगरीय) · तकनीकी सहयोगी: एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड`],
   [/^Technical Associate: NCPE.*$/, m => 'तकनीकी सहयोगी: एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड'],
-  [/^([\d,.]+) (wards|boundary|polygons|features|basins|stream orders|levels|points|photos|drains|sq km|km|m)\b(.*)$/, m => `${m[1]} ${UNITS_HI[m[2]]}${m[3].replace(/ m$/,' मी')}`],
+  [/^([\d,.]+) (wards|boundary|polygons|features|basins|stream orders|levels|points|photos|drains|sq km|km|m)\b(.*)$/, m => `${m[1]} ${UNITS_HI[m[2]]}${m[3].replace(/ m$/,' मी').replace('locations','स्थान')}`],
   [/^Ramnagar block(.*)$/, m => `रामनगर ब्लॉक${m[1].replace('cm','सेमी')}`],
   [/^SOI toposheet(.*)$/, m => `एसओआई टोपोशीट${m[1]}`],
   [/^(\d+)-year( storm)?$/, m => `${m[1]}-वर्षीय${m[2]?' वर्षा':''}`],
@@ -860,6 +860,8 @@ function cityView(c, tab){
       if (!maps.includes(m)) return;
       if (!gj){ meta.textContent = 'file not added yet'; return; }
       lyr = buildLayer(d,gj);
+      const nph = d.unit==='photos' ? (gj.features||[]).reduce((t,f)=>t+((f.properties.photos||[]).length||1),0) : 0;
+      if (nph > (gj.features||[]).length) meta.textContent = `${fmt(nph)} photos · ${fmt(gj.features.length)} locations`; else
       meta.textContent = `${fmt(d.flow ? d._n : (gj.features||[]).length)} ${d.unit||'features'}` + (d._range ? ` · ${d._range[0]}–${d._range[1]} m` : '');
     }
     if (!set) set = v => { if (v){ lyr.addTo(m); } else { lyr._mapToRemove = m; m.removeLayer(lyr); }

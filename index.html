@@ -931,6 +931,11 @@ function cityView(c, tab){
     }
     if (!set) set = v => { if (v){ lyr.addTo(m); } else { lyr._mapToRemove = m; m.removeLayer(lyr); }
       if (d.noBase){ noBase += v ? 1 : -1; drawBase(); if (v){ try{ m.fitBounds(lyr.getBounds(),pad()); }catch(e){} } } };
+    if (d.id === 'ortho'){        // drone blocks have unflown gaps: show satellite under them, not the street map
+      const s0 = set; let auto = false;
+      set = v => { s0(v);
+        if (v && baseKey === 'streets'){ baseKey = 'satellite'; drawBase(); auto = true; }
+        else if (!v && auto){ auto = false; if (baseKey === 'satellite'){ baseKey = 'streets'; drawBase(); } } }; }
     if (info && info.length && $('#ipanel')){ const s0 = set, ip = $('#ipanel');   // sheet details / legend shown beside the map
       const show = k => { ip.innerHTML = `<div class="ph"><b>${d.name}</b>${info.map((x,i)=>`<button data-i="${i}" class="${i===k?'on':''}">${x.title}</button>`).join('')}</div><div class="pb"><a href="${info[k].file}" target="_blank" rel="noopener"><img src="${info[k].file}" alt="${info[k].title}"></a><small>Click the picture to open it full size</small></div>`;
         ip.querySelectorAll('button').forEach(b => b.onclick = () => show(+b.dataset.i)); };

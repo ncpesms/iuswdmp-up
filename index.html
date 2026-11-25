@@ -222,6 +222,7 @@ footer{text-align:center;font-size:11.5px;color:var(--mut);padding:16px;border-t
 .nav .langsw{margin-left:auto;position:sticky;right:0;box-shadow:-10px 0 10px #fff}
 html[lang="hi"] .land .enter small,html[lang="hi"] .land h1 .en{display:none}
 .land{position:relative}.land>.langsw{position:absolute;top:14px;right:16px;z-index:5}
+.sw{display:inline-block;width:7px;height:7px;border-radius:2px;margin:0 3px 0 6px;vertical-align:middle}
 .gsearch{position:absolute;top:12px;left:362px;width:270px;max-width:calc(100% - 440px);z-index:565}
 .gsearch .gb{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:0 11px;height:38px;box-shadow:0 2px 8px rgba(10,42,102,.14)}
 .gsearch .gb:focus-within{border-color:var(--navy)}
@@ -418,6 +419,10 @@ const CONFIG = {
     {id:"flow",   group:"Survey layers", name:"Flow Direction", tag:"ANIMATED", icon:"➤", color:"#06b6d4", file:"drains.geojson", unit:"drains", flow:true},
     {id:"blocks", group:"Survey layers", name:"Drone Survey Blocks", icon:"▢", color:"#7c3aed", file:"survey_blocks.geojson", unit:"blocks",
       style:{color:"#7c3aed",weight:2,fillOpacity:0.05,dashArray:"5 4"}},
+    {id:"roads",  group:"Survey layers", name:"Road Network", tag:"SURVEYED", icon:"—", color:"#111827", file:"roads.geojson", unit:"roads",
+      colorBy:"Type", kmField:"Length (m)", canvas:true,
+      colors:{"BT":"#111827","CC":"#2563eb","Kachha":"#d97706","Unknown":"#64748b"},
+      widths:{"BT":2.4,"CC":1.5,"Kachha":1.2}},
     {id:"gcp",    group:"Survey layers", name:"GCP Marked",  icon:"●", color:"#d32027", files:["gcp.geojson","tbm.geojson"], unit:"points"},
     {id:"photos", group:"Survey layers", name:"Survey Photos", icon:"●", color:"#be123c", file:"photos.geojson", unit:"photos", radius:4},
     // Analysis-only options. NRSC and SOI are image layers (add "nrsc" / "soi" entries to images.json); they hide the street map while on.
@@ -528,7 +533,9 @@ function buildLayer(d,gj){
   let lo = 0, hi = 1;
   if (d.ramp){ const v = gj.features.map(f=>f.properties[d.ramp]).filter(x=>x!=null); lo = Math.min(...v); hi = Math.max(...v); d._range = [lo,hi]; }
   const lines = L.geoJSON(gj,{
-    style: f => d.ramp ? {color:rampColor((f.properties[d.ramp]-lo)/((hi-lo)||1)), weight:(f.properties[d.ramp]%(d.major||5)===0)?2.4:1.1, opacity:.9}
+    renderer: d.canvas ? L.canvas({padding:0.3}) : undefined,
+    style: f => d.colorBy ? {color:(d.colors||{})[f.properties[d.colorBy]] || d.color, weight:(d.widths||{})[f.properties[d.colorBy]] || 1.4, opacity:.92}
+                       : d.ramp ? {color:rampColor((f.properties[d.ramp]-lo)/((hi-lo)||1)), weight:(f.properties[d.ramp]%(d.major||5)===0)?2.4:1.1, opacity:.9}
                        : d.basins ? {color:BASIN_COL[gj.features.indexOf(f)%BASIN_COL.length], weight:2, fillOpacity:.22}
                        : d.id==='streams' ? {color:'#0e7490', weight:0.6+(f.properties['Stream order']-3)*0.75, opacity:.9}
                        : d.id==='catchment' ? (f.geometry.type==='Polygon' ? {color:'#0369a1',weight:2,dashArray:'7 5',fillColor:'#38bdf8',fillOpacity:.05}
@@ -716,15 +723,33 @@ function gcpSearch(m, lyr, tg, pad){
 const CutWhiteTiles = L.TileLayer.extend({
   createTile(coords, done){
     const c = document.createElement('canvas'), img = new Image(); img.crossOrigin = 'anonymous';
+    const deep = coords.z >= (this.options.maxNativeZoom || 99);   // deepest level: only clear white that reaches a tile edge
     img.onload = () => { const w = c.width = img.naturalWidth, h = c.height = img.naturalHeight, g = c.getContext('2d'); g.drawImage(img,0,0);
-      try{ const id = g.getImageData(0,0,w,h), p = id.data, st = new Int32Array(w*h), seen = new Uint8Array(w*h); let n = 0;
+      try{ const id = g.getImageData(0,0,w,h), p = id.data, st = new Int32Array(w*h), seen = new Uint8Array(w*h);
         const wh = i => p[i*4] > 243 && p[i*4+1] > 243 && p[i*4+2] > 243;
-        const push = i => { if (!seen[i] && wh(i)){ seen[i] = 1; st[n++] = i; } };
-        for (let x = 0; x < w; x++){ push(x); push((h-1)*w + x); }
-        for (let y = 0; y < h; y++){ push(y*w); push(y*w + w-1); }
-        if (n){ while (n){ const i = st[--n], x = i % w; p[i*4+3] = 0;
+        let cut = false;
+        if (deep){                                   // flood fill inwards from the four edges
+          let n = 0;
+          const push = i => { if (!seen[i] && wh(i)){ seen[i] = 1; st[n++] = i; } };
+          for (let x = 0; x < w; x++){ push(x); push((h-1)*w + x); }
+          for (let y = 0; y < h; y++){ push(y*w); push(y*w + w-1); }
+          if (n) cut = true;
+          while (n){ const i = st[--n], x = i % w; p[i*4+3] = 0;
             if (x > 0) push(i-1); if (x < w-1) push(i+1); if (i >= w) push(i-w); if (i < w*(h-1)) push(i+w); }
-          g.putImageData(id,0,0); }
+        } else {                                     // overview levels: also clear blank patches enclosed by imagery
+          const buf = new Int32Array(w*h), MIN = (w*h)/900;
+          for (let s = 0; s < w*h; s++){
+            if (seen[s] || !wh(s)) continue;
+            let n = 0, len = 0, edge = false; seen[s] = 1; st[n++] = s;
+            while (n){ const i = st[--n]; buf[len++] = i; const x = i % w, y = (i/w)|0;
+              if (x === 0 || y === 0 || x === w-1 || y === h-1) edge = true;
+              if (x > 0 && !seen[i-1] && wh(i-1)){ seen[i-1] = 1; st[n++] = i-1; }
+              if (x < w-1 && !seen[i+1] && wh(i+1)){ seen[i+1] = 1; st[n++] = i+1; }
+              if (i >= w && !seen[i-w] && wh(i-w)){ seen[i-w] = 1; st[n++] = i-w; }
+              if (i < w*(h-1) && !seen[i+w] && wh(i+w)){ seen[i+w] = 1; st[n++] = i+w; } }
+            if (edge || len > MIN){ cut = true; for (let k = 0; k < len; k++) p[buf[k]*4+3] = 0; } }
+        }
+        if (cut) g.putImageData(id,0,0);
       }catch(e){}   // if the browser blocks pixel access the tile is shown as it is
       done(null, c); };
     const url = this.getTileUrl(coords);
@@ -896,6 +921,12 @@ function cityView(c, tab){
       lyr = buildLayer(d,gj);
       const nph = d.unit==='photos' ? (gj.features||[]).reduce((t,f)=>t+((f.properties.photos||[]).length||1),0) : 0;
       if (nph > (gj.features||[]).length) meta.textContent = `${fmt(nph)} photos · ${fmt(gj.features.length)} locations`; else
+      if (d.colorBy && d.kmField){            // road network: total length, then length by surface type
+        const by = {}; let tot = 0;
+        (gj.features||[]).forEach(f => { const k = f.properties[d.colorBy] || 'Unknown', v = +f.properties[d.kmField] || 0; by[k] = (by[k]||0) + v; tot += v; });
+        meta.innerHTML = `${fmt(Math.round(tot/1000))} km · ` + Object.entries(by).sort((x,y) => y[1]-x[1])
+          .filter(([,v]) => v > 1000).map(([k,v]) => `<i class="sw" style="background:${(d.colors||{})[k]||d.color}"></i>${k} ${fmt(Math.round(v/1000))}`).join(' ');
+      } else
       meta.textContent = `${fmt(d.flow ? d._n : (gj.features||[]).length)} ${d.unit||'features'}` + (d._range ? ` · ${d._range[0]}–${d._range[1]} m` : '');
     }
     if (!set) set = v => { if (v){ lyr.addTo(m); } else { lyr._mapToRemove = m; m.removeLayer(lyr); }
@@ -1060,7 +1091,7 @@ const PAGES = {
   satellite(c){ return {ids:['outer','ward'], base:'satellite'}; },
   analysis(c){ return {ids:['outer','rivers','catchment','catchments','streams','contours','dem','nrsc','soi','rain'],
     note:'Elevation model based on Copernicus DEM. River basin streams from HydroRIVERS.'}; },
-  drainage(c){ return {ids:['ward','outer','buffer','rivers','drains','flow','photos'],
+  drainage(c){ return {ids:['ward','outer','buffer','roads','rivers','drains','flow','photos'],
     note:'Flow direction is indicative: worked out from ground levels, river outfalls and drain junctions, to be confirmed with surveyed invert levels.'}; },
   measures(c){
     const html = `<div><h2 style="margin-top:0">Solutions for improvement of the storm water drainage system</h2>

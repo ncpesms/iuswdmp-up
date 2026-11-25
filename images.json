@@ -16,7 +16,7 @@
   "max": 80.1
  },
  "ortho": {
-  "note": "3 blocks \u00b7 up to 3.4 cm",
+  "note": "4 blocks \u00b7 up to 3.2 cm",
   "blocks": [
    {
     "name": "Ramnagar",
@@ -66,6 +66,23 @@
      ]
     ],
     "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/bhu/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "Cantonment Zone",
+    "bounds": [
+     [
+      25.320702,
+      82.962163
+     ],
+     [
+      25.345634,
+      82.994891
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/cantontment_zone/{z}/{x}/{y}.jpg",
     "tileSize": 1024,
     "minZoom": 14,
     "maxZoom": 22

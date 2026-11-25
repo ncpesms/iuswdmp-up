@@ -473,8 +473,7 @@ const ICON = {
 };
 const svg = k => `<svg viewBox="0 0 20 20" aria-hidden="true">${ICON[k]}</svg>`;
 const TILES = {
-  streets:   () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:25,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}),
-  satellite: () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:25,attribution:'Imagery &copy; Esri'})
+  streets:   () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:25,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'})
 };
 let sheetState = 's-norm', layersOpen = window.innerWidth > 900;
 let maps = [], current = 'varanasi';
@@ -785,7 +784,7 @@ function cityView(c, tab){
       ${SECT.map(([k,full,short]) => `<a href="#/city/${c.id}/${k}" class="${k===tab?'on':''}" title="${full}">${svg(k)}${short}</a>`).join('')}
     </aside>
     ${isMap ? `<div class="mapbox"><div id="cityMap"></div>
-      <div class="tools"><button id="zIn" title="Zoom in">+</button><button id="zOut" title="Zoom out">−</button><button id="fsBtn" title="Full screen">⛶</button><button id="bBase" title="Switch between street map and satellite">▦</button><button id="mDist" title="Measure distance and area"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg></button></div>
+      <div class="tools"><button id="zIn" title="Zoom in">+</button><button id="zOut" title="Zoom out">−</button><button id="fsBtn" title="Full screen">⛶</button><button id="mDist" title="Measure distance and area"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg></button></div>
       ${pg.search ? `<div class="gsearch" id="gsearch"><div class="gb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="gsIn" type="search" placeholder="Search GCP" title="Search for a GCP point by name or number" autocomplete="off" disabled><small id="gsCount"></small></div><div class="gslist" id="gsList" hidden></div></div>` : ''}
       <div class="mres" id="mres" hidden></div>
       <div class="vpane" id="vpane" hidden></div>
@@ -816,10 +815,9 @@ function cityView(c, tab){
       p._updateLayout(); p._updatePosition(); p._adjustPan(); };
     fit(); el.querySelectorAll('img').forEach(i => { if (!i.complete) i.addEventListener('load', fit, {once:true}); }); });
   m.createPane('img').style.zIndex = 350;      // image layers sit under the lines and points
-  let base, baseKey = pg.base || 'streets', noBase = 0;
-  const drawBase = () => { if(base){ m.removeLayer(base); base = null; } if(!noBase){ base = TILES[baseKey]().addTo(m); base.bringToBack(); } $('#bBase').classList.toggle('on',baseKey==='satellite'); };
+  let base, baseKey = 'streets', noBase = 0;        // OpenStreetMap is the only base map
+  const drawBase = () => { if(base){ m.removeLayer(base); base = null; } if(!noBase){ base = TILES[baseKey]().addTo(m); base.bringToBack(); } };
   drawBase();
-  $('#bBase').onclick = () => { baseKey = baseKey==='streets'?'satellite':'streets'; drawBase(); };
   $('#zIn').onclick = () => m.zoomIn(); $('#zOut').onclick = () => m.zoomOut();
   /* ---- measure tool (works like the Google Earth ruler): click to add points, click the first point to close a shape ---- */
   { const box = $('.mapbox'), res = $('#mres'), g = L.layerGroup().addTo(m), C = '#d6336c';
@@ -931,11 +929,6 @@ function cityView(c, tab){
     }
     if (!set) set = v => { if (v){ lyr.addTo(m); } else { lyr._mapToRemove = m; m.removeLayer(lyr); }
       if (d.noBase){ noBase += v ? 1 : -1; drawBase(); if (v){ try{ m.fitBounds(lyr.getBounds(),pad()); }catch(e){} } } };
-    if (d.id === 'ortho'){        // drone blocks have unflown gaps: show satellite under them, not the street map
-      const s0 = set; let auto = false;
-      set = v => { s0(v);
-        if (v && baseKey === 'streets'){ baseKey = 'satellite'; drawBase(); auto = true; }
-        else if (!v && auto){ auto = false; if (baseKey === 'satellite'){ baseKey = 'streets'; drawBase(); } } }; }
     if (info && info.length && $('#ipanel')){ const s0 = set, ip = $('#ipanel');   // sheet details / legend shown beside the map
       const show = k => { ip.innerHTML = `<div class="ph"><b>${d.name}</b>${info.map((x,i)=>`<button data-i="${i}" class="${i===k?'on':''}">${x.title}</button>`).join('')}</div><div class="pb"><a href="${info[k].file}" target="_blank" rel="noopener"><img src="${info[k].file}" alt="${info[k].title}"></a><small>Click the picture to open it full size</small></div>`;
         ip.querySelectorAll('button').forEach(b => b.onclick = () => show(+b.dataset.i)); };
@@ -1093,7 +1086,7 @@ function idfInit(c){
 
 const PAGES = {
   lidar(c){ return {ids:['outer','blocks','ortho','dem','gcp'], search:true}; },
-  satellite(c){ return {ids:['outer','ward'], base:'satellite'}; },
+  satellite(c){ return {ids:['outer','ward']}; },
   analysis(c){ return {ids:['outer','rivers','catchment','catchments','streams','contours','dem','nrsc','soi','rain'],
     note:'Elevation model based on Copernicus DEM. River basin streams from HydroRIVERS.'}; },
   drainage(c){ return {ids:['ward','outer','buffer','roads','rivers','drains','flow','photos'],

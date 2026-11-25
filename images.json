@@ -16,7 +16,7 @@
   "max": 80.1
  },
  "ortho": {
-  "note": "7 blocks \u00b7 up to 3.2 cm",
+  "note": "8 blocks \u00b7 up to 3.2 cm",
   "blocks": [
    {
     "name": "Ramnagar",
@@ -134,6 +134,23 @@
      ]
     ],
     "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/shivpur/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "Natthupur",
+    "bounds": [
+     [
+      25.281885,
+      82.93744
+     ],
+     [
+      25.319792,
+      82.962668
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/natthupur/{z}/{x}/{y}.jpg",
     "tileSize": 1024,
     "minZoom": 14,
     "maxZoom": 22

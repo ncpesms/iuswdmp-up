@@ -16,7 +16,7 @@
   "max": 80.1
  },
  "ortho": {
-  "note": "4 blocks \u00b7 up to 3.2 cm",
+  "note": "7 blocks \u00b7 up to 3.2 cm",
   "blocks": [
    {
     "name": "Ramnagar",
@@ -83,6 +83,57 @@
      ]
     ],
     "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/cantontment_zone/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "Newada",
+    "bounds": [
+     [
+      25.260442,
+      82.96223
+     ],
+     [
+      25.286715,
+      82.989429
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/newada/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "Bhakaripur",
+    "bounds": [
+     [
+      25.26006,
+      82.945422
+     ],
+     [
+      25.281208,
+      82.970851
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/bhakaripur/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "Shivpur",
+    "bounds": [
+     [
+      25.312476,
+      82.928395
+     ],
+     [
+      25.380842,
+      82.979423
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/shivpur/{z}/{x}/{y}.jpg",
     "tileSize": 1024,
     "minZoom": 14,
     "maxZoom": 22

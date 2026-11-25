@@ -393,7 +393,7 @@ const CONFIG = {
       team:{rovers:6, base:2, members:10}, costs:null,
       // IDF relation  I = a × T^m / t^n   (I in mm/hr, T = return period in years, t = duration in minutes)
       idf:{a:477.89, m:0.357, n:0.67, periods:[1,2,5]},
-      progress:{"Primary Drain":[58.5,120], "Secondary & Tertiary":[73.0,null], "GCP Points":[40,86], "Static Points":[3,5], "LiDAR Survey":[48.6,160]}},
+      progress:{"Primary Drain":[58.5,null], "Secondary & Tertiary":[73.0,null], "GCP Points":[40,null], "Static Points":[3,null], "LiDAR Survey":[48.6,null]}},   // second number = scope total; left null until the client confirms it, so no percentage is shown
     {id:"jhansi",    name:"Jhansi",    hi:"झाँसी",     lat:25.4484, lng:78.5685, prefix:"jhansi_",    live:false, area:172.22, wards:null, drains:null, culverts:null, rovers:null, team:null, costs:null},
     {id:"ayodhya",   name:"Ayodhya",   hi:"अयोध्या",   lat:26.7922, lng:82.1998, prefix:"ayodhya_",   live:false, area:87.09,  wards:null, drains:null, culverts:null, rovers:null, team:null, costs:null}
   ],
@@ -458,12 +458,11 @@ const UP = {"path": "M141 40 L139 45 L143 52 L139 57 L139 62 L131 69 L122 86 L11
 
 const $ = s => document.querySelector(s);
 const fmt = (n,d=1) => (n===null||n===undefined||n==='') ? '—' : (isNaN(n) ? n : Number(n).toLocaleString('en-IN',{maximumFractionDigits:d}));
-const SECT = [["lidar","LiDAR Surveys","LiDAR"],["satellite","Satellite Imagery","Satellite"],["analysis","Analysis","Analysis"],["drainage","Existing Drainage","Drainage"],["measures","Proposed Measures","Measures"],["costs","Project Costs","Costs"],["progress","Work Progress","Progress"],["twin","Digital Twin Model","Digital Twin"]];
+const SECT = [["lidar","LiDAR Surveys","LiDAR"],["analysis","Analysis","Analysis"],["drainage","Existing Drainage","Drainage"],["measures","Proposed Measures","Measures"],["costs","Project Costs","Costs"],["progress","Work Progress","Progress"],["twin","Digital Twin Model","Digital Twin"]];
 const TITLES = Object.fromEntries(SECT.map(t=>[t[0],t[1]]));
 const ICON = {
   layers:'<path d="M10 3l7 4-7 4-7-4z"/><path d="M3 11l7 4 7-4"/>',
   lidar:'<circle cx="10" cy="10" r="6.5"/><circle cx="10" cy="10" r="2.5"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3"/>',
-  satellite:'<circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c3 3 3 11 0 14M10 3c-3 3-3 11 0 14"/>',
   analysis:'<path d="M3 3v14h14"/><path d="M5 14l4-5 3 3 5-7"/>',
   drainage:'<path d="M2 7c2-2 4 2 6 0s4 2 6 0 3 1 4 1M2 13c2-2 4 2 6 0s4 2 6 0 3 1 4 1"/>',
   measures:'<path d="M10 2c4 5 5 7 5 9a5 5 0 01-10 0c0-2 1-4 5-9z"/>',
@@ -769,7 +768,8 @@ function cityView(c, tab){
   const groups = [...new Set(ls.map(l=>l.group))];
   const pr = c.progress || {};
   const pill = (label,key) => { const v = pr[key], pc = (v && v[1] && v[0]!=null) ? Math.min(100,v[0]/v[1]*100) : null;
-    return `<span class="pill2">${label}<i><b style="width:${pc||0}%"></b></i><strong>${pc===null?'—':pc.toFixed(1)+'%'}</strong></span>`; };
+    if (pc === null) return '';                    // no scope total confirmed yet: show no percentage at all
+    return `<span class="pill2">${label}<i><b style="width:${pc}%"></b></i><strong>${pc.toFixed(1)+'%'}</strong></span>`; };
   $('#foot').hidden = true;
   $('#app').innerHTML = `
   <div class="proj">
@@ -1086,7 +1086,6 @@ function idfInit(c){
 
 const PAGES = {
   lidar(c){ return {ids:['outer','blocks','ortho','dem','gcp'], search:true}; },
-  satellite(c){ return {ids:['outer','ward']}; },
   analysis(c){ return {ids:['outer','rivers','catchment','catchments','streams','contours','dem','nrsc','soi','rain'],
     note:'Elevation model based on Copernicus DEM. River basin streams from HydroRIVERS.'}; },
   drainage(c){ return {ids:['ward','outer','buffer','roads','rivers','drains','flow','photos'],

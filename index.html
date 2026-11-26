@@ -238,11 +238,25 @@ html[lang="hi"] .land .enter small,html[lang="hi"] .land h1 .en{display:none}
 @media(max-width:900px){.gsearch{left:10px;width:auto;right:60px;max-width:none}}
 .flowln{animation:flowmv 1.1s linear infinite}
 @keyframes flowmv{to{stroke-dashoffset:-16}}
+.ofall i{display:block;width:9px;height:9px;border-radius:50%;background:#0ea5e9;border:2px solid #fff;box-shadow:0 0 0 0 rgba(14,165,233,.55);animation:ofpulse 1.8s ease-out infinite}
+@keyframes ofpulse{70%{box-shadow:0 0 0 9px rgba(14,165,233,0)}100%{box-shadow:0 0 0 0 rgba(14,165,233,0)}}
+.flowpop .rt{margin:5px 0 7px;font:600 11px var(--mono,monospace);color:#0b3a66;word-break:break-word}
+.flowpop .rn{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:5px}
+.flowpop .rn span{display:flex;flex-direction:column;font:500 10px var(--sans);color:#64748b}
+.flowpop .rn b{font:700 13px var(--mono,monospace);color:var(--navy)}
+.flowpop small{color:#64748b;font-size:10.5px;line-height:1.35;display:block}
 .flowar i{display:block;width:0;height:0;margin:1px auto 0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:14px solid #06b6d4;filter:drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1px #0b3a66)}
 @media(prefers-reduced-motion:reduce){.flowln{animation:none}}
 .tools button svg{width:18px;height:18px;vertical-align:middle}
 .mapbox.measuring .leaflet-container{cursor:crosshair}
 .mapbox.measuring .leaflet-interactive:not(.mdot){pointer-events:none!important}
+.elev{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:569;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 24px rgba(10,42,102,.18);padding:9px 14px;display:flex;gap:16px;align-items:flex-end}
+.elev[hidden]{display:none}
+.elev div{display:flex;flex-direction:column;gap:1px}
+.elev small{color:#64748b;font:500 10px var(--sans);letter-spacing:.3px;text-transform:uppercase}
+.elev b{font:700 15px var(--mono,monospace);color:var(--navy);white-space:nowrap}
+.elev .hint{font:500 11.5px var(--sans);color:#64748b;text-transform:none;letter-spacing:0}
+.tools button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .mres{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:570;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 24px rgba(10,42,102,.18);padding:10px 12px;font:500 12.5px var(--sans);color:var(--navy);min-width:290px;max-width:calc(100% - 24px)}
 .mres[hidden]{display:none}
 .mres .mh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
@@ -512,20 +526,59 @@ function rampColor(t){
 }
 const BASIN_COL = ['#2a78d6','#eb6834','#1baf7a','#e87ba4','#6250d6','#eda100'];
 function buildLayer(d,gj){
-  if (d.flow){   // animated dashes that travel downstream, with arrowheads along each drain
-    const fs = gj.features.filter(f => f.geometry.type==='LineString' && f.properties._flow), g = L.featureGroup(), arrows = L.layerGroup();
+  if (d.flow){   // animated dashes that travel downstream; click a drain to trace its route to the river
+    const fs = gj.features.filter(f => f.geometry.type==='LineString' && f.properties._flow);
+    const g = L.featureGroup(), arrows = L.layerGroup(), outs = L.layerGroup(), byId = {};
     const my = la => Math.log(Math.tan(Math.PI/4 + la*Math.PI/360)) * 180/Math.PI;
-    fs.forEach(f => { const c = f.geometry.coordinates, ll = c.map(p => [p[1],p[0]]);
-      L.polyline(ll,{color:'#0b3a66',weight:5,opacity:.55,interactive:false}).addTo(g);
-      const ln = L.polyline(ll,{color:'#67e8f9',weight:3,opacity:1,dashArray:'2 14',lineCap:'round',className:'flowln'}).addTo(g);
-      ln.bindPopup(popupHtml(d,f.properties));
+    const firm = p => !/not confirmed/i.test(p['Flow basis'] || '');
+    let hl = null;
+    const clearTrace = () => { if (hl){ g.removeLayer(hl); hl = null; } };
+    const trace = (id, latlng) => {            // walk downstream drain by drain until the river
+      clearTrace();
+      const seen = {}, ids = []; let cur = id;
+      while (cur && byId[cur] && !seen[cur]){ seen[cur] = 1; ids.push(cur);
+        if (byId[cur].properties._out) break; cur = byId[cur].properties._next; }
+      let km = 0, fall = 0; const grp = L.layerGroup();
+      ids.forEach(i => { const f = byId[i], p = f.properties;
+        km += p['Length (km)'] || 0; fall += p['Ground fall (m)'] || 0;
+        L.polyline(f.geometry.coordinates.map(c => [c[1],c[0]]),
+          {color:'#f59e0b', weight:9, opacity:.45, lineCap:'round', interactive:false}).addTo(grp); });
+      hl = grp.addTo(g);
+      const reaches = !!byId[ids[ids.length-1]].properties._out;
+      L.popup({className:'flowpop', autoPanPaddingTopLeft:L.point(300,70)})
+        .setLatLng(latlng)
+        .setContent(`<b>Route to the river</b>
+          <div class="rt">${ids.join(' → ')}</div>
+          <div class="rn"><span>Route length<b>${fmt(km,2)} km</b></span>
+            <span>Ground fall<b>${fall ? fmt(fall,1)+' m' : '—'}</b></span>
+            <span>Drains<b>${ids.length}</b></span></div>
+          <small><span>${reaches ? 'Ends at a river outfall.' : 'Downstream drain not yet surveyed.'}</span> <span>Indicative, worked out from ground levels.</span></small>`)
+        .openOn(g._map);
+    };
+    fs.forEach(f => { const p = f.properties, c = f.geometry.coordinates, ll = c.map(q => [q[1],q[0]]), ok = firm(p);
+      byId[p['Drain ID']] = f;
+      L.polyline(ll,{color: ok?'#0b3a66':'#64748b', weight:5, opacity:ok?.55:.35, interactive:false}).addTo(g);
+      const ln = L.polyline(ll,{color: ok?'#67e8f9':'#cbd5e1', weight:3, opacity:1, dashArray:'2 14', lineCap:'round', className:'flowln'}).addTo(g);
+      // steeper ground = faster dashes, so the map shows where water moves quickly
+      const sp = p._slope ? Math.max(0.55, Math.min(2.6, 2.4/Math.sqrt(Math.max(p._slope,0.3)))) : 1.5;
+      const setSp = () => { if (ln._path) ln._path.style.animationDuration = sp.toFixed(2)+'s'; };
+      ln.on('add', setSp); setSp();
+      ln.bindTooltip(`${p['Drain ID']} · ${fmt(p['Length (km)'],2)} km`, {sticky:true});
+      ln.on('click', ev => { L.DomEvent.stopPropagation(ev); trace(p['Drain ID'], ev.latlng); });
+      if (p._out) L.marker(ll[ll.length-1],{interactive:false, keyboard:false,
+        icon:L.divIcon({className:'ofall', html:'<i></i>', iconSize:[12,12], iconAnchor:[6,6]})}).addTo(outs)
+        .bindTooltip(`Outfall · ${p['Drain ID']}`,{direction:'top'});
+      if (!ok) return;                                   // no arrows on drains whose direction is not confirmed
       const cum = [0]; for (let i = 1; i < ll.length; i++) cum.push(cum[i-1] + L.latLng(ll[i-1]).distanceTo(ll[i]));
       const tot = cum[cum.length-1], n = Math.max(1, Math.round(tot/700));
       for (let k = 0; k < n; k++){ const at = tot*(k+.5)/n; let i = 1; while (i < cum.length-1 && cum[i] < at) i++;
         const a = ll[i-1], b = ll[i], ang = Math.atan2(b[1]-a[1], my(b[0])-my(a[0])) * 180/Math.PI;
         L.marker([(a[0]+b[0])/2,(a[1]+b[1])/2],{interactive:false,keyboard:false,icon:L.divIcon({className:'flowar',html:`<i style="transform:rotate(${ang.toFixed(0)}deg)"></i>`,iconSize:[18,18],iconAnchor:[9,9]})}).addTo(arrows); } });
-    const upd = () => { const m = g._map; if (!m) return; m.getZoom() >= 13 ? g.addLayer(arrows) : g.removeLayer(arrows); };
-    g.on('add', () => { g._map.on('zoomend', upd); upd(); }); g.on('remove', e => { e.target._mapToRemove && e.target._mapToRemove.off('zoomend', upd); });
+    const upd = () => { const m = g._map; if (!m) return; const z = m.getZoom();
+      z >= 13 ? g.addLayer(arrows) : g.removeLayer(arrows);
+      z >= 12 ? g.addLayer(outs)   : g.removeLayer(outs); };
+    g.on('add', () => { const m = g._map; m.on('zoomend', upd); m.on('popupclose', clearTrace); upd(); });
+    g.on('remove', e => { const m = e.target._mapToRemove; clearTrace(); if (m){ m.off('zoomend', upd); m.off('popupclose', clearTrace); } });
     gj = {features:fs}; d._n = fs.length; return g;
   }
   let lo = 0, hi = 1;
@@ -623,7 +676,7 @@ const HI = {
 "Sheet details":"शीट विवरण","Conventional symbols":"रूढ़ चिह्न","Click the picture to open it full size":"पूरा आकार देखने के लिए चित्र पर क्लिक करें",
 "Ward No":"वार्ड संख्या","Ward":"वार्ड","Zone":"ज़ोन","Area (sq km)":"क्षेत्रफल (वर्ग किमी)","Population":"जनसंख्या","Drains surveyed (km)":"सर्वेक्षित नाले (किमी)","Culverts":"पुलिया","Point":"बिंदु","Latitude":"अक्षांश","Longitude":"देशांतर","Elevation (m)":"ऊँचाई (मी)","Drain ID":"नाला आईडी","Length (km)":"लंबाई (किमी)","Culvert":"पुलिया","On drain":"नाले पर","Basin":"बेसिन","Stream order":"धारा क्रम","More photos":"और फोटो",
 "NCPE Infrastructure India Private Limited":"एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड","points":"बिंदु","sq km":"वर्ग किमी","km":"किमी","Flow Direction":"प्रवाह दिशा","ANIMATED":"एनिमेटेड","Flow basis":"प्रवाह का आधार","Ground fall (m)":"भूमि ढाल (मी)","Ground levels":"भूमि स्तर","Ground levels (slight fall)":"भूमि स्तर (हल्की ढाल)","Outfall to river":"नदी में निकास","Joins larger drain":"बड़े नाले में मिलता है","Towards river":"नदी की ओर","Flow direction is indicative: worked out from ground levels, river outfalls and drain junctions, to be confirmed with surveyed invert levels.":"प्रवाह दिशा सांकेतिक है: भूमि स्तर, नदी निकास और नालों के संगम से निकाली गई है; सर्वेक्षित इनवर्ट स्तरों से पुष्टि की जानी है।","drains":"नाले","Drone Survey Blocks":"ड्रोन सर्वेक्षण ब्लॉक","blocks":"ब्लॉक","Block":"ब्लॉक","Area (sq km)":"क्षेत्रफल (वर्ग किमी)","Search GCP":"जीसीपी खोजें","No matching point":"कोई मिलता-जुलता बिंदु नहीं","Photo available":"फोटो उपलब्ध",
-"Zoom in":"बड़ा करें","Zoom out":"छोटा करें","Full screen":"पूर्ण स्क्रीन","Switch between street map and satellite":"सड़क मानचित्र और उपग्रह चित्र के बीच बदलें","Measure distance and area":"दूरी और क्षेत्रफल मापें","Show or hide map layers":"मानचित्र लेयर दिखाएँ या छिपाएँ","Back to the map":"मानचित्र पर वापस","Close the measure tool":"मापन बंद करें","Units":"इकाइयाँ","Search for a GCP point by name or number":"नाम या संख्या से जीसीपी बिंदु खोजें"
+"Ground":"भू-स्तर","Surface":"सतह","Height":"ऊँचाई","Block":"ब्लॉक","Move the cursor over the map":"कर्सर को मानचित्र पर ले जाएँ","Move over a surveyed block to read elevations":"ऊँचाई देखने के लिए सर्वे किए गए ब्लॉक पर ले जाएँ","Live elevation under the cursor":"कर्सर के नीचे तुरंत ऊँचाई","Route to the river":"नदी तक का मार्ग","Route length":"मार्ग लंबाई","Ground fall":"भू-ढाल","Drains":"नाले","Ends at a river outfall.":"नदी के आउटफॉल पर समाप्त होता है।","Downstream drain not yet surveyed.":"आगे का नाला अभी सर्वे नहीं हुआ है।","Indicative, worked out from ground levels.":"सांकेतिक, भू-स्तरों से निकाला गया।","Click a drain to trace its route to the river":"नदी तक मार्ग देखने के लिए नाले पर क्लिक करें","Zoom in":"बड़ा करें","Zoom out":"छोटा करें","Full screen":"पूर्ण स्क्रीन","Switch between street map and satellite":"सड़क मानचित्र और उपग्रह चित्र के बीच बदलें","Measure distance and area":"दूरी और क्षेत्रफल मापें","Show or hide map layers":"मानचित्र लेयर दिखाएँ या छिपाएँ","Back to the map":"मानचित्र पर वापस","Close the measure tool":"मापन बंद करें","Units":"इकाइयाँ","Search for a GCP point by name or number":"नाम या संख्या से जीसीपी बिंदु खोजें"
 };
 const UNITS_HI = {blocks:'ब्लॉक',drains:'नाले',wards:'वार्ड',boundary:'सीमा',polygons:'बहुभुज',features:'आकृतियाँ',basins:'बेसिन','stream orders':'धारा क्रम',levels:'स्तर',points:'बिंदु',photos:'फोटो','sq km':'वर्ग किमी',km:'किमी',m:'मी'};
 let LANG = 'en'; try{ if (localStorage.getItem('iuswdmp_lang') === 'hi') LANG = 'hi'; }catch(e){}
@@ -784,9 +837,10 @@ function cityView(c, tab){
       ${SECT.map(([k,full,short]) => `<a href="#/city/${c.id}/${k}" class="${k===tab?'on':''}" title="${full}">${svg(k)}${short}</a>`).join('')}
     </aside>
     ${isMap ? `<div class="mapbox"><div id="cityMap"></div>
-      <div class="tools"><button id="zIn" title="Zoom in">+</button><button id="zOut" title="Zoom out">−</button><button id="fsBtn" title="Full screen">⛶</button><button id="mDist" title="Measure distance and area"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg></button></div>
+      <div class="tools"><button id="zIn" title="Zoom in">+</button><button id="zOut" title="Zoom out">−</button><button id="fsBtn" title="Full screen">⛶</button><button id="eBtn" title="Live elevation under the cursor" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18"/><path d="m4 16 5-8 4 5 3-4 4 7"/></svg></button><button id="mDist" title="Measure distance and area"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg></button></div>
       ${pg.search ? `<div class="gsearch" id="gsearch"><div class="gb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="gsIn" type="search" placeholder="Search GCP" title="Search for a GCP point by name or number" autocomplete="off" disabled><small id="gsCount"></small></div><div class="gslist" id="gsList" hidden></div></div>` : ''}
       <div class="mres" id="mres" hidden></div>
+      <div class="elev" id="elev" hidden></div>
       <div class="vpane" id="vpane" hidden></div>
     </div>
     <div class="lpanel" id="lpanel" ${layersOpen?'':'hidden'}>
@@ -882,6 +936,56 @@ function cityView(c, tab){
   loadData(c,outer).then(async gj => { if (!maps.includes(m)) return;
     if (!gj){ hasOuter = false; gj = await loadData(c, CONFIG.layers.find(l=>l.id==='gcp')); }   // no boundary yet: start on the survey points
     if (gj && maps.includes(m)){ try{ m.fitBounds(L.geoJSON(gj).getBounds(),pad()); }catch(e){} } });
+
+  /* ---- live elevation: heights are stored in the colours of the DSM/DTM tiles, so reading a pixel gives metres ---- */
+  { const ebtn = $('#eBtn'), ebox = $('#elev'); let eon = false, eblocks = [], elast = null;
+    const ec = new Map();
+    const tilePx = (lat, lng, z) => { const n = 2**z, r = lat*Math.PI/180,
+        sx = (lng+180)/360*n, sy = (1 - Math.asinh(Math.tan(r))/Math.PI)/2*n;
+      return {x:Math.floor(sx), y:Math.floor(sy), fx:sx-Math.floor(sx), fy:sy-Math.floor(sy)}; };
+    const grab = (b, k, z, x, y) => {                  // undefined = still loading, null = no tile there
+      const key = b.name+'|'+k+'|'+z+'|'+x+'|'+y;
+      if (ec.has(key)) return ec.get(key);
+      ec.set(key, undefined);
+      const img = new Image(); img.crossOrigin = 'anonymous';
+      img.onload = () => { const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height;
+        const g2 = cv.getContext('2d'); g2.drawImage(img, 0, 0);
+        try{ ec.set(key, {d:g2.getImageData(0,0,cv.width,cv.height).data, w:cv.width}); }
+        catch(err){ ec.set(key, null); }
+        eshow(elast); };
+      img.onerror = () => { ec.set(key, null); eshow(elast); };
+      img.src = b.url+'/'+k+'/'+z+'/'+x+'/'+y+'.png';
+      return undefined; };
+    const eread = (b, k, ll) => {
+      const off = Math.round(Math.log2((b.tileSize||512)/256));
+      const z = Math.max(b.minZoom, Math.min(b.maxZoom, Math.round(m.getZoom()) - off));
+      const p = tilePx(ll.lat, ll.lng, z), t = grab(b, k, z, p.x, p.y);
+      if (!t) return t === null ? null : undefined;
+      const ix = Math.min(t.w-1, Math.floor(p.fx*t.w)), iy = Math.min(t.w-1, Math.floor(p.fy*t.w)), i = (iy*t.w + ix)*4;
+      if (t.d[i+3] < 128) return null;
+      return -10000 + (t.d[i]*65536 + t.d[i+1]*256 + t.d[i+2]) * 0.1; };
+    const ecell = (label, v) => `<div><small>${label}</small><b>${v === undefined ? '…' : (v === null ? '—' : fmt(v,1)+' m')}</b></div>`;
+    const eshow = ll => { if (!eon || !ll) return; elast = ll;
+      const hit = eblocks.filter(b => ll.lat >= b.bounds[0][0] && ll.lat <= b.bounds[1][0] && ll.lng >= b.bounds[0][1] && ll.lng <= b.bounds[1][1]);
+      if (!hit.length){ ebox.innerHTML = '<div><small class="hint">Move over a surveyed block to read elevations</small></div>'; return; }
+      const b = hit[0], gl = b.dtm ? eread(b,'dtm',ll) : null, sf = b.dsm ? eread(b,'dsm',ll) : null;
+      const ht = (typeof gl === 'number' && typeof sf === 'number') ? sf - gl
+               : ((gl === undefined || sf === undefined) ? undefined : null);
+      ebox.innerHTML = (b.dtm ? ecell('Ground', gl) : '') + (b.dsm ? ecell('Surface', sf) : '')
+        + (b.dtm && b.dsm ? ecell('Height', ht) : '') + `<div><small>Block</small><b>${b.name}</b></div>`; };
+    const emv = e => eshow(e.latlng);
+    ebtn.onclick = () => {
+      if (eon){ eon = false; ebox.hidden = true; ebtn.classList.remove('on'); m.off('mousemove', emv); m.off('click', emv); return; }
+      eon = true; ebtn.classList.add('on'); ebox.hidden = false;
+      ebox.innerHTML = '<div><small class="hint">Move the cursor over the map</small></div>';
+      m.on('mousemove', emv); m.on('click', emv); };
+    (async () => {                                     // the button shows only where elevation tiles exist
+      const ck = c.id+'/images';
+      if (!(ck in cache)) cache[ck] = fetch(c.prefix+'images.json',{cache:'no-cache'}).then(r=>r.ok?r.json():{}).catch(()=>({}));
+      const im = await cache[ck];
+      eblocks = (im.elevation && im.elevation.blocks) || [];
+      if (eblocks.length && maps.includes(m)) ebtn.hidden = false; })();
+  }
 
   ls.forEach(async d => {
     const meta = $('#m-'+d.id), tg = $('#t-'+d.id);
@@ -1089,7 +1193,7 @@ const PAGES = {
   analysis(c){ return {ids:['outer','rivers','catchment','catchments','streams','contours','dem','nrsc','soi','rain'],
     note:'Elevation model based on Copernicus DEM. River basin streams from HydroRIVERS.'}; },
   drainage(c){ return {ids:['ward','outer','buffer','roads','rivers','drains','flow','photos'],
-    note:'Flow direction is indicative: worked out from ground levels, river outfalls and drain junctions, to be confirmed with surveyed invert levels.'}; },
+    note:'Click a drain to trace its route to the river. Flow direction is indicative: worked out from ground levels, river outfalls and drain junctions, to be confirmed with surveyed invert levels.'}; },
   measures(c){
     const html = `<div><h2 style="margin-top:0">Solutions for improvement of the storm water drainage system</h2>
       <div class="grid g3">

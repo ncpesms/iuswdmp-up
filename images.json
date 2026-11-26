@@ -241,5 +241,36 @@
     "maxZoom": 22
    }
   ]
+ },
+ "elevation": {
+  "blocks": [
+   {
+    "name": "BLW",
+    "tileSize": 512,
+    "minZoom": 12,
+    "maxZoom": 17,
+    "url": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_dem/blw",
+    "dsm": {
+     "min": 60.6,
+     "max": 159.0,
+     "tiles": 193
+    },
+    "bounds": [
+     [
+      25.266054,
+      82.937919
+     ],
+     [
+      25.297328,
+      82.974008
+     ]
+    ],
+    "dtm": {
+     "min": 70.8,
+     "max": 83.7,
+     "tiles": 193
+    }
+   }
+  ]
  }
 }

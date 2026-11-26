@@ -16,7 +16,7 @@
   "max": 80.1
  },
  "ortho": {
-  "note": "8 blocks \u00b7 up to 3.2 cm",
+  "note": "11 blocks \u00b7 up to 3.2 cm",
   "blocks": [
    {
     "name": "Ramnagar",
@@ -151,6 +151,57 @@
      ]
     ],
     "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/natthupur/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "Badalalpur",
+    "bounds": [
+     [
+      25.355415,
+      82.91477
+     ],
+     [
+      25.403554,
+      83.023061
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/badalalpur/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "BLW",
+    "bounds": [
+     [
+      25.264206,
+      82.936017
+     ],
+     [
+      25.298946,
+      82.975942
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/blw/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "Sarnath",
+    "bounds": [
+     [
+      25.336795,
+      83.002204
+     ],
+     [
+      25.384245,
+      83.063763
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/sarnath/{z}/{x}/{y}.jpg",
     "tileSize": 1024,
     "minZoom": 14,
     "maxZoom": 22

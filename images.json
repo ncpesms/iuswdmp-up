@@ -16,7 +16,7 @@
   "max": 80.1
  },
  "ortho": {
-  "note": "11 blocks \u00b7 up to 3.2 cm",
+  "note": "13 blocks \u00b7 up to 3.2 cm",
   "blocks": [
    {
     "name": "Ramnagar",
@@ -202,6 +202,40 @@
      ]
     ],
     "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/sarnath/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "Dafi",
+    "bounds": [
+     [
+      25.234575,
+      82.952444
+     ],
+     [
+      25.268863,
+      83.021881
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/dafi/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "Pandeypur",
+    "bounds": [
+     [
+      25.33149,
+      82.963095
+     ],
+     [
+      25.3912,
+      83.03099
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/pandeypur/{z}/{x}/{y}.jpg",
     "tileSize": 1024,
     "minZoom": 14,
     "maxZoom": 22

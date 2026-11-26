@@ -249,7 +249,7 @@
     "tileSize": 512,
     "minZoom": 12,
     "maxZoom": 17,
-    "url": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_dem/blw",
+    "url": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/varanasi_dem/blw",
     "dsm": {
      "min": 60.6,
      "max": 159.0,

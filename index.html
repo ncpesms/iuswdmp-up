@@ -354,6 +354,16 @@ html[lang="hi"] .land .enter small,html[lang="hi"] .land h1 .en{display:none}
  .cpage{position:static}
  .vpane .cin{padding-left:16px}
 }
+@media(max-width:900px){
+ .nav{flex-wrap:wrap;overflow:visible;row-gap:6px}
+ .nav .langsw{order:1;position:static;box-shadow:none}
+ .nav a:not(:first-child){order:2}
+ .nav .nsep{display:none}
+ .nav select{min-width:0}
+ .mapbox{height:50vh}
+ .lpanel .lhint{display:block}
+}
+.lpanel .lhint{display:none;font-size:11px;color:var(--mut);margin:2px 0 0}
 </style>
 </head>
 <body>
@@ -488,7 +498,7 @@ const svg = k => `<svg viewBox="0 0 20 20" aria-hidden="true">${ICON[k]}</svg>`;
 const TILES = {
   streets:   () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:25,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'})
 };
-let sheetState = 's-norm', layersOpen = window.innerWidth > 900;
+let sheetState = 's-norm', layersOpen = true;
 let maps = [], current = 'varanasi';
 try{ current = localStorage.getItem('iuswdmp_city') || current; }catch(e){}
 const cache = {};
@@ -676,7 +686,7 @@ const HI = {
 "Sheet details":"शीट विवरण","Conventional symbols":"रूढ़ चिह्न","Click the picture to open it full size":"पूरा आकार देखने के लिए चित्र पर क्लिक करें",
 "Ward No":"वार्ड संख्या","Ward":"वार्ड","Zone":"ज़ोन","Area (sq km)":"क्षेत्रफल (वर्ग किमी)","Population":"जनसंख्या","Drains surveyed (km)":"सर्वेक्षित नाले (किमी)","Culverts":"पुलिया","Point":"बिंदु","Latitude":"अक्षांश","Longitude":"देशांतर","Elevation (m)":"ऊँचाई (मी)","Drain ID":"नाला आईडी","Length (km)":"लंबाई (किमी)","Culvert":"पुलिया","On drain":"नाले पर","Basin":"बेसिन","Stream order":"धारा क्रम","More photos":"और फोटो",
 "NCPE Infrastructure India Private Limited":"एनसीपीई इन्फ्रास्ट्रक्चर इंडिया प्राइवेट लिमिटेड","points":"बिंदु","sq km":"वर्ग किमी","km":"किमी","Flow Direction":"प्रवाह दिशा","ANIMATED":"एनिमेटेड","Flow basis":"प्रवाह का आधार","Ground fall (m)":"भूमि ढाल (मी)","Ground levels":"भूमि स्तर","Ground levels (slight fall)":"भूमि स्तर (हल्की ढाल)","Outfall to river":"नदी में निकास","Joins larger drain":"बड़े नाले में मिलता है","Towards river":"नदी की ओर","Flow direction is indicative: worked out from ground levels, river outfalls and drain junctions, to be confirmed with surveyed invert levels.":"प्रवाह दिशा सांकेतिक है: भूमि स्तर, नदी निकास और नालों के संगम से निकाली गई है; सर्वेक्षित इनवर्ट स्तरों से पुष्टि की जानी है।","drains":"नाले","Drone Survey Blocks":"ड्रोन सर्वेक्षण ब्लॉक","blocks":"ब्लॉक","Block":"ब्लॉक","Area (sq km)":"क्षेत्रफल (वर्ग किमी)","Search GCP":"जीसीपी खोजें","No matching point":"कोई मिलता-जुलता बिंदु नहीं","Photo available":"फोटो उपलब्ध",
-"Ground":"भू-स्तर","Surface":"सतह","Height":"ऊँचाई","Block":"ब्लॉक","Move the cursor over the map":"कर्सर को मानचित्र पर ले जाएँ","Move over a surveyed block to read elevations":"ऊँचाई देखने के लिए सर्वे किए गए ब्लॉक पर ले जाएँ","Live elevation under the cursor":"कर्सर के नीचे तुरंत ऊँचाई","Route to the river":"नदी तक का मार्ग","Route length":"मार्ग लंबाई","Ground fall":"भू-ढाल","Drains":"नाले","Ends at a river outfall.":"नदी के आउटफॉल पर समाप्त होता है।","Downstream drain not yet surveyed.":"आगे का नाला अभी सर्वे नहीं हुआ है।","Indicative, worked out from ground levels.":"सांकेतिक, भू-स्तरों से निकाला गया।","Click a drain to trace its route to the river":"नदी तक मार्ग देखने के लिए नाले पर क्लिक करें","Zoom in":"बड़ा करें","Zoom out":"छोटा करें","Full screen":"पूर्ण स्क्रीन","Switch between street map and satellite":"सड़क मानचित्र और उपग्रह चित्र के बीच बदलें","Measure distance and area":"दूरी और क्षेत्रफल मापें","Show or hide map layers":"मानचित्र लेयर दिखाएँ या छिपाएँ","Back to the map":"मानचित्र पर वापस","Close the measure tool":"मापन बंद करें","Units":"इकाइयाँ","Search for a GCP point by name or number":"नाम या संख्या से जीसीपी बिंदु खोजें"
+"Ground":"भू-स्तर","Surface":"सतह","Height":"ऊँचाई","Block":"ब्लॉक","Move the cursor over the map":"कर्सर को मानचित्र पर ले जाएँ","Tap the map to read elevation":"ऊँचाई देखने के लिए मानचित्र पर टैप करें","Move over a surveyed block to read elevations":"ऊँचाई देखने के लिए सर्वे किए गए ब्लॉक पर ले जाएँ","Live elevation under the cursor":"कर्सर के नीचे तुरंत ऊँचाई","Route to the river":"नदी तक का मार्ग","Route length":"मार्ग लंबाई","Ground fall":"भू-ढाल","Drains":"नाले","Ends at a river outfall.":"नदी के आउटफॉल पर समाप्त होता है।","Downstream drain not yet surveyed.":"आगे का नाला अभी सर्वे नहीं हुआ है।","Indicative, worked out from ground levels.":"सांकेतिक, भू-स्तरों से निकाला गया।","Click a drain to trace its route to the river":"नदी तक मार्ग देखने के लिए नाले पर क्लिक करें","Zoom in":"बड़ा करें","Zoom out":"छोटा करें","Full screen":"पूर्ण स्क्रीन","Switch between street map and satellite":"सड़क मानचित्र और उपग्रह चित्र के बीच बदलें","Measure distance and area":"दूरी और क्षेत्रफल मापें","Show or hide map layers":"मानचित्र लेयर दिखाएँ या छिपाएँ","Back to the map":"मानचित्र पर वापस","Close the measure tool":"मापन बंद करें","Units":"इकाइयाँ","Search for a GCP point by name or number":"नाम या संख्या से जीसीपी बिंदु खोजें"
 };
 const UNITS_HI = {blocks:'ब्लॉक',drains:'नाले',wards:'वार्ड',boundary:'सीमा',polygons:'बहुभुज',features:'आकृतियाँ',basins:'बेसिन','stream orders':'धारा क्रम',levels:'स्तर',points:'बिंदु',photos:'फोटो','sq km':'वर्ग किमी',km:'किमी',m:'मी'};
 let LANG = 'en'; try{ if (localStorage.getItem('iuswdmp_lang') === 'hi') LANG = 'hi'; }catch(e){}
@@ -928,7 +938,7 @@ function cityView(c, tab){
   }
   $('#fsBtn').onclick = () => { document.fullscreenElement ? document.exitFullscreen() : (ws.requestFullscreen && ws.requestFullscreen()); };
   document.onfullscreenchange = () => setTimeout(size,150);
-  $('#lyBtn').onclick = () => { layersOpen = !layersOpen; $('#lpanel').hidden = !layersOpen; };
+  $('#lyBtn').onclick = () => { if (!wide() && !$('#lpanel').hidden) { const r=$('#lpanel').getBoundingClientRect(); if (r.top > innerHeight*0.6 || r.bottom < 0) { $('#lpanel').scrollIntoView({behavior:'smooth',block:'start'}); return; } } layersOpen = !layersOpen; $('#lpanel').hidden = !layersOpen; if (layersOpen && !wide()) $('#lpanel').scrollIntoView({behavior:'smooth',block:'start'}); };
   const pad = () => wide() ? {paddingTopLeft:[layersOpen?290:20,20], paddingBottomRight:[(pg.right||($('#ipanel')&&!$('#ipanel').hidden))?370:70,20]} : {padding:[12,12]};
   // start on the city's extent; every option starts switched off
   const outer = CONFIG.layers.find(l=>l.id==='outer');
@@ -977,7 +987,7 @@ function cityView(c, tab){
     ebtn.onclick = () => {
       if (eon){ eon = false; ebox.hidden = true; ebtn.classList.remove('on'); m.off('mousemove', emv); m.off('click', emv); return; }
       eon = true; ebtn.classList.add('on'); ebox.hidden = false;
-      ebox.innerHTML = '<div><small class="hint">Move the cursor over the map</small></div>';
+      ebox.innerHTML = '<div><small class="hint">'+(matchMedia('(hover: none)').matches?'Tap the map to read elevation':'Move the cursor over the map')+'</small></div>';
       m.on('mousemove', emv); m.on('click', emv); };
     (async () => {                                     // the button shows only where elevation tiles exist
       const ck = c.id+'/images';

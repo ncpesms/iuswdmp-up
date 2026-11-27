@@ -16,7 +16,7 @@
   "max": 80.1
  },
  "ortho": {
-  "note": "13 blocks \u00b7 up to 3.2 cm",
+  "note": "14 blocks \u00b7 up to 3.2 cm",
   "blocks": [
    {
     "name": "Ramnagar",
@@ -236,6 +236,23 @@
      ]
     ],
     "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/pandeypur/{z}/{x}/{y}.jpg",
+    "tileSize": 1024,
+    "minZoom": 14,
+    "maxZoom": 22
+   },
+   {
+    "name": "Lohatara",
+    "bounds": [
+     [
+      25.300753,
+      82.944598
+     ],
+     [
+      25.329125,
+      82.979693
+     ]
+    ],
+    "tiles": "https://iuswdmpstorage.blob.core.windows.net/tiles/varanasi_ortho/lohatara/{z}/{x}/{y}.jpg",
     "tileSize": 1024,
     "minZoom": 14,
     "maxZoom": 22

@@ -105,6 +105,27 @@ label.f{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin-b
 .pin{width:14px;height:14px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)}
 .leaflet-popup-content{margin:10px 12px;font-family:var(--sans);font-size:13.5px}
 .leaflet-popup-content .btn{padding:9px 12px;min-height:40px;font-size:14px;margin-top:8px}
+.cap{display:flex;flex-direction:column;height:100%;padding:10px 12px 12px;gap:9px;max-width:560px;margin:0 auto}
+.strip{display:flex;gap:8px}
+.pill{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;min-width:0}
+.pill.gr{flex:1}.pill span.tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.how{font-size:13.5px;color:var(--mut);text-align:center;margin:0;line-height:1.35}
+.seg{display:flex;border:1.5px solid var(--navy);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:#fff;padding:10px 4px;font-size:14px;font-weight:700;color:var(--navy);min-height:44px}
+.seg button.on{background:var(--navy);color:#fff}
+.trio{flex:1;display:grid;grid-template-columns:1fr 112px 1fr;gap:8px;align-items:stretch;min-height:190px}
+.side{border:0;border-radius:14px;background:var(--navy);color:#fff;font-weight:700;font-size:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px 4px;line-height:1.2}
+.side svg{width:38px;height:38px}
+.side:disabled{opacity:.4}
+.side small{font-weight:500;font-size:11.5px;opacity:.85}
+.mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:repeating-linear-gradient(#cfd8e3 0 14px,#dfe6ee 14px 28px);border-radius:10px;padding:6px 2px}
+.mid .dial{width:100px;height:100px;background:#fff}
+.mid .cval{font-size:16px;background:#fff;border-radius:8px;padding:1px 7px}
+.man{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.man button{border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:9px 2px;font-weight:700;font-size:13.5px}
+.man button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.lnk{border:0;background:none;color:var(--mut);font-weight:600;font-size:14px;padding:10px;text-decoration:underline;width:100%}
+.zoomhint{position:absolute;top:62px;left:50%;transform:translateX(-50%);z-index:450;background:rgba(22,35,58,.85);color:#fff;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:99px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -117,18 +138,19 @@ label.f{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin-b
     <span class="lang"><button data-l="hi">हिंदी</button><button data-l="en">EN</button></span>
   </header>
   <main>
-    <section class="view" id="vMap">
+    <section class="view" id="vCap"><div class="cap" id="cap"></div></section>
+    <section class="view" id="vMap" hidden>
       <div id="map"></div>
       <div class="gps"><span class="dot" id="gDot"></span><span id="gTxt"></span></div>
       <button class="mbtn" id="locate" aria-label="My location">&#9678;</button>
+      <div class="zoomhint" id="zh" hidden></div>
       <div class="legend" id="legend"></div>
-      <button class="fab" id="add"></button>
     </section>
-    <section class="view" id="vAdd" hidden><div class="pad" id="form"></div></section>
     <section class="view" id="vWork" hidden><div class="pad" id="work"></div></section>
     <section class="view" id="vDet" hidden><div class="pad" id="det"></div></section>
   </main>
   <nav id="nav">
+    <button data-v="vCap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span data-t="Capture"></span></button>
     <button data-v="vMap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span data-t="Map"></span></button>
     <button data-v="vWork"><span class="badge" id="badge" hidden></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span data-t="My work"></span></button>
   </nav>
@@ -138,39 +160,35 @@ label.f{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin-b
 <script>
 "use strict";
 /* ===================== settings ===================== */
-const CITY = {id:'varanasi', name:'Varanasi', hi:'वाराणसी', drains:'drains_varanasi.geojson', center:[25.3176,82.9739]};
+const CITY = {id:'varanasi', name:'Varanasi', hi:'वाराणसी', roads:'roads_varanasi.json', center:[25.3176,82.9739]};
 const API = '';                 // upload service address. Empty = test mode: data stays on the phone and is shared as a file.
-const ACC_OK = 10;              // metres: GPS accuracy needed to save a point
-const ACC_WAIT = 20;            // seconds before "save with low accuracy" is offered
-const NEAR = 60;                // metres: suggest the nearest drain within this distance
+const SNAP = 30;                // metres: a capture is linked to the nearest mapped road within this distance
+const ACC_WARN = 15;            // metres: above this the capture is flagged as low accuracy
+const AVG_MS = 5000;            // GPS readings from the last few seconds are averaged
+const OFFSET = 2;               // metres: the point is placed this far from the road centre line, on the chosen side
 
 /* ===================== language ===================== */
 const HI = {
-"Field Survey":"फील्ड सर्वे","Map":"मानचित्र","My work":"मेरा काम","Add point":"बिंदु जोड़ें","Online":"ऑनलाइन","Offline":"ऑफ़लाइन",
-"Your name":"आपका नाम","Mobile number":"मोबाइल नंबर","PIN":"पिन","Start":"शुरू करें","Storm water drain survey":"बरसाती नाला सर्वे",
+"Field Survey":"फील्ड सर्वे","Capture":"कैप्चर","Map":"मानचित्र","My work":"मेरा काम","Online":"ऑनलाइन","Offline":"ऑफ़लाइन",
+"Your name":"आपका नाम","Mobile number":"मोबाइल नंबर","PIN":"पिन","Start":"शुरू करें","Drain flow direction survey":"नाला प्रवाह दिशा सर्वे",
 "Enter your name":"अपना नाम लिखें","Enter a 10-digit mobile number":"10 अंकों का मोबाइल नंबर लिखें",
 "Finding GPS…":"जीपीएस खोज रहा है…","GPS off or blocked":"जीपीएस बंद है या अनुमति नहीं","Allow location for this app in phone settings, then reopen.":"फ़ोन सेटिंग में इस ऐप को लोकेशन की अनुमति दें, फिर दोबारा खोलें।",
-"Not visited":"अभी नहीं देखा","Visited":"देखा गया","Flow not confirmed":"प्रवाह अपुष्ट","Add point on this drain":"इस नाले पर बिंदु जोड़ें","points":"बिंदु",
-"Location":"स्थान","Accuracy":"सटीकता","Good":"अच्छी","Fair":"ठीक","Poor":"कमज़ोर","Wait for better GPS. Stand in the open, away from walls.":"बेहतर जीपीएस का इंतज़ार करें। खुले में, दीवारों से दूर खड़े हों।",
-"Save with low accuracy":"कम सटीकता के साथ सहेजें","Drain":"नाला","Choose drain":"नाला चुनें","Nearest":"सबसे पास","away":"दूर","Use":"चुनें","New drain (not in list)":"नया नाला (सूची में नहीं)",
-"Name or landmark of new drain":"नए नाले का नाम या पहचान","Search drain":"नाला खोजें","Change":"बदलें",
-"Point type":"बिंदु का प्रकार","Start of drain":"नाले की शुरुआत","Along the drain":"नाले के बीच","Junction":"संगम","Culvert":"पुलिया","Blockage":"रुकावट","Outfall":"निकास",
-"Flow direction":"प्रवाह की दिशा","Point the top of the phone the way the water moves, then press the button.":"फ़ोन का ऊपरी सिरा उस ओर करें जिधर पानी बह रहा है, फिर बटन दबाएँ।",
-"Flow is this way":"पानी इस ओर बह रहा है","Saved":"सहेजा गया","Not sure":"पक्का नहीं","No flow":"बहाव नहीं","Compass not available. Choose the direction:":"कंपास उपलब्ध नहीं। दिशा चुनें:","Turn on compass":"कंपास चालू करें",
-"Or choose the direction":"या दिशा चुनें",
-"This is opposite to the direction on the map. Please look again and take a photo of the flow.":"यह मानचित्र की दिशा से उल्टा है। कृपया दोबारा देखें और बहाव की फोटो लें।",
-"Photos":"फोटो","Upstream":"ऊपर की ओर","Downstream":"नीचे की ओर","Problem / other":"समस्या / अन्य","Take at least one photo.":"कम से कम एक फोटो लें।",
-"Drain type":"नाले का प्रकार","Kachha":"कच्चा","Pucca open":"पक्का खुला","Pucca covered":"पक्का ढका","Pipe":"पाइप",
-"Size (approximate)":"माप (लगभग)","Top width (m)":"ऊपरी चौड़ाई (मी)","Depth (m)":"गहराई (मी)",
-"Water":"पानी","Flowing":"बह रहा है","Standing":"रुका हुआ","Dry":"सूखा","Silt":"गाद","Low":"कम","Medium":"मध्यम","High":"अधिक",
-"Problems":"समस्याएँ","Garbage":"कचरा","Encroachment":"अतिक्रमण","Broken wall":"टूटी दीवार","Sewage mixing":"सीवेज मिल रहा है","Waterlogging nearby":"पास में जलभराव",
-"Remarks":"टिप्पणी","Optional":"वैकल्पिक","Save point":"बिंदु सहेजें","Point saved on this phone":"बिंदु इस फ़ोन में सहेजा गया","Still needed":"अभी बाकी है","Changes saved":"बदलाव सहेजे गए",
-"Saved on phone":"फ़ोन में सहेजे","Waiting to upload":"अपलोड बाकी","Uploaded":"अपलोड हुए","Sync now":"अभी सिंक करें","Share today's file":"आज की फ़ाइल भेजें","Share all points":"सभी बिंदु भेजें",
-"No points yet. Go to the map and press Add point.":"अभी कोई बिंदु नहीं। मानचित्र पर जाएँ और बिंदु जोड़ें दबाएँ।","Today":"आज","Earlier":"पहले के",
-"Test mode: points stay on this phone. Send the file to your supervisor at the end of the day.":"टेस्ट मोड: बिंदु इसी फ़ोन में रहते हैं। दिन के अंत में फ़ाइल अपने सुपरवाइज़र को भेजें।",
-"File ready":"फ़ाइल तैयार","Nothing to share":"भेजने के लिए कुछ नहीं","Point details":"बिंदु का विवरण","Edit":"बदलें","Delete point":"बिंदु हटाएँ","Delete this point and its photos from this phone?":"क्या यह बिंदु और इसकी फोटो इस फ़ोन से हटाएँ?","Yes, delete":"हाँ, हटाएँ","Cancel":"रद्द करें",
-"Surveyor":"सर्वेयर","Time":"समय","Low accuracy":"कम सटीकता","Sign out":"साइन आउट","New drain":"नया नाला","Edit point":"बिंदु बदलें","Uploaded points can no longer be changed here.":"अपलोड हुए बिंदु यहाँ नहीं बदले जा सकते।",
-"Upload failed. Will try again.":"अपलोड नहीं हुआ। दोबारा कोशिश होगी।","All uploaded":"सब अपलोड हो गया","No signal":"सिग्नल नहीं","Photo could not be read":"फोटो नहीं पढ़ी जा सकी"
+"Road":"सड़क","away":"दूर","No mapped road nearby":"पास में कोई मैप की हुई सड़क नहीं","Weak GPS. Stand in the open for a few seconds.":"जीपीएस कमज़ोर है। कुछ सेकंड खुले में खड़े हों।",
+"Stand by the drain. Point the phone the way the water flows. Tap the side the drain is on.":"नाले के पास खड़े हों। फ़ोन उस ओर करें जिधर पानी बह रहा है। जिस तरफ़ नाला है वह बटन दबाएँ।",
+"Point the phone along the road. Tap the side the drain is on.":"फ़ोन सड़क की दिशा में करें। जिस तरफ़ नाला है वह बटन दबाएँ।",
+"Flowing":"बह रहा है","No flow":"बहाव नहीं","Not sure":"पक्का नहीं","Left drain":"बायाँ नाला","Right drain":"दायाँ नाला","photo":"फोटो",
+"No drain on this road":"इस सड़क पर नाला नहीं","Turn on compass":"कंपास चालू करें","Compass not available. Choose the flow direction:":"कंपास उपलब्ध नहीं। प्रवाह की दिशा चुनें:",
+"Saved":"सहेजा गया","Left":"बायाँ","Right":"दायाँ","Optional details":"अतिरिक्त जानकारी (ज़रूरी नहीं)","Drain type":"नाले का प्रकार","Kachha":"कच्चा","Pucca open":"पक्का खुला","Pucca covered":"पक्का ढका",
+"Problem":"समस्या","Garbage":"कचरा","Blocked":"जाम","Broken wall":"टूटी दीवार","Encroachment":"अतिक्रमण","Add photo":"और फोटो","Done":"हो गया","Today":"आज",
+"Not visited":"अभी नहीं देखी","Flow captured":"प्रवाह दर्ज","No flow / not sure":"बहाव नहीं / पक्का नहीं","No drain":"नाला नहीं","Zoom in to see roads":"सड़कें देखने के लिए ज़ूम करें",
+"Waiting to upload":"अपलोड बाकी","Uploaded":"अपलोड हुए","Sync now":"अभी सिंक करें","Share today's file":"आज की फ़ाइल भेजें","Share all points":"सभी बिंदु भेजें",
+"No captures yet. Open Capture and tap the side the drain is on.":"अभी कोई कैप्चर नहीं। कैप्चर खोलें और जिस तरफ़ नाला है वह बटन दबाएँ।","Earlier":"पहले के",
+"Test mode: captures stay on this phone. Send the file to your supervisor at the end of the day.":"टेस्ट मोड: कैप्चर इसी फ़ोन में रहते हैं। दिन के अंत में फ़ाइल अपने सुपरवाइज़र को भेजें।",
+"File ready":"फ़ाइल तैयार","Nothing to share":"भेजने के लिए कुछ नहीं","Capture details":"कैप्चर का विवरण","Edit details":"जानकारी बदलें","Delete capture":"कैप्चर हटाएँ","Delete this capture and its photos from this phone?":"क्या यह कैप्चर और इसकी फोटो इस फ़ोन से हटाएँ?","Yes, delete":"हाँ, हटाएँ","Cancel":"रद्द करें",
+"Surveyor":"सर्वेयर","Time":"समय","Location":"स्थान","Low accuracy":"कम सटीकता","Sign out":"साइन आउट","Flow direction":"प्रवाह की दिशा","Side":"तरफ़","Not on a mapped road":"मैप की हुई सड़क पर नहीं",
+"Direction is across the road. Check that the phone points along the drain.":"दिशा सड़क के आर-पार है। देखें कि फ़ोन नाले की दिशा में है।","Saved on phone":"फ़ोन में सहेजा",
+"Upload failed. Will try again.":"अपलोड नहीं हुआ। दोबारा कोशिश होगी।","All uploaded":"सब अपलोड हो गया","No signal":"सिग्नल नहीं","Photo could not be read":"फोटो नहीं पढ़ी जा सकी","Wait for GPS":"जीपीएस का इंतज़ार करें",
+"Uploaded captures can no longer be changed here.":"अपलोड हुए कैप्चर यहाँ नहीं बदले जा सकते।","captures":"कैप्चर","roads":"सड़कें"
 };
 let LANG = 'hi';
 try { LANG = localStorage.getItem('fs_lang') || 'hi'; } catch(e){}
@@ -188,13 +206,13 @@ const fmtTime = ms => { const d = new Date(ms); return pad2(d.getDate())+'-'+pad
 const dayKey = ms => { const d = new Date(ms); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); };
 let toastT; function toast(m){ let e = $('.toast'); if (!e){ e = document.createElement('div'); e.className = 'toast'; document.body.appendChild(e); } e.textContent = m; e.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => e.hidden = true, 2600); }
 const R = 6371000, rad = d => d*Math.PI/180;
-function distM(a,b){ const x = rad(b[1]-a[1])*Math.cos(rad((a[0]+b[0])/2)), y = rad(b[0]-a[0]); return Math.sqrt(x*x+y*y)*R; }
 function bearing(a,b){ const y = Math.sin(rad(b[1]-a[1]))*Math.cos(rad(b[0])), x = Math.cos(rad(a[0]))*Math.sin(rad(b[0]))-Math.sin(rad(a[0]))*Math.cos(rad(b[0]))*Math.cos(rad(b[1]-a[1])); return (Math.atan2(y,x)*180/Math.PI+360)%360; }
 function dest(p,brg,d){ const la = rad(p[0]), b = rad(brg), dr = d/R; const la2 = Math.asin(Math.sin(la)*Math.cos(dr)+Math.cos(la)*Math.sin(dr)*Math.cos(b)); const lo2 = rad(p[1])+Math.atan2(Math.sin(b)*Math.sin(dr)*Math.cos(la),Math.cos(dr)-Math.sin(la)*Math.sin(la2)); return [la2*180/Math.PI, lo2*180/Math.PI]; }
+const angDiff = (a,b) => Math.abs(((a-b)+540)%360-180);
 
 /* ===================== storage on the phone ===================== */
 let dbp;
-function db(){ return dbp || (dbp = new Promise((res,rej) => { const r = indexedDB.open('iuswdmp_field',1);
+function db(){ return dbp || (dbp = new Promise((res,rej) => { const r = indexedDB.open('iuswdmp_field2',1);
   r.onupgradeneeded = () => { const d = r.result; d.createObjectStore('points',{keyPath:'id'}); d.createObjectStore('photos',{keyPath:'id'}).createIndex('point','pointId'); };
   r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); })); }
 async function tx(store, mode, fn){ const d = await db(); return new Promise((res,rej) => { const x = d.transaction(store,mode); const out = fn(x.objectStore(store)); x.oncomplete = () => res(out && out.result !== undefined ? out.result : out); x.onerror = () => rej(x.error); }); }
@@ -202,246 +220,208 @@ const dbAll = s => tx(s,'readonly', o => o.getAll());
 const dbGet = (s,k) => tx(s,'readonly', o => o.get(k));
 const dbPut = (s,v) => tx(s,'readwrite', o => o.put(v));
 const dbDel = (s,k) => tx(s,'readwrite', o => o.delete(k));
+const photosOf = async id => ((await tx('photos','readonly', o => o.index('point').getAll(id))) || []).sort((a,b) => a.n-b.n);
 let USER = null;
 try { USER = JSON.parse(localStorage.getItem('fs_user')||'null'); } catch(e){}
 
 /* ===================== GPS and compass ===================== */
-let pos = null, posErr = null, heading = null, compassOn = false;
+let pos = null, posErr = null, fixes = [], heading = null, compassOn = false, manualDir = null;
 function startGPS(){
   if (!navigator.geolocation){ posErr = 'none'; return; }
-  navigator.geolocation.watchPosition(p => { pos = {lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy, t:Date.now()}; posErr = null; onPos(); },
-    e => { posErr = e.code === 1 ? 'denied' : 'wait'; onPos(); }, {enableHighAccuracy:true, maximumAge:2000, timeout:20000});
+  navigator.geolocation.watchPosition(p => { pos = {lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy, t:Date.now()}; fixes.push(pos); if (fixes.length > 40) fixes.shift(); posErr = null; onPos(); },
+    e => { posErr = e.code === 1 ? 'denied' : 'wait'; onPos(); }, {enableHighAccuracy:true, maximumAge:1000, timeout:20000});
 }
+function avgPos(){ if (!pos) return null; const now = Date.now(), f = fixes.filter(x => now-x.t <= AVG_MS && x.acc <= Math.max(pos.acc*2, 10)); if (f.length < 2) return {lat:pos.lat, lon:pos.lon, acc:pos.acc, n:1};
+  let w = 0, la = 0, lo = 0, best = 1e9; for (const x of f){ const k = 1/Math.max(1,x.acc*x.acc); w += k; la += x.lat*k; lo += x.lon*k; best = Math.min(best,x.acc); }
+  return {lat:la/w, lon:lo/w, acc:best, n:f.length}; }
 function onOri(e){ let h = null;
   if (typeof e.webkitCompassHeading === 'number') h = e.webkitCompassHeading;
   else if ((e.absolute || e.type === 'deviceorientationabsolute') && e.alpha != null) h = 360 - e.alpha;
-  if (h == null) return; heading = (h+360)%360; compassOn = true; drawDial(); }
+  if (h == null) return; const first = !compassOn; heading = (h+360)%360; compassOn = true; if (first && view === 'vCap') renderCap(); else drawDial(); }
 let oriOn = false;
 async function startCompass(){
   if (!oriOn){ oriOn = true; window.addEventListener('deviceorientationabsolute', onOri, true); window.addEventListener('deviceorientation', onOri, true); }
   try { if (!compassOn && window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') await DeviceOrientationEvent.requestPermission(); } catch(e){}
 }
-const accClass = a => a <= ACC_OK ? 'g' : a <= 25 ? 'a' : 'r';
-const accWord = a => t(a <= ACC_OK ? 'Good' : a <= 25 ? 'Fair' : 'Poor');
+const accClass = a => a <= 8 ? 'g' : a <= ACC_WARN ? 'a' : 'r';
+const curDir = () => compassOn && heading != null ? heading : manualDir;
 
-/* ===================== drains ===================== */
-let DRAINS = [];
-async function loadDrains(){ try { const gj = await fetch(CITY.drains).then(r => r.json());
-  DRAINS = gj.features.map(f => ({id:f.properties.id, km:f.properties.km, firm:!!f.properties.flow && !/not confirmed/i.test(f.properties.basis||''), ll:f.geometry.coordinates.map(c => [c[1],c[0]])})); } catch(e){ DRAINS = []; } }
-function nearestDrain(p){ let best = null; const k = Math.cos(rad(p[0]));
-  for (const d of DRAINS) for (let i = 0; i < d.ll.length-1; i++){ const a = d.ll[i], b = d.ll[i+1];
-    const ax = (a[1]-p[1])*k, ay = a[0]-p[0], bx = (b[1]-p[1])*k, by = b[0]-p[0], dx = bx-ax, dy = by-ay, L2 = dx*dx+dy*dy;
-    const u = L2 ? Math.max(0,Math.min(1,-(ax*dx+ay*dy)/L2)) : 0, qx = ax+u*dx, qy = ay+u*dy, m = Math.sqrt(qx*qx+qy*qy)*rad(1)*R;
-    if (!best || m < best.m) best = {d, m, brg:bearing(a,b)}; }
-  return best; }
-const drainNum = id => parseInt(String(id).replace(/\D/g,''))||0;
+/* ===================== road network ===================== */
+let ROADS = [], RTYPES = [], GRID = new Map(), ROADV = '';
+const CELL = 0.001, ckey = (x,y) => x*100000+y;
+async function loadRoads(){ try { const j = await fetch(CITY.roads).then(r => r.json()); RTYPES = j.types; ROADV = j.v;
+    ROADS = j.roads.map(([ty,a]) => { const ll = []; let x = 0, y = 0; for (let i = 0; i < a.length; i += 2){ x += a[i]; y += a[i+1]; ll.push([y/1e6, x/1e6]); } return {ty, ll}; });
+    ROADS.forEach((r,idx) => { const seen = new Set(); for (let i = 0; i < r.ll.length-1; i++){ const a = r.ll[i], b = r.ll[i+1];
+        const x0 = Math.floor(Math.min(a[1],b[1])/CELL), x1 = Math.floor(Math.max(a[1],b[1])/CELL), y0 = Math.floor(Math.min(a[0],b[0])/CELL), y1 = Math.floor(Math.max(a[0],b[0])/CELL);
+        for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++){ const k = ckey(x,y); if (seen.has(k)) continue; seen.add(k); let c = GRID.get(k); if (!c) GRID.set(k, c = []); c.push(idx); } } });
+  } catch(e){ ROADS = []; } }
+function nearestRoad(lat, lon){ const cx = Math.floor(lon/CELL), cy = Math.floor(lat/CELL), k = Math.cos(rad(lat)), M = rad(1)*R; let best = null; const done = new Set();
+  for (let x = cx-1; x <= cx+1; x++) for (let y = cy-1; y <= cy+1; y++) for (const idx of (GRID.get(ckey(x,y)) || [])){ if (done.has(idx)) continue; done.add(idx); const ll = ROADS[idx].ll;
+    for (let i = 0; i < ll.length-1; i++){ const a = ll[i], b = ll[i+1], ax = (a[1]-lon)*k, ay = a[0]-lat, bx = (b[1]-lon)*k, by = b[0]-lat, dx = bx-ax, dy = by-ay, L2 = dx*dx+dy*dy;
+      const u = L2 ? Math.max(0,Math.min(1,-(ax*dx+ay*dy)/L2)) : 0, qx = ax+u*dx, qy = ay+u*dy, m = Math.sqrt(qx*qx+qy*qy)*M;
+      if (!best || m < best.m) best = {idx, m, brg:bearing(a,b), at:[lat+qy, lon+qx/k]}; } }
+  return best && best.m <= SNAP ? best : null; }
+
+/* ===================== capture ===================== */
+let capState = 'flow', pending = null, addTo = null, lastRoad = null;
+const CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+function renderCap(){ const c = $('#cap'); if (!c) return; const today = dayKey(Date.now()), n = POINTS.filter(p => dayKey(p.time) === today).length;
+  c.innerHTML = `<div class="strip"><div class="pill"><span class="dot" id="cDot"></span><span id="cGps"></span></div><div class="pill gr"><span class="tx" id="cRoad"></span></div><div class="pill">${t('Today')}: <b>${n}</b></div></div>
+   <div id="cWarn"></div>
+   <div class="seg" id="cSeg">${[['flow','Flowing'],['noflow','No flow'],['unsure','Not sure']].map(([k,l]) => `<button data-s="${k}" class="${capState===k?'on':''}">${t(l)}</button>`).join('')}</div>
+   <p class="how">${t(capState === 'flow' ? 'Stand by the drain. Point the phone the way the water flows. Tap the side the drain is on.' : 'Point the phone along the road. Tap the side the drain is on.')}</p>
+   ${compassOn ? '' : `<div><p class="how" style="margin-bottom:6px;color:var(--amber);font-weight:600">${t('Compass not available. Choose the flow direction:')}</p><div class="man" id="cMan">${DIRS.map((d,i) => `<button data-b="${i*45}" class="${manualDir===i*45?'on':''}">${(LANG==='hi'?DIRS_HI:DIRS)[i]}</button>`).join('')}</div><button class="lnk" id="cComp" style="padding:6px">${t('Turn on compass')}</button></div>`}
+   <div class="trio"><button class="side" data-side="L">${CAM}<span>${t('Left drain')}</span></button>
+     <div class="mid"><div class="dial"><div class="n" id="dN"><b>N</b></div><div class="arr"></div></div><div class="cval" id="dV">–</div></div>
+     <button class="side" data-side="R">${CAM}<span>${t('Right drain')}</span></button></div>
+   <button class="lnk" id="cNone">${t('No drain on this road')}</button>`;
+  $('#cSeg').onclick = e => { const b = e.target.closest('button'); if (b){ capState = b.dataset.s; renderCap(); } };
+  const man = $('#cMan'); if (man) man.onclick = e => { const b = e.target.closest('button'); if (b){ manualDir = +b.dataset.b; renderCap(); } };
+  const cc = $('#cComp'); if (cc) cc.onclick = () => startCompass();
+  c.querySelectorAll('.side').forEach(b => b.onclick = () => beginCapture(b.dataset.side));
+  $('#cNone').onclick = () => beginCapture(null, 'nodrain');
+  drawDial(); capGPS(); }
+function drawDial(){ const n = $('#dN'), v = $('#dV'); if (!n) return; const h = curDir(); if (h == null){ v.textContent = '–'; return; } n.style.transform = `rotate(${-h}deg)`; v.textContent = `${dirName(h)} ${Math.round(h)}°`; }
+function capGPS(){ const d = $('#cDot'); if (!d) return; const g = $('#cGps'), r = $('#cRoad'), w = $('#cWarn'); let ready = !!pos;
+  if (!pos){ d.className = 'dot ' + (posErr === 'denied' ? 'r' : ''); g.textContent = t(posErr === 'denied' || posErr === 'none' ? 'GPS off or blocked' : 'Finding GPS…'); r.textContent = '–';
+    w.innerHTML = posErr === 'denied' ? `<div class="alert e" style="margin:0">${t('Allow location for this app in phone settings, then reopen.')}</div>` : ''; }
+  else { d.className = 'dot ' + accClass(pos.acc); g.textContent = '±' + Math.round(pos.acc) + ' m'; lastRoad = nearestRoad(pos.lat, pos.lon);
+    r.innerHTML = lastRoad ? `${t('Road')}: <b>${RTYPES[ROADS[lastRoad.idx].ty]}</b> · ${Math.round(lastRoad.m)} m` : `<span style="color:var(--amber)">${t('No mapped road nearby')}</span>`;
+    w.innerHTML = pos.acc > ACC_WARN ? `<div class="alert w" style="margin:0">${t('Weak GPS. Stand in the open for a few seconds.')}</div>` : ''; }
+  const needDir = capState === 'flow' && curDir() == null;
+  document.querySelectorAll('#cap .side').forEach(b => b.disabled = !ready || needDir); const nn = $('#cNone'); if (nn) nn.disabled = !ready; }
+function beginCapture(side, state){ const p = avgPos(); if (!p) return toast(t('Wait for GPS')); const st = state || capState, dir = curDir(), road = nearestRoad(p.lat, p.lon);
+  let along = null, place = [p.lat, p.lon];
+  if (road){ const d = dir != null ? angDiff(dir, road.brg) : null; if (st === 'flow' && d != null) along = d <= 55 ? 'forward' : d >= 125 ? 'reverse' : 'cross';
+    if (side){ const ref = dir != null && d > 90 ? (road.brg+180)%360 : road.brg; place = dest(road.at, (ref + (side === 'L' ? 270 : 90))%360, OFFSET); } else place = road.at; }
+  pending = {id:uid(), city:CITY.id, time:Date.now(), surveyor:USER.name, phone:USER.phone, lat:+place[0].toFixed(7), lon:+place[1].toFixed(7), gps:{lat:+p.lat.toFixed(7), lon:+p.lon.toFixed(7), acc:Math.round(p.acc*10)/10, n:p.n},
+    lowAcc:p.acc > ACC_WARN, road:road ? road.idx : null, roadType:road ? RTYPES[ROADS[road.idx].ty] : null, roadDist:road ? Math.round(road.m) : null, roadV:ROADV, side, state:st,
+    bearing:(st === 'flow' || side) && dir != null ? Math.round(dir) : null, compass:compassOn, along, dtype:null, problems:[], nPhotos:0, status:'saved'};
+  if (st === 'nodrain'){ commit(null); return; }
+  addTo = null; $('#cam').value = ''; $('#cam').click(); }
+$('#cam').onchange = async e => { const file = e.target.files[0]; if (!file) return;
+  try { if (addTo){ const p = await dbGet('points', addTo); const blob = await stampPhoto(file, p); await dbPut('photos',{id:uid(), pointId:p.id, n:p.nPhotos, blob}); p.nPhotos++; await dbPut('points', p); await refresh(); afterSheet(p.id); }
+    else if (pending){ const blob = await stampPhoto(file, pending); await commit(blob); } } catch(err){ toast(t('Photo could not be read')); } };
+async function commit(blob){ const p = pending; pending = null; if (!p) return; if (blob){ await dbPut('photos',{id:uid(), pointId:p.id, n:0, blob}); p.nPhotos = 1; }
+  await dbPut('points', p); await refresh(); if (navigator.vibrate) navigator.vibrate(60); renderCap(); if (p.state === 'nodrain') toast(t('Saved') + ' · ' + t('No drain')); else afterSheet(p.id); sync(true); }
+const stateText = p => p.state === 'flow' ? (p.bearing != null ? `${dirName(p.bearing)} ${p.bearing}°` : t('Flowing')) : t(p.state === 'noflow' ? 'No flow' : p.state === 'unsure' ? 'Not sure' : 'No drain');
+const sideText = p => p.side ? t(p.side === 'L' ? 'Left' : 'Right') : '–';
+const DT = ['Kachha','Pucca open','Pucca covered'], PR = ['Garbage','Blocked','Broken wall','Encroachment'];
+async function afterSheet(id){ const p = await dbGet('points', id); if (!p) return; document.querySelectorAll('.sheet').forEach(x => x.remove()); const s = document.createElement('div'); s.className = 'sheet';
+  s.innerHTML = `<div class="in"><div class="alert g" style="margin:0;font-size:15px">&#10003; ${t('Saved')} · ${sideText(p)} · ${stateText(p)} · ${p.nPhotos} ${t('photo')}</div>
+    ${p.along === 'cross' ? `<div class="alert w">${t('Direction is across the road. Check that the phone points along the drain.')}</div>` : ''}
+    <p class="hint" style="margin:12px 0 6px;font-weight:600">${t('Optional details')}</p>
+    <label class="f">${t('Drain type')}</label><div class="chips" data-k="dtype">${DT.map(o => `<button data-o="${o}" class="${p.dtype===o?'on':''}">${t(o)}</button>`).join('')}</div>
+    <label class="f" style="margin-top:10px">${t('Problem')}</label><div class="chips" data-k="problems">${PR.map(o => `<button data-o="${o}" class="${p.problems.includes(o)?'on':''}">${t(o)}</button>`).join('')}</div>
+    <div class="row2" style="margin-top:14px"><button class="btn sec" id="aPh">+ ${t('Add photo')}</button><button class="btn" id="aDone">${t('Done')}</button></div></div>`;
+  s.onclick = async e => { if (e.target === s) return close(); const b = e.target.closest('button'); if (!b) return; const k = b.parentElement.dataset.k;
+    if (k === 'dtype'){ p.dtype = p.dtype === b.dataset.o ? null : b.dataset.o; b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.o === p.dtype)); await dbPut('points', p); }
+    else if (k === 'problems'){ const o = b.dataset.o; p.problems = p.problems.includes(o) ? p.problems.filter(x => x !== o) : p.problems.concat(o); b.classList.toggle('on'); await dbPut('points', p); }
+    else if (b.id === 'aPh'){ addTo = p.id; pending = null; $('#cam').value = ''; $('#cam').click(); }
+    else if (b.id === 'aDone') close(); };
+  const close = async () => { s.remove(); await refresh(); if (view === 'vDet') openDet(id); };
+  document.body.appendChild(s); }
+async function stampPhoto(file, p){
+  const url = URL.createObjectURL(file); const img = await new Promise((res,rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+  const s = Math.min(1, 1600/Math.max(img.naturalWidth,img.naturalHeight)), w = Math.round(img.naturalWidth*s), h = Math.round(img.naturalHeight*s);
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.drawImage(img,0,0,w,h); URL.revokeObjectURL(url);
+  const fs = Math.max(14, Math.round(w/52)), bh = fs*2.9, flow = p.state === 'flow' ? (p.bearing != null ? `Flow ${DIRS[Math.round(p.bearing/45)%8]} ${p.bearing}°` : 'Flowing') : p.state === 'noflow' ? 'No flow' : 'Flow not sure';
+  x.fillStyle = 'rgba(10,25,60,.72)'; x.fillRect(0,h-bh,w,bh); x.fillStyle = '#fff'; x.font = `600 ${fs}px sans-serif`; x.textBaseline = 'middle';
+  x.fillText(`IUSWDMP · ${CITY.name} · ${p.side === 'L' ? 'Left drain' : p.side === 'R' ? 'Right drain' : 'Drain'} · ${flow}`, fs*.6, h-bh+fs*.85);
+  x.fillText(`${fmtTime(p.time)} · ${p.gps.lat.toFixed(6)} N, ${p.gps.lon.toFixed(6)} E · ±${Math.round(p.gps.acc)} m`, fs*.6, h-fs*.85);
+  return new Promise(res => c.toBlob(res,'image/jpeg',.82)); }
 
 /* ===================== map ===================== */
-let map, meMk, meAcc, drainLy, ptLy, follow = true, POINTS = [];
+let map, meMk, meAcc, roadLy, ptLy, canvas, follow = true, POINTS = [], RSTAT = new Map();
+const RCOL = {flow:'#0b7d6e', weak:'#d97706', nodrain:'#7c3aed'};
 function initMap(){
-  map = L.map('map',{zoomControl:false, attributionControl:true}).setView(CITY.center, 13);
+  map = L.map('map',{zoomControl:false, preferCanvas:true}).setView(CITY.center, 14); canvas = L.canvas({padding:.2});
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'&copy; OpenStreetMap'}).addTo(map);
-  drainLy = L.layerGroup().addTo(map); ptLy = L.layerGroup().addTo(map);
-  map.on('dragstart', () => follow = false);
+  roadLy = L.layerGroup().addTo(map); ptLy = L.layerGroup().addTo(map);
+  map.on('dragstart', () => follow = false); map.on('moveend', drawRoads);
   $('#locate').onclick = () => { follow = true; if (pos) map.setView([pos.lat,pos.lon], Math.max(map.getZoom(),17)); };
 }
-function drawDrains(){ if (!map) return; drainLy.clearLayers(); const seen = new Set(POINTS.map(p => p.drain));
-  for (const d of DRAINS){ const v = seen.has(d.id);
-    const ln = L.polyline(d.ll,{color: v ? '#0b7d6e' : d.firm ? '#0a2a66' : '#d97706', weight:5, opacity:.85, dashArray: d.firm||v ? null : '8 8'}).addTo(drainLy);
-    L.polyline(d.ll,{weight:26, opacity:0}).addTo(drainLy).on('click', e => { const n = POINTS.filter(p => p.drain === d.id).length;
-      const el = document.createElement('div'); el.innerHTML = `<b>${esc(d.id)}</b> · ${d.km} km<br>${n} ${t('points')}${d.firm?'':'<br><span style="color:#b45309">'+t('Flow not confirmed')+'</span>'}<button class="btn">${t('Add point on this drain')}</button>`;
-      el.querySelector('button').onclick = () => { map.closePopup(); openAdd(null, d.id); };
-      L.popup().setLatLng(e.latlng).setContent(el).openOn(map); }); }
-  $('#legend').innerHTML = `<div><i style="background:#0a2a66"></i>${t('Not visited')}</div><div><i style="background:#0b7d6e"></i>${t('Visited')}</div><div><i style="background:#d97706"></i>${t('Flow not confirmed')}</div>`; }
+function drawRoads(){ if (!map || view !== 'vMap') return; roadLy.clearLayers(); const z = map.getZoom(), zh = $('#zh'); zh.hidden = z >= 15; zh.textContent = t('Zoom in to see roads');
+  if (z >= 15){ const b = map.getBounds(), x0 = Math.floor(b.getWest()/CELL), x1 = Math.floor(b.getEast()/CELL), y0 = Math.floor(b.getSouth()/CELL), y1 = Math.floor(b.getNorth()/CELL), seen = new Set();
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) for (const i of (GRID.get(ckey(x,y)) || [])){ if (seen.has(i)) continue; seen.add(i); const st = RSTAT.get(i);
+      L.polyline(ROADS[i].ll,{renderer:canvas, interactive:false, color: st ? RCOL[st] : '#64748b', weight: st ? 5 : 3, opacity: st ? .9 : .55}).addTo(roadLy); } }
+  else for (const [i,st] of RSTAT) L.polyline(ROADS[i].ll,{renderer:canvas, interactive:false, color:RCOL[st], weight:4, opacity:.9}).addTo(roadLy); }
 function drawPoints(){ if (!map) return; ptLy.clearLayers();
-  for (const p of POINTS){ L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',html:`<div class="pin" style="background:${p.status==='uploaded'?'#0b7d6e':'#d97706'}"></div>`,iconSize:[14,14],iconAnchor:[7,7]})}).addTo(ptLy).on('click', () => openDet(p.id));
-    if (p.flow && p.flow.state === 'dir') arrow(ptLy,[p.lat,p.lon],p.flow.bearing,35,'#0ea5e9'); } }
-function arrow(layer, from, brg, len, col){ const to = dest(from,brg,len), l = dest(to,brg+150,len*.35), r = dest(to,brg-150,len*.35);
-  L.polyline([from,to],{color:col,weight:4}).addTo(layer); L.polyline([l,to,r],{color:col,weight:4}).addTo(layer); }
+  for (const p of POINTS){ const col = p.state === 'flow' ? '#0ea5e9' : p.state === 'nodrain' ? '#7c3aed' : '#d97706';
+    L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',html:`<div class="pin" style="background:${col}"></div>`,iconSize:[14,14],iconAnchor:[7,7]})}).addTo(ptLy).on('click', () => openDet(p.id));
+    if (p.state === 'flow' && p.bearing != null){ const a = [p.lat,p.lon], to = dest(a,p.bearing,22), l = dest(to,p.bearing+150,8), r = dest(to,p.bearing-150,8);
+      L.polyline([a,to],{color:col,weight:4,interactive:false}).addTo(ptLy); L.polyline([l,to,r],{color:col,weight:4,interactive:false}).addTo(ptLy); } } }
+function legend(){ $('#legend').innerHTML = `<div><i style="background:#64748b"></i>${t('Not visited')}</div><div><i style="background:${RCOL.flow}"></i>${t('Flow captured')}</div><div><i style="background:${RCOL.weak}"></i>${t('No flow / not sure')}</div><div><i style="background:${RCOL.nodrain}"></i>${t('No drain')}</div>`; }
 function onPos(){
   const d = $('#gDot'), x = $('#gTxt');
   if (posErr === 'denied' || posErr === 'none'){ d.className = 'dot r'; x.textContent = t('GPS off or blocked'); }
   else if (!pos){ d.className = 'dot'; x.textContent = t('Finding GPS…'); }
   else { d.className = 'dot ' + accClass(pos.acc); x.textContent = 'GPS ±' + Math.round(pos.acc) + ' m';
     if (map){ const ll = [pos.lat,pos.lon];
-      if (!meMk){ meMk = L.marker(ll,{icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[18,18],iconAnchor:[9,9]}),interactive:false,zIndexOffset:900}).addTo(map); meAcc = L.circle(ll,{radius:pos.acc,color:'#2563eb',weight:1,fillOpacity:.08,interactive:false}).addTo(map); if (follow) map.setView(ll,17); }
-      else { meMk.setLatLng(ll); meAcc.setLatLng(ll).setRadius(pos.acc); if (follow && !$('#vMap').hidden) map.panTo(ll,{animate:true}); } } }
-  if (!$('#vAdd').hidden) formGPS();
+      if (!meMk){ meMk = L.marker(ll,{icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[18,18],iconAnchor:[9,9]}),interactive:false,zIndexOffset:900}).addTo(map); meAcc = L.circle(ll,{radius:pos.acc,color:'#2563eb',weight:1,fillOpacity:.08,interactive:false}).addTo(map); map.setView(ll,17); }
+      else { meMk.setLatLng(ll); meAcc.setLatLng(ll).setRadius(pos.acc); if (follow && view === 'vMap') map.panTo(ll,{animate:true}); } } }
+  if (view === 'vCap') capGPS();
 }
 
 /* ===================== navigation ===================== */
-let view = 'vMap';
-function show(v){ view = v; for (const s of ['vMap','vAdd','vWork','vDet']) $('#'+s).hidden = s !== v;
-  $('#nav').hidden = v === 'vAdd' || v === 'vDet'; $('#back').hidden = !(v === 'vAdd' || v === 'vDet');
+let view = 'vCap';
+function show(v){ view = v; for (const s of ['vCap','vMap','vWork','vDet']) $('#'+s).hidden = s !== v;
+  $('#nav').hidden = v === 'vDet'; $('#back').hidden = v !== 'vDet';
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
-  $('#ttl').textContent = v === 'vAdd' ? t(F && F.editId ? 'Edit point' : 'Add point') : v === 'vDet' ? t('Point details') : v === 'vWork' ? t('My work') : 'IUSWDMP · ' + t('Field Survey');
+  $('#ttl').textContent = v === 'vDet' ? t('Capture details') : v === 'vWork' ? t('My work') : v === 'vMap' ? t('Map') : 'IUSWDMP · ' + t('Field Survey');
   $('#sub').textContent = (LANG==='hi'?CITY.hi:CITY.name) + (USER ? ' · ' + USER.name : '');
-  if (v === 'vMap' && map) setTimeout(() => map.invalidateSize(), 50);
-  if (v === 'vWork') renderWork(); }
+  if (v === 'vMap' && map) setTimeout(() => { map.invalidateSize(); if (follow && pos) map.setView([pos.lat,pos.lon], Math.max(map.getZoom(),16), {animate:false}); drawRoads(); }, 60);
+  if (v === 'vWork') renderWork(); if (v === 'vCap') renderCap(); }
 function applyLang(){ document.documentElement.lang = LANG; document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.l === LANG));
-  document.querySelectorAll('[data-t]').forEach(e => e.textContent = t(e.dataset.t));
-  $('#add').innerHTML = '<span style="font-size:22px;line-height:1">+</span>' + t('Add point'); netUI(); onPos(); drawDrains();
-  if (!$('#login').hidden) renderLogin(); else { show(view); if (view === 'vAdd') renderForm(); if (view === 'vDet' && detId) openDet(detId); } }
+  document.querySelectorAll('[data-t]').forEach(e => e.textContent = t(e.dataset.t)); netUI(); onPos(); legend();
+  if (!$('#login').hidden) renderLogin(); else { show(view); if (view === 'vDet' && detId) openDet(detId); } }
 function netUI(){ const on = navigator.onLine; $('#net').textContent = t(on ? 'Online' : 'Offline'); $('#net').classList.toggle('off', !on); }
 
 /* ===================== login ===================== */
 function renderLogin(){ $('#login').hidden = false; $('#app').hidden = true;
-  $('#login').innerHTML = `<div class="box"><img src="ncpe.jpg" alt="NCPE"><h2>IUSWDMP · ${t('Field Survey')}</h2><p>${t('Storm water drain survey')} · ${LANG==='hi'?CITY.hi:CITY.name}</p>
+  $('#login').innerHTML = `<div class="box"><img src="ncpe.jpg" alt="NCPE"><h2>IUSWDMP · ${t('Field Survey')}</h2><p>${t('Drain flow direction survey')} · ${LANG==='hi'?CITY.hi:CITY.name}</p>
    <label class="f">${t('Your name')}</label><input class="inp" id="lName" autocomplete="name" style="margin-bottom:10px">
    <label class="f">${t('Mobile number')}</label><input class="inp" id="lPhone" inputmode="numeric" maxlength="10" autocomplete="tel-national" style="margin-bottom:10px">
    ${API ? `<label class="f">${t('PIN')}</label><input class="inp" id="lPin" type="password" inputmode="numeric" maxlength="6" style="margin-bottom:10px">` : ''}
    <div class="alert e" id="lErr" hidden></div><button class="btn" id="lGo" style="margin-top:12px">${t('Start')}</button>
-   <div style="display:flex;justify-content:center;margin-top:14px"><span class="lang" style="border-color:var(--navy)"><button data-l="hi" style="color:var(--navy)" class="${LANG==='hi'?'on':''}">हिंदी</button><button data-l="en" style="color:var(--navy)" class="${LANG==='en'?'on':''}">English</button></span></div></div>`;
-  $('#login .lang .on').style.cssText = 'background:var(--navy);color:#fff';
+   <div style="display:flex;justify-content:center;margin-top:14px"><span class="lang" style="border-color:var(--navy)"><button data-l="hi" style="${LANG==='hi'?'background:var(--navy);color:#fff':'color:var(--navy)'}">हिंदी</button><button data-l="en" style="${LANG==='en'?'background:var(--navy);color:#fff':'color:var(--navy)'}">English</button></span></div></div>`;
   $('#lGo').onclick = async () => { const name = $('#lName').value.trim(), phone = $('#lPhone').value.replace(/\D/g,''), er = $('#lErr');
     const fail = m => { er.textContent = t(m); er.hidden = false; };
     if (name.length < 2) return fail('Enter your name'); if (phone.length !== 10) return fail('Enter a 10-digit mobile number');
     let token = null;
     if (API){ try { const r = await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone, pin:$('#lPin').value})}); if (!r.ok) return fail('PIN'); token = (await r.json()).token; } catch(e){ return fail('No signal'); } }
     USER = {name, phone, token}; try { localStorage.setItem('fs_user', JSON.stringify(USER)); } catch(e){}
-    startApp(); }; }
-
-/* ===================== add / edit point ===================== */
-let F = null, miniMap = null, miniLy = null, formT0 = 0, camSlot = 0;
-const OPT = {
-  ptype:['Start of drain','Along the drain','Junction','Culvert','Blockage','Outfall'],
-  dtype:['Kachha','Pucca open','Pucca covered','Pipe'], water:['Flowing','Standing','Dry'], silt:['Low','Medium','High'],
-  problems:['Garbage','Encroachment','Broken wall','Sewage mixing','Waterlogging nearby'], photo:['Upstream','Downstream','Problem / other'] };
-async function openAdd(editId, drainId){
-  if (editId){ const p = await dbGet('points', editId); const ph = (await tx('photos','readonly', o => o.index('point').getAll(editId))) || [];
-    F = Object.assign({}, p, {editId, photos:[null,null,null]}); ph.forEach(x => F.photos[x.slot] = {id:x.id, blob:x.blob, url:URL.createObjectURL(x.blob)}); F.fixed = {lat:p.lat, lon:p.lon, acc:p.acc}; }
-  else F = {id:uid(), drain:drainId||null, newDrain:false, newName:'', ptype:null, flow:null, dtype:null, width:'', depth:'', water:null, silt:null, problems:[], remarks:'', photos:[null,null,null], lowOk:false, auto:!drainId};
-  formT0 = Date.now(); show('vAdd'); renderForm(); startCompass(); $('#vAdd').scrollTop = 0; }
-const chips = (key, multi) => `<div class="chips" data-k="${key}" ${multi?'data-m="1"':''}>${OPT[key].map(o => `<button type="button" data-o="${o}" class="${(multi ? F[key].includes(o) : F[key] === o) ? 'on' : ''}">${t(o)}</button>`).join('')}</div>`;
-function renderForm(){
-  const f = $('#form');
-  f.innerHTML = `
-  <div class="card"><h3>${t('Location')}</h3><div class="gpsbar" id="fGps"></div><div class="mini" id="mini"></div><div id="fGpsMsg"></div></div>
-  <div class="card"><h3>${t('Drain')} <span class="req">*</span></h3><div id="fDrain"></div></div>
-  <div class="card"><h3>${t('Point type')} <span class="req">*</span></h3>${chips('ptype')}</div>
-  <div class="card"><h3>${t('Flow direction')} <span class="req">*</span></h3><div id="fFlow"></div></div>
-  <div class="card"><h3>${t('Photos')} <span class="req">*</span></h3><div class="photos" id="fPh"></div><p class="hint">${t('Take at least one photo.')}</p></div>
-  <div class="card"><h3>${t('Drain type')} <span class="req">*</span></h3>${chips('dtype')}</div>
-  <div class="card"><h3>${t('Water')} <span class="req">*</span></h3>${chips('water')}</div>
-  <div class="card"><h3>${t('Silt')}</h3>${chips('silt')}</div>
-  <div class="card"><h3>${t('Size (approximate)')}</h3><div class="row2"><div><label class="f">${t('Top width (m)')}</label><input class="inp" id="fW" inputmode="decimal" value="${esc(F.width)}"></div><div><label class="f">${t('Depth (m)')}</label><input class="inp" id="fD" inputmode="decimal" value="${esc(F.depth)}"></div></div></div>
-  <div class="card"><h3>${t('Problems')}</h3>${chips('problems',true)}</div>
-  <div class="card"><h3>${t('Remarks')}</h3><textarea class="inp" id="fR" rows="2" placeholder="${t('Optional')}">${esc(F.remarks)}</textarea></div>
-  <div id="fMiss"></div><button class="btn" id="fSave">${t('Save point')}</button>`;
-  f.querySelectorAll('.chips').forEach(c => c.onclick = e => { const b = e.target.closest('button'); if (!b) return; const k = c.dataset.k, o = b.dataset.o;
-    if (c.dataset.m){ F[k] = F[k].includes(o) ? F[k].filter(x => x !== o) : F[k].concat(o); b.classList.toggle('on'); }
-    else { F[k] = o; c.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); } checkForm(); });
-  $('#fW').oninput = e => F.width = e.target.value; $('#fD').oninput = e => F.depth = e.target.value; $('#fR').oninput = e => F.remarks = e.target.value;
-  $('#fSave').onclick = savePoint;
-  if (miniMap){ miniMap.remove(); miniMap = null; }
-  miniMap = L.map('mini',{zoomControl:false, attributionControl:false, dragging:false, touchZoom:false, doubleClickZoom:false, scrollWheelZoom:false, tap:false});
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(miniMap);
-  for (const d of DRAINS) L.polyline(d.ll,{color:'#0a2a66',weight:4,opacity:.7}).addTo(miniMap);
-  miniLy = L.layerGroup().addTo(miniMap); miniMap.setView(CITY.center,16);
-  formGPS(); drawDrainPick(); drawFlow(); drawPhotos(); checkForm(); }
-const fpos = () => F.fixed || pos;
-function formGPS(){ if (!F || !$('#fGps')) return; const p = fpos(), g = $('#fGps'), m = $('#fGpsMsg');
-  if (!p){ g.innerHTML = `<span class="dot ${posErr==='denied'?'r':''}"></span><div>${t(posErr==='denied'||posErr==='none'?'GPS off or blocked':'Finding GPS…')}</div>`;
-    m.innerHTML = posErr==='denied' ? `<div class="alert e">${t('Allow location for this app in phone settings, then reopen.')}</div>` : ''; checkForm(); return; }
-  g.innerHTML = `<span class="dot ${accClass(p.acc)}"></span><div>${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}<small>${t('Accuracy')} ±${Math.round(p.acc)} m · ${accWord(p.acc)}</small></div>`;
-  if (!F.fixed && p.acc > ACC_OK){ const waited = (Date.now()-formT0)/1000 > ACC_WAIT;
-    m.innerHTML = `<div class="alert w">${t('Wait for better GPS. Stand in the open, away from walls.')}</div>` + (waited ? `<label style="display:flex;gap:9px;align-items:center;margin-top:10px;font-weight:600;font-size:14px"><input type="checkbox" id="fLow" ${F.lowOk?'checked':''} style="width:22px;height:22px">${t('Save with low accuracy')}</label>` : '');
-    const c = $('#fLow'); if (c) c.onchange = () => { F.lowOk = c.checked; checkForm(); }; } else m.innerHTML = '';
-  miniLy.clearLayers(); const ll = [p.lat,p.lon]; L.circle(ll,{radius:p.acc,color:'#2563eb',weight:1,fillOpacity:.1}).addTo(miniLy); L.circleMarker(ll,{radius:7,color:'#fff',weight:3,fillColor:'#2563eb',fillOpacity:1}).addTo(miniLy);
-  if (F.flow && F.flow.state === 'dir') arrow(miniLy, ll, F.flow.bearing, 45, '#0ea5e9'); miniMap.setView(ll, 18, {animate:false});
-  if (F.auto && !F.drain && !F.newDrain) drawDrainPick(); checkForm(); }
-function drawDrainPick(){ const e = $('#fDrain'); if (!e) return; const p = fpos(), n = p ? nearestDrain([p.lat,p.lon]) : null;
-  if (F.newDrain) e.innerHTML = `<div class="alert g" style="margin-top:0">${t('New drain')}</div><input class="inp" id="fNew" style="margin-top:8px" placeholder="${t('Name or landmark of new drain')}" value="${esc(F.newName)}"><button class="btn sec" id="fPick" style="margin-top:8px">${t('Choose drain')}</button>`;
-  else if (F.drain) e.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><b style="font-size:19px;color:var(--navy);flex:1">${esc(F.drain)}</b><button class="btn sec" id="fPick" style="width:auto;min-height:44px;padding:9px 16px">${t('Change')}</button></div>`;
-  else e.innerHTML = (n && n.m <= NEAR ? `<div class="alert g" style="margin-top:0;display:flex;align-items:center;gap:10px"><span style="flex:1">${t('Nearest')}: <b>${esc(n.d.id)}</b> · ${Math.round(n.m)} m ${t('away')}</span><button class="btn" id="fUse" style="width:auto;min-height:42px;padding:8px 16px">${t('Use')}</button></div>` : '') + `<button class="btn sec" id="fPick" style="margin-top:8px">${t('Choose drain')}</button>`;
-  const u = $('#fUse'); if (u) u.onclick = () => { F.drain = n.d.id; drawDrainPick(); checkForm(); };
-  const nw = $('#fNew'); if (nw) nw.oninput = () => { F.newName = nw.value; checkForm(); };
-  $('#fPick').onclick = () => drainSheet(p); }
-function drainSheet(p){ const list = DRAINS.map(d => ({d, m: p ? (function(){ let b = 1e9; const k = [p.lat,p.lon]; for (let i = 0; i < d.ll.length; i += 3) b = Math.min(b, distM(k,d.ll[i])); return b; })() : null}));
-  list.sort((a,b) => p ? a.m-b.m : drainNum(a.d.id)-drainNum(b.d.id));
-  const s = document.createElement('div'); s.className = 'sheet';
-  s.innerHTML = `<div class="in"><input class="inp" placeholder="${t('Search drain')}" inputmode="numeric"><div class="list"></div><button class="btn sec" style="margin-top:10px">${t('Cancel')}</button></div>`;
-  const draw = q => { s.querySelector('.list').innerHTML = `<button data-new="1"><b>+ ${t('New drain (not in list)')}</b></button>` + list.filter(x => !q || x.d.id.toLowerCase().includes(q.toLowerCase())).map(x => `<button data-id="${esc(x.d.id)}"><b>${esc(x.d.id)}</b><small>${x.m!=null ? (x.m<1000?Math.round(x.m)+' m':(x.m/1000).toFixed(1)+' km') : x.d.km+' km'}</small></button>`).join(''); };
-  draw(''); s.querySelector('input').oninput = e => draw(e.target.value);
-  s.onclick = e => { const b = e.target.closest('button'); if (e.target === s || (b && b.classList.contains('sec'))) return s.remove(); if (!b) return;
-    F.auto = false; if (b.dataset.new){ F.newDrain = true; F.drain = null; } else { F.newDrain = false; F.drain = b.dataset.id; } s.remove(); drawDrainPick(); checkForm(); };
-  document.body.appendChild(s); }
-function drawFlow(){ const e = $('#fFlow'); if (!e) return; const fl = F.flow;
-  const saved = fl ? (fl.state === 'dir' ? `${dirName(fl.bearing)} ${Math.round(fl.bearing)}°` : t(fl.state === 'unsure' ? 'Not sure' : 'No flow')) : '';
-  e.innerHTML = `<p class="hint" style="margin:0 0 10px">${t('Point the top of the phone the way the water moves, then press the button.')}</p>
-   <div class="compass"><div class="dial"><div class="n" id="dN"><b>N</b></div><div class="arr"></div></div><div style="flex:1"><div class="cval" id="dV">–</div><button class="btn" id="fDir" style="margin-top:8px">${t('Flow is this way')}</button></div></div>
-   <div id="fNoC"></div>
-   <details style="margin-top:10px" ${compassOn?'':'open'}><summary style="font-size:13px;font-weight:600;color:var(--mut)">${t('Or choose the direction')}</summary><div class="chips" id="fMan" style="margin-top:8px">${DIRS.map((d,i) => `<button type="button" data-b="${i*45}" class="${fl&&fl.manual&&fl.bearing===i*45?'on':''}">${(LANG==='hi'?DIRS_HI:DIRS)[i]}</button>`).join('')}</div></details>
-   <div class="chips" style="margin-top:10px"><button type="button" id="fUns" class="${fl&&fl.state==='unsure'?'on':''}">${t('Not sure')}</button><button type="button" id="fNof" class="${fl&&fl.state==='noflow'?'on':''}">${t('No flow')}</button></div>
-   ${fl ? `<div class="alert g">${t('Saved')}: ${saved}</div>` : ''}${fl && fl.conflict ? `<div class="alert w">${t('This is opposite to the direction on the map. Please look again and take a photo of the flow.')}</div>` : ''}`;
-  const set = (b, manual) => { F.flow = {state:'dir', bearing:Math.round(b), manual:!!manual, conflict:flowConflict(b)}; drawFlow(); formGPS(); };
-  $('#fDir').onclick = () => { if (heading == null){ startCompass(); $('#fNoC').innerHTML = `<div class="alert w">${t('Compass not available. Choose the direction:')}</div>`; e.querySelector('details').open = true; return; } set(heading); };
-  $('#fMan').onclick = ev => { const b = ev.target.closest('button'); if (b) set(+b.dataset.b, true); };
-  $('#fUns').onclick = () => { F.flow = {state:'unsure'}; drawFlow(); formGPS(); }; $('#fNof').onclick = () => { F.flow = {state:'noflow'}; drawFlow(); formGPS(); };
-  drawDial(); checkForm(); }
-function drawDial(){ const n = $('#dN'), v = $('#dV'); if (!n || heading == null) return; n.style.transform = `rotate(${-heading}deg)`; v.textContent = `${dirName(heading)} ${Math.round(heading)}°`; }
-function flowConflict(b){ const p = fpos(); if (!p || !F.drain) return false; const d = DRAINS.find(x => x.id === F.drain); if (!d || !d.firm) return false;
-  let best = null; const k = Math.cos(rad(p.lat)); for (let i = 0; i < d.ll.length-1; i++){ const a = d.ll[i], c = d.ll[i+1], mx = ((a[1]+c[1])/2-p.lon)*k, my = (a[0]+c[0])/2-p.lat, m = mx*mx+my*my; if (!best || m < best.m) best = {m, brg:bearing(a,c)}; }
-  const diff = Math.abs(((b-best.brg)+540)%360-180); return diff > 120; }
-const CAM_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
-function drawPhotos(){ const e = $('#fPh'); if (!e) return;
-  e.innerHTML = F.photos.map((p,i) => `<div class="ph" data-i="${i}">${p ? `<img src="${p.url}" alt=""><button class="x" data-x="${i}" aria-label="remove">&#10005;</button>` : CAM_SVG + t(OPT.photo[i])}</div>`).join('');
-  e.onclick = ev => { const x = ev.target.closest('[data-x]'); if (x){ F.photos[+x.dataset.x] = null; drawPhotos(); checkForm(); return; } const s = ev.target.closest('.ph'); if (!s) return; camSlot = +s.dataset.i; $('#cam').value = ''; $('#cam').click(); }; }
-$('#cam').onchange = async e => { const file = e.target.files[0]; if (!file || !F) return;
-  try { const blob = await stampPhoto(file, camSlot); F.photos[camSlot] = {id:uid(), blob, url:URL.createObjectURL(blob)}; drawPhotos(); checkForm(); } catch(err){ toast(t('Photo could not be read')); } };
-async function stampPhoto(file, slot){
-  const url = URL.createObjectURL(file); const img = await new Promise((res,rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
-  const s = Math.min(1, 1600/Math.max(img.naturalWidth,img.naturalHeight)), w = Math.round(img.naturalWidth*s), h = Math.round(img.naturalHeight*s);
-  const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.drawImage(img,0,0,w,h); URL.revokeObjectURL(url);
-  const p = fpos(), fs = Math.max(14, Math.round(w/52)), bh = fs*2.9;
-  x.fillStyle = 'rgba(10,25,60,.72)'; x.fillRect(0,h-bh,w,bh); x.fillStyle = '#fff'; x.font = `600 ${fs}px sans-serif`; x.textBaseline = 'middle';
-  x.fillText(`IUSWDMP · ${CITY.name} · ${F.newDrain ? 'New drain' : (F.drain||'-')} · ${OPT.photo[slot]}`, fs*.6, h-bh+fs*.85);
-  x.fillText(`${fmtTime(Date.now())}${p ? ` · ${p.lat.toFixed(6)} N, ${p.lon.toFixed(6)} E · ±${Math.round(p.acc)} m` : ''}`, fs*.6, h-fs*.85);
-  return new Promise(res => c.toBlob(res,'image/jpeg',.82)); }
-function missing(){ const m = [], p = fpos();
-  if (!p) m.push('Location'); else if (!F.fixed && p.acc > ACC_OK && !F.lowOk) m.push('Accuracy');
-  if (!(F.drain || (F.newDrain && F.newName.trim().length > 1))) m.push('Drain'); if (!F.ptype) m.push('Point type'); if (!F.flow) m.push('Flow direction');
-  if (!F.photos.some(Boolean)) m.push('Photos'); if (!F.dtype) m.push('Drain type'); if (!F.water) m.push('Water'); return m; }
-function checkForm(){ const b = $('#fSave'); if (!b || !F) return; const m = missing(); b.disabled = m.length > 0;
-  $('#fMiss').innerHTML = m.length ? `<div class="alert w" style="margin:0 0 10px">${t('Still needed')}: ${m.map(t).join(', ')}</div>` : ''; }
-async function savePoint(){ if (missing().length) return; const p = fpos(), b = $('#fSave'); b.disabled = true;
-  const num = v => { const n = parseFloat(String(v).replace(',','.')); return isFinite(n) ? n : null; };
-  const rec = {id:F.id, city:CITY.id, drain:F.newDrain ? null : F.drain, newDrain:F.newDrain, newName:F.newDrain ? F.newName.trim() : '', ptype:F.ptype, lat:+p.lat.toFixed(7), lon:+p.lon.toFixed(7), acc:Math.round(p.acc*10)/10,
-    lowAcc:p.acc > ACC_OK, time:F.time || Date.now(), surveyor:USER.name, phone:USER.phone, flow:F.flow, dtype:F.dtype, width:num(F.width), depth:num(F.depth), water:F.water, silt:F.silt, problems:F.problems, remarks:F.remarks.trim(), status:'saved', nPhotos:F.photos.filter(Boolean).length};
-  if (F.editId){ const old = (await tx('photos','readonly', o => o.index('point').getAll(F.id))) || []; for (const o of old) await dbDel('photos', o.id); }
-  for (let i = 0; i < 3; i++) if (F.photos[i]) await dbPut('photos',{id:F.photos[i].id, pointId:F.id, slot:i, label:OPT.photo[i], blob:F.photos[i].blob});
-  await dbPut('points', rec); const edited = !!F.editId; F = null; await refresh(); toast(t(edited ? 'Changes saved' : 'Point saved on this phone')); if (navigator.vibrate) navigator.vibrate(60);
-  show('vMap'); sync(true); }
+    startCompass(); startApp(); }; }
 
 /* ===================== my work, details ===================== */
-async function refresh(){ POINTS = (await dbAll('points')).sort((a,b) => b.time-a.time); drawDrains(); drawPoints();
-  const w = POINTS.filter(p => p.status === 'saved').length; $('#badge').hidden = !w; $('#badge').textContent = w; }
-async function thumb(id){ const ph = (await tx('photos','readonly', o => o.index('point').getAll(id))) || []; ph.sort((a,b) => a.slot-b.slot); return ph; }
-const drainLabel = p => p.newDrain ? t('New drain') + ': ' + p.newName : p.drain;
+async function refresh(){ POINTS = (await dbAll('points')).sort((a,b) => b.time-a.time); RSTAT = new Map();
+  for (const p of POINTS){ if (p.road == null || p.roadV !== ROADV) continue; const cur = RSTAT.get(p.road), st = p.state === 'flow' ? 'flow' : p.state === 'nodrain' ? 'nodrain' : 'weak';
+    if (!cur || st === 'flow' || (st === 'weak' && cur === 'nodrain')) RSTAT.set(p.road, st); }
+  drawRoads(); drawPoints(); const w = POINTS.filter(p => p.status === 'saved').length; $('#badge').hidden = !w; $('#badge').textContent = w; }
+const titleOf = p => p.state === 'nodrain' ? t('No drain') : `${sideText(p)} · ${stateText(p)}`;
 async function renderWork(){ const w = $('#work'), today = dayKey(Date.now()), td = POINTS.filter(p => dayKey(p.time) === today), wait = POINTS.filter(p => p.status === 'saved').length;
-  let h = `<div class="stats"><div class="stat"><b>${td.length}</b><span>${t('Today')}</span></div><div class="stat"><b>${wait}</b><span>${t('Waiting to upload')}</span></div><div class="stat"><b>${POINTS.length-wait}</b><span>${t('Uploaded')}</span></div></div>`;
-  h += API ? `<button class="btn" id="wSync" ${wait?'':'disabled'}>${t('Sync now')}</button>` : `<div class="alert w" style="margin:0 0 10px">${t("Test mode: points stay on this phone. Send the file to your supervisor at the end of the day.")}</div><button class="btn" id="wToday">${t("Share today's file")} (${td.length})</button><button class="btn sec" id="wAll" style="margin-top:8px">${t('Share all points')} (${POINTS.length})</button>`;
-  if (!POINTS.length) h += `<p class="hint" style="text-align:center;margin-top:26px;font-size:14px">${t('No points yet. Go to the map and press Add point.')}</p>`;
+  let h = `<div class="stats"><div class="stat"><b>${td.length}</b><span>${t('Today')}</span></div><div class="stat"><b>${new Set(td.filter(p => p.road != null).map(p => p.road)).size}</b><span>${t('roads')} · ${t('Today')}</span></div><div class="stat"><b>${wait}</b><span>${t('Waiting to upload')}</span></div></div>`;
+  h += API ? `<button class="btn" id="wSync" ${wait?'':'disabled'}>${t('Sync now')}</button>` : `<div class="alert w" style="margin:0 0 10px">${t("Test mode: captures stay on this phone. Send the file to your supervisor at the end of the day.")}</div><button class="btn" id="wToday">${t("Share today's file")} (${td.length})</button><button class="btn sec" id="wAll" style="margin-top:8px">${t('Share all points')} (${POINTS.length})</button>`;
+  if (!POINTS.length) h += `<p class="hint" style="text-align:center;margin-top:26px;font-size:14px">${t('No captures yet. Open Capture and tap the side the drain is on.')}</p>`;
   let lastDay = '';
   for (const p of POINTS){ const k = dayKey(p.time); if (k !== lastDay){ h += `<h4 style="margin:18px 2px 8px;font-size:13px;color:var(--mut)">${k === today ? t('Today') : k.split('-').reverse().join('-')}</h4>`; lastDay = k; }
-    h += `<button class="item" data-id="${p.id}"><span class="noimg" data-ph="${p.id}"></span><span style="flex:1;min-width:0"><b>${esc(drainLabel(p))} · ${t(p.ptype)}</b><small>${fmtTime(p.time).slice(11)} · ±${Math.round(p.acc)} m · ${p.nPhotos} ${t('Photos')}</small></span><span class="tag ${p.status==='uploaded'?'u':'s'}">${t(p.status==='uploaded'?'Uploaded':'Saved')}</span></button>`; }
+    h += `<button class="item" data-id="${p.id}"><span class="noimg" data-ph="${p.id}"></span><span style="flex:1;min-width:0"><b>${titleOf(p)}</b><small>${fmtTime(p.time).slice(11)} · ±${Math.round(p.gps.acc)} m · ${p.roadType ? t('Road')+' '+p.roadType : t('Not on a mapped road')}</small></span><span class="tag ${p.status==='uploaded'?'u':'s'}">${t(p.status==='uploaded'?'Uploaded':'Saved')}</span></button>`; }
   h += `<button class="btn sec" id="wOut" style="margin-top:22px;border-color:var(--line);color:var(--mut)">${t('Sign out')} · ${esc(USER.name)}</button>`;
   w.innerHTML = h;
   w.querySelectorAll('.item').forEach(b => b.onclick = () => openDet(b.dataset.id));
   const s = $('#wSync'); if (s) s.onclick = () => sync(false); const a = $('#wToday'); if (a) a.onclick = () => shareZip(td, today); const al = $('#wAll'); if (al) al.onclick = () => shareZip(POINTS, 'all');
   $('#wOut').onclick = () => { try { localStorage.removeItem('fs_user'); } catch(e){} USER = null; renderLogin(); };
-  for (const el of w.querySelectorAll('[data-ph]')){ const ph = await thumb(el.dataset.ph); if (ph[0]){ const i = new Image(); i.src = URL.createObjectURL(ph[0].blob); i.alt = ''; el.replaceWith(i); } } }
+  for (const el of w.querySelectorAll('[data-ph]')){ const ph = await photosOf(el.dataset.ph); if (ph[0]){ const i = new Image(); i.src = URL.createObjectURL(ph[0].blob); i.alt = ''; el.replaceWith(i); } } }
 let detId = null;
-async function openDet(id){ const p = await dbGet('points', id); if (!p) return; detId = id; const ph = await thumb(id); show('vDet');
-  const fl = p.flow.state === 'dir' ? `${dirName(p.flow.bearing)} ${p.flow.bearing}°` : t(p.flow.state === 'unsure' ? 'Not sure' : 'No flow');
-  const rows = [[t('Drain'),esc(drainLabel(p))],[t('Point type'),t(p.ptype)],[t('Time'),fmtTime(p.time)],[t('Location'),`${p.lat.toFixed(6)}, ${p.lon.toFixed(6)} (±${Math.round(p.acc)} m)${p.lowAcc?' · '+t('Low accuracy'):''}`],[t('Flow direction'),fl],
-    [t('Drain type'),t(p.dtype)],[t('Water'),t(p.water)],[t('Silt'),p.silt?t(p.silt):'–'],[t('Top width (m)'),p.width??'–'],[t('Depth (m)'),p.depth??'–'],[t('Problems'),p.problems.length?p.problems.map(t).join(', '):'–'],[t('Remarks'),esc(p.remarks)||'–'],[t('Surveyor'),esc(p.surveyor)]];
-  $('#det').innerHTML = `<div class="card"><div class="photos">${ph.map(x => `<div class="ph" style="border-style:solid"><img src="${URL.createObjectURL(x.blob)}" alt="${t(x.label)}"></div>`).join('')}</div></div>
-   <div class="card"><span class="tag ${p.status==='uploaded'?'u':'s'}">${t(p.status==='uploaded'?'Uploaded':'Saved on phone')}</span>${p.flow.conflict?`<div class="alert w">${t('This is opposite to the direction on the map. Please look again and take a photo of the flow.')}</div>`:''}<table class="kv" style="margin-top:8px">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table></div>
-   ${p.status === 'saved' ? `<button class="btn" id="dEdit">${t('Edit')}</button><button class="btn sec" id="dDel" style="margin-top:8px;border-color:var(--red);color:var(--red)">${t('Delete point')}</button>` : `<p class="hint" style="text-align:center">${t('Uploaded points can no longer be changed here.')}</p>`}`;
-  const e = $('#dEdit'); if (e) e.onclick = () => openAdd(id);
+async function openDet(id){ const p = await dbGet('points', id); if (!p) return; detId = id; const ph = await photosOf(id); show('vDet');
+  const rows = [[t('Flow direction'),stateText(p)],[t('Side'),sideText(p)],[t('Road'),p.roadType ? `${p.roadType} · ${p.roadDist} m` : t('Not on a mapped road')],[t('Time'),fmtTime(p.time)],
+    [t('Location'),`${p.gps.lat.toFixed(6)}, ${p.gps.lon.toFixed(6)} (±${Math.round(p.gps.acc)} m)${p.lowAcc?' · '+t('Low accuracy'):''}`],[t('Drain type'),p.dtype?t(p.dtype):'–'],[t('Problem'),p.problems.length?p.problems.map(t).join(', '):'–'],[t('Surveyor'),esc(p.surveyor)]];
+  $('#det').innerHTML = `${ph.length ? `<div class="card"><div class="photos">${ph.map(x => `<div class="ph" style="border-style:solid"><img src="${URL.createObjectURL(x.blob)}" alt=""></div>`).join('')}</div></div>` : ''}
+   <div class="card"><span class="tag ${p.status==='uploaded'?'u':'s'}">${t(p.status==='uploaded'?'Uploaded':'Saved on phone')}</span>${p.along==='cross'?`<div class="alert w">${t('Direction is across the road. Check that the phone points along the drain.')}</div>`:''}<table class="kv" style="margin-top:8px">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table></div>
+   ${p.status === 'saved' ? `${p.state !== 'nodrain' ? `<button class="btn" id="dEdit">${t('Edit details')}</button>` : ''}<button class="btn sec" id="dDel" style="margin-top:8px;border-color:var(--red);color:var(--red)">${t('Delete capture')}</button>` : `<p class="hint" style="text-align:center">${t('Uploaded captures can no longer be changed here.')}</p>`}`;
+  const e = $('#dEdit'); if (e) e.onclick = () => afterSheet(id);
   const d = $('#dDel'); if (d) d.onclick = () => { const s = document.createElement('div'); s.className = 'sheet';
-    s.innerHTML = `<div class="in"><b style="font-size:16px">${t('Delete this point and its photos from this phone?')}</b><button class="btn" style="background:var(--red);margin-top:14px" data-y="1">${t('Yes, delete')}</button><button class="btn sec" style="margin-top:8px">${t('Cancel')}</button></div>`;
+    s.innerHTML = `<div class="in"><b style="font-size:16px">${t('Delete this capture and its photos from this phone?')}</b><button class="btn" style="background:var(--red);margin-top:14px" data-y="1">${t('Yes, delete')}</button><button class="btn sec" style="margin-top:8px">${t('Cancel')}</button></div>`;
     s.onclick = async ev => { const b = ev.target.closest('button'); if (!b && ev.target !== s) return; s.remove(); if (b && b.dataset.y){ for (const x of ph) await dbDel('photos', x.id); await dbDel('points', id); await refresh(); show('vWork'); } };
     document.body.appendChild(s); }; }
 
@@ -455,13 +435,13 @@ function makeZip(files){ const enc = new TextEncoder(), parts = [], cen = []; le
     cen.push(new Uint8Array(c.buffer), nm); off += 30 + nm.length + f.data.length; }
   const cs = cen.reduce((a,b) => a + b.length, 0), e = new DataView(new ArrayBuffer(22)); e.setUint32(0,0x06054b50,true); e.setUint16(8,files.length,true); e.setUint16(10,files.length,true); e.setUint32(12,cs,true); e.setUint32(16,off,true);
   return new Blob(parts.concat(cen, [new Uint8Array(e.buffer)]), {type:'application/zip'}); }
-function toFeature(p, names){ return {type:'Feature', geometry:{type:'Point', coordinates:[p.lon,p.lat]}, properties:{id:p.id, city:p.city, drain:p.drain, new_drain:p.newDrain ? p.newName : null, point_type:p.ptype, time:new Date(p.time).toISOString(), accuracy_m:p.acc, low_accuracy:p.lowAcc,
-  flow_state:p.flow.state, flow_bearing:p.flow.state === 'dir' ? p.flow.bearing : null, flow_from_compass:p.flow.state === 'dir' ? !p.flow.manual : null, flow_opposite_to_map:!!p.flow.conflict,
-  drain_type:p.dtype, top_width_m:p.width, depth_m:p.depth, water:p.water, silt:p.silt, problems:p.problems, remarks:p.remarks, surveyor:p.surveyor, phone:p.phone, photos:names}}; }
+function toFeature(p, names){ return {type:'Feature', geometry:{type:'Point', coordinates:[p.lon,p.lat]}, properties:{id:p.id, city:p.city, time:new Date(p.time).toISOString(), state:p.state, side:p.side === 'L' ? 'left' : p.side === 'R' ? 'right' : null,
+  flow_bearing:p.state === 'flow' ? p.bearing : null, phone_bearing:p.bearing, from_compass:p.compass, flow_along_road:p.along, road_index:p.road, road_type:p.roadType, road_distance_m:p.roadDist, road_file:p.roadV, on_mapped_road:p.road != null,
+  gps_lat:p.gps.lat, gps_lon:p.gps.lon, accuracy_m:p.gps.acc, gps_readings:p.gps.n, low_accuracy:p.lowAcc, drain_type:p.dtype, problems:p.problems, surveyor:p.surveyor, phone:p.phone, photos:names}}; }
 async function shareZip(points, tag){ if (!points.length) return toast(t('Nothing to share')); const files = [], feats = [];
-  for (const p of points){ const ph = await thumb(p.id), names = [];
-    for (const x of ph){ const nm = `photos/${p.id}_${x.slot+1}.jpg`; names.push(nm); files.push({name:nm, data:new Uint8Array(await x.blob.arrayBuffer())}); } feats.push(toFeature(p, names)); }
-  files.unshift({name:'points.geojson', data:new TextEncoder().encode(JSON.stringify({type:'FeatureCollection', features:feats}, null, 1))});
+  for (const p of points){ const ph = await photosOf(p.id), names = [];
+    for (const x of ph){ const nm = `photos/${p.id}_${x.n+1}.jpg`; names.push(nm); files.push({name:nm, data:new Uint8Array(await x.blob.arrayBuffer())}); } feats.push(toFeature(p, names)); }
+  files.unshift({name:'captures.geojson', data:new TextEncoder().encode(JSON.stringify({type:'FeatureCollection', features:feats}, null, 1))});
   const name = `iuswdmp_${CITY.id}_${USER.phone.slice(-4)}_${tag}.zip`, blob = makeZip(files), file = new File([blob], name, {type:'application/zip'});
   try { if (navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:name}); return; } } catch(e){ if (e && e.name === 'AbortError') return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); toast(t('File ready')); }
@@ -469,7 +449,7 @@ async function shareZip(points, tag){ if (!points.length) return toast(t('Nothin
 /* ===================== upload (used when the upload service address is set) ===================== */
 let syncing = false;
 async function sync(quiet){ if (!API || syncing || !navigator.onLine || !USER) { if (API && !quiet && !navigator.onLine) toast(t('No signal')); return; } syncing = true;
-  try { for (const p of POINTS.filter(x => x.status === 'saved')){ const ph = await thumb(p.id);
+  try { for (const p of POINTS.filter(x => x.status === 'saved')){ const ph = await photosOf(p.id);
       const r = await fetch(API+'/points',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+USER.token},body:JSON.stringify(toFeature(p, ph.map(x => x.id)))}); if (!r.ok) throw new Error('point');
       const up = (await r.json()).uploads || {};
       for (const x of ph){ const u = up[x.id]; if (!u) continue; const pr = await fetch(u,{method:'PUT',headers:{'x-ms-blob-type':'BlockBlob','Content-Type':'image/jpeg'},body:x.blob}); if (!pr.ok) throw new Error('photo'); }
@@ -481,16 +461,15 @@ async function sync(quiet){ if (!API || syncing || !navigator.onLine || !USER) {
 /* ===================== start ===================== */
 let started = false;
 async function startApp(){ $('#login').hidden = true; $('#app').hidden = false;
-  if (!started){ started = true; initMap(); await loadDrains(); startGPS(); startCompass(); await refresh();
-    $('#add').onclick = () => openAdd(); $('#back').onclick = () => { F = null; show(view === 'vDet' ? 'vWork' : 'vMap'); };
-    document.querySelectorAll('#nav button').forEach(b => b.onclick = () => show(b.dataset.v));
-    window.addEventListener('online', () => { netUI(); sync(true); }); window.addEventListener('offline', netUI); setInterval(() => { if (view === 'vAdd') formGPS(); }, 5000); setInterval(() => sync(true), 120000);
+  if (!started){ started = true; initMap(); startGPS(); startCompass(); await loadRoads(); await refresh();
+    $('#back').onclick = () => show('vWork');
+    document.querySelectorAll('#nav button').forEach(b => b.onclick = () => { startCompass(); show(b.dataset.v); });
+    window.addEventListener('online', () => { netUI(); sync(true); }); window.addEventListener('offline', netUI); setInterval(() => sync(true), 120000);
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }
-  applyLang(); show('vMap'); }
+  applyLang(); show('vCap'); }
 document.addEventListener('click', e => { const b = e.target.closest('.lang button'); if (!b) return; LANG = b.dataset.l; try { localStorage.setItem('fs_lang', LANG); } catch(err){} applyLang(); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-if (USER) startApp(); else { applyLangLogin(); }
-function applyLangLogin(){ document.documentElement.lang = LANG; renderLogin(); }
+if (USER) startApp(); else { document.documentElement.lang = LANG; renderLogin(); }
 </script>
 </body>
 </html>

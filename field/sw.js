@@ -1,6 +1,6 @@
 // IUSWDMP Field Survey - offline support
-const V = 'fs-v1';
-const SHELL = ['./','./index.html','./leaflet.js','./leaflet.css','./drains_varanasi.geojson','./ncpe.jpg','./icon-192.png','./manifest.webmanifest'];
+const V = 'fs-v2';
+const SHELL = ['./','./index.html','./leaflet.js','./leaflet.css','./roads_varanasi.json','./ncpe.jpg','./icon-192.png','./manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V && k !== 'fs-tiles').map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 async function trim(name, max){ const c = await caches.open(name); const ks = await c.keys(); for (let i = 0; i < ks.length - max; i++) await c.delete(ks[i]); }
